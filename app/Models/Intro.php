@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Spatie\Translatable\HasTranslations;
+
+class Intro extends Model
+{
+    use HasFactory,HasTranslations;
+    protected $primaryKey = 'uuid';
+    public $incrementing = false;
+    protected $translatable = ['title','sup_title'];
+    protected $appends=['image','title_text','sup_title_text'];
+    protected $hidden=['sup_title','title','imageIntro','updated_at','created_at'];
+    protected $guarded = [];
+    //Relations
+    public function imageIntro()
+    {
+        return $this->morphOne(Upload::class, 'imageable');
+    }
+    //Attributes
+    public function getTitleTextAttribute()
+    {
+        return @$this->title;
+    }
+    public function getSupTitleTextAttribute()
+    {
+        return @$this->sup_title;
+    }
+    public function getImageAttribute()
+    {
+        return url('/') . '/upload/intro/' . @$this->imageIntro->filename;
+    }
+
+    //Boot
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($item) {
+            $item->uuid = Str::uuid();
+        });
+    }
+}
