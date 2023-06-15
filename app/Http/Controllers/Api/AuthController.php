@@ -10,6 +10,7 @@ use App\Models\FcmToken;
 use App\Models\Intro;
 use App\Models\NotificationAdmin;
 use App\Models\User;
+use App\Models\Setting;
 use App\Models\Verification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -121,7 +122,7 @@ class AuthController extends Controller
     public function logout($fsm=null,$token=null){
 
         $user=Auth::guard('sanctum')->user();
-      
+
         $user->fcm_tokens()->where('fcm_token',$fsm)->delete();
         if($token===null){
             $user->tokens()->delete();
@@ -138,4 +139,5 @@ class AuthController extends Controller
 
 
     }
+  
 }

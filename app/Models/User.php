@@ -20,6 +20,7 @@ class User extends Authenticatable
      */
      protected $primaryKey = 'uuid';
     public $incrementing = false;
+    protected $appends=['image','cover_user','video_user'];
     protected $fillable = [
         'name',
         'email',
@@ -28,6 +29,11 @@ class User extends Authenticatable
         'mobile',
         'type',
         'password',
+        'specialization_uuid',
+        'brief',
+        'lat',
+        'lng',
+        'address',
     ];
 
     /**
@@ -55,15 +61,31 @@ class User extends Authenticatable
     public function country(){
         return $this->belongsTo(Country::class,'country_uuid');
     }
+    public function specialization(){
+        return $this->belongsTo(Specialization::class,'specialization_uuid');
+    }
     public function city(){
         return $this->belongsTo(City::class,'city_uuid');
     }
     public function fcm_tokens(){
         return $this->hasMany(FcmToken::class,'user_uuid');
     }
+    public function coverImage()
+    {
+        return $this->morphOne(Upload::class, 'imageable')->where('type','=',Upload::IMAGE)->where('name','=','cover_photo');
+    }
+    public function videoImage()
+    {
+        return $this->morphOne(Upload::class, 'imageable')->where('type','=',Upload::VIDEO);
+    }
     public function imageUser()
     {
-        return $this->morphOne(Upload::class, 'imageable');
+        return $this->morphOne(Upload::class, 'imageable')->where('type','=',Upload::IMAGE)->where('name','=','personal_photo');
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class,'skill_user','user_uuid','skill_uuid','uuid','uuid');
     }
 
 
@@ -78,10 +100,22 @@ class User extends Authenticatable
     {
         return $this->city->name;
     }
+    public function getSpecializationNameAttribute()
+    {
+        return @$this->specialization->name;
+    }
+    public function getCoverUserAttribute()
+    {
+        return url('/') . '/upload/user/cover/' .@$this->coverImage->filename;
+    }
+    public function getVideoUserAttribute()
+    {
+        return url('/') . '/upload/user/video/' .@$this->videoImage->filename;
+    }
     public function getImageAttribute()
     {
         if(@$this->imageUser->filename){
-            return url('/') . '/upload/user/' . @$this->imageUser->filename;
+            return url('/') . '/upload/user/personal/' . @$this->imageUser->filename;
         }else{
             return url('/') . '/upload/user/fea062c5fb579ac0dc5ae2c22c6c51fb.jpg';
 

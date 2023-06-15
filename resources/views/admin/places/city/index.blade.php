@@ -1,6 +1,6 @@
 @extends('admin.part.app')
 @section('title')
-    @lang('city')
+    @lang('cities')
 @endsection
 @section('styles')
     <style>
@@ -273,11 +273,11 @@
                 searchable: false
             },
                 {
-                    data: 'name_text',
+                    data: 'name_translate',
                     name: 'name'
                 },
                 {
-                    data: 'name_Country',
+                    data: 'country_name',
                     name: 'country',
                     orderable: false,
                     searchable: false,

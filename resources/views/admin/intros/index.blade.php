@@ -278,11 +278,11 @@
                 searchable: false
             },
                 {
-                    data: 'title_text',
+                    data: 'title_translate',
                     name: 'title'
                 },
                 {
-                    data: 'sup_title_text',
+                    data: 'sup_title_translate',
                     name: 'sup_title'
                 },
                 {

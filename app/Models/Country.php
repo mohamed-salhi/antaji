@@ -17,7 +17,7 @@ class Country extends Model
 
     protected $translatable = ['name'];
     protected $guarded = [];
-    protected $appends = ['name_text', 'image'];
+    protected $appends = ['name_translate', 'image'];
     protected $hidden = ['name', 'uuid', 'imageCountry', 'updated_at', 'created_at', 'status'];
 
     //Relations
@@ -28,7 +28,7 @@ class Country extends Model
     }
 
     //Attributes
-    public function getNameTextAttribute()
+    public function getNameTranslateAttribute()
     {
         return @$this->name;
     }

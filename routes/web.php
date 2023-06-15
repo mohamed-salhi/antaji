@@ -49,7 +49,7 @@ Route::group(
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
                 Route::put('/updateStatus/{uuid}', 'updateStatus')->name('updateStatus');
             });
-            Route::controller(\App\Http\Controllers\Admin\AdminController::class)->name('admin.')->prefix('admins')->group(function () {
+            Route::controller(\App\Http\Controllers\Admin\AdminController::class)->name('admins.')->prefix('admins')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/store', 'store')->name('store');
                 Route::post('/update', 'update')->name('update');
@@ -58,7 +58,43 @@ Route::group(
                 Route::put('/updateStatus/{id}', 'updateStatus')->name('updateStatus');
                 Route::get('/edit/{id}', 'edit')->name('edit');
             });
+            Route::controller(\App\Http\Controllers\Admin\Service\ServiceController::class)->name('services.')->prefix('services')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{id}', 'updateStatus')->name('updateStatus');
 
+            });
+            Route::controller(\App\Http\Controllers\Admin\Skill\SkillController::class)->name('skills.')->prefix('skills')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{id}', 'updateStatus')->name('updateStatus');
 
+            });
+            Route::controller(\App\Http\Controllers\Admin\Specialization\SpecializationController::class)->name('specializations.')->prefix('specializations')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{id}', 'updateStatus')->name('updateStatus');
+
+            });
+            Route::controller(\App\Http\Controllers\Admin\setting\SettingController::class)->prefix('settings')->name('settings.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+            });
+            Route::controller(\App\Http\Controllers\Admin\Contact\ContactController::class)->prefix('contacts')->name('contacts.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::delete('/{uuid}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::post('/view/{uuid}', 'view')->name('view');
+                Route::post('/importance/{uuid}/{importance}', 'importance')->name('importance');
+            });
         });
     });

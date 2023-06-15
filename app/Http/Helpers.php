@@ -119,7 +119,7 @@ function mainResponse($status, $msg, $items, $validator, $code = 200, $pages = n
 
     return response()->json($newData);
 }
-function UploadImage($file, $path = null, $model, $imageable_id, $update = false, $id = null,$type)
+function UploadImage($file, $path = null, $model, $imageable_id, $update = false, $id = null,$type,$name=null)
 {
 
     $imagename = uniqid() . '.' . $file->getClientOriginalExtension();
@@ -129,31 +129,57 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
             'filename' =>  $imagename,
             'imageable_id' => $imageable_id,
             'imageable_type' => $model,
-            'type'=>$type
+            'type'=>$type,
+            'name'=>$name
         ]);
     } else {
-
-        $image = Upload::where('imageable_id',$imageable_id)->where('imageable_type',$model)->first();
-        if ($id) {
-            $image = Upload::where('id', $id)->first();
-        }
-        if ($image) {
-            File::delete(public_path(@$path . @$image->filename));
-            $image->update(
-                [
+        if ($name) {
+            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('name', $name)->first();
+          if ($image){
+              File::delete(public_path($path . $image->filename));
+              $image->update(
+                  [
+                      'filename' => $imagename,
+                      'imageable_id' => $imageable_id,
+                      'imageable_type' => $model,
+                      'type' => $type,
+                      'name' => $name
+                  ]
+              );
+          }else{
+              Upload::create([
+                  'filename' =>  $imagename,
+                  'imageable_id' => $imageable_id,
+                  'imageable_type' => $model,
+                  'type'=>$type,
+                  'name'=>$name
+              ]);
+          }
+        } else {
+            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->first();
+            if ($id) {
+                $image = Upload::where('id', $id)->first();
+            }
+            if ($image) {
+                File::delete(public_path(@$path . @$image->filename));
+                $image->update(
+                    [
+                        'filename' => $imagename,
+                        'imageable_id' => $imageable_id,
+                        'imageable_type' => $model,
+                        'type' => $type,
+                        'name' => $name
+                    ]
+                );
+            } else {
+                Upload::create([
                     'filename' => $imagename,
                     'imageable_id' => $imageable_id,
                     'imageable_type' => $model,
-                    'type'=>$type
-                ]
-            );
-        } else {
-            Upload::create([
-                'filename' =>  $imagename,
-                'imageable_id' => $imageable_id,
-                'imageable_type' => $model,
-                'type'=>$type
-            ]);
+                    'type' => $type,
+                    'name' => $name
+                ]);
+            }
         }
     }
 

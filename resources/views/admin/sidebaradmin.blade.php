@@ -63,6 +63,88 @@
                 </ul>
 
             </li>
+            <li class="nav-item has-sub  " style="">
+                <a class="d-flex align-items-center" href="#">
+                    <i class="fa fa-gear" style="font-size:24px;"></i>
+                    <span class="menu-title text-truncate"
+                          data-i18n="Charts">@lang('settings')</span></a>
+                <ul class="menu-content">
+                    <li class="nav-item {{ request()->routeIs('settings.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('settings.index') }}">
+                            <i data-feather="file-text"></i><span
+                                class="menu-title text-truncate">@lang('settings')</span>
+                        </a>
+                    </li>
+
+                </ul>
+
+            </li>
+            <li class="nav-item has-sub  " style="">
+                <a class="d-flex align-items-center" href="#">
+                    <i class="fa fa-home" style="font-size:24px;"></i>
+                    <span class="menu-title text-truncate"
+                          data-i18n="Charts">@lang('services')</span></a>
+                <ul class="menu-content">
+                    <li class="nav-item {{ request()->routeIs('services.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('services.index') }}">
+                            <i data-feather="file-text"></i><span
+                                class="menu-title text-truncate">@lang('services')</span>
+                        </a>
+                    </li>
+                </ul>
+
+            </li>
+            <li class="nav-item has-sub  " style="">
+                <a class="d-flex align-items-center" href="#">
+                    <i class="fa fa-home" style="font-size:24px;"></i>
+                    <span class="menu-title text-truncate"
+                          data-i18n="Charts">@lang('skills')</span></a>
+                <ul class="menu-content">
+                    <li class="nav-item {{ request()->routeIs('skills.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('skills.index') }}">
+                            <i data-feather="file-text"></i><span
+                                class="menu-title text-truncate">@lang('skills')</span>
+                        </a>
+                    </li>
+                </ul>
+
+            </li>
+
+            <li class="nav-item has-sub  " style="">
+                <a class="d-flex align-items-center" href="#">
+                    <i class="fa fa-home" style="font-size:24px;"></i>
+                    <span class="menu-title text-truncate"
+                          data-i18n="Charts">@lang('specializations')</span></a>
+                <ul class="menu-content">
+                    <li class="nav-item {{ request()->routeIs('specializations.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('specializations.index') }}">
+                            <i data-feather="file-text"></i><span
+                                class="menu-title text-truncate">@lang('specializations')</span>
+                        </a>
+                    </li>
+                </ul>
+
+            </li>
+            <li class="nav-item has-sub  " style="">
+                @php $count= \App\Models\Contact::query()->where('view',1)->count() @endphp
+                <a class="d-flex align-items-center" href="#">
+                    <i class="fa fa-recycle" style="font-size:24px;"></i>
+                    <span class="menu-title text-truncate"
+                          data-i18n="Charts">@lang('contact us')
+                      <i class="text-danger" id="counthelps">{{($count==0)?'':$count}} </i>
+                    </span>
+                </a>
+                <ul class="menu-content">
+                    <li class="nav-item {{ request()->routeIs('contacts.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('contacts.index') }}">
+                            <i data-feather="file-text"></i><span
+                                class="menu-title text-truncate">@lang('contact us')</span>
+                        </a>
+                    </li>
+
+                </ul>
+
+            </li>
         </ul>
     </div>
 </div>

@@ -271,7 +271,7 @@
                 searchable: false
             },
                 {
-                    data: 'name_text',
+                    data: 'name_translate',
                     name: 'name'
                 },
                 {

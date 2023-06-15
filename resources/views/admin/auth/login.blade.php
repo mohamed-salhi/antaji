@@ -83,12 +83,12 @@
                     <div class="auth-inner py-2">
                         <!-- Login v1 -->
                         <div class="card mb-0">
-                            <div class="card-body">
+                            <div class="card-body" style="background-color: #e7e7e7">
                                 <a href="javascript:void(0);" class="brand-logo">
                                   <span class="brand-logo"><img alt="logo" src="{{ asset('dashboard/app-assets/images/logo/Antaji.png') }}"
-                                                                style="width: 100px;height: 100px" />
+                                                                style="width: 70px;" />
                         </span>
-                                    <h2 class="brand-text text-primary ml-1">Antaji</h2>
+                                    <h2 class="brand-text text-primary ml-1 mt-3">Antaji</h2>
                                 </a>
                                   <div id="err">
 

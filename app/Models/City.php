@@ -16,7 +16,7 @@ class City extends Model
     public $incrementing = false;
     protected $translatable = ['name'];
     protected $guarded = [];
-    protected $appends = ['name_text', 'name_Country'];
+    protected $appends = ['name_translate', 'country_name'];
 
 //Relations
     public function country()
@@ -25,12 +25,12 @@ class City extends Model
     }
 
     //Attributes
-    public function getNameCountryAttribute()
+    public function getCountryNameAttribute()
     {
         return @$this->country->name;
     }
 
-    public function getNameTextAttribute()
+    public function getNameTranslateAttribute()
     {
         return @$this->name;
     }

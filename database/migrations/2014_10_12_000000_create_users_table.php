@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->string('name');
+            $table->string('specialization')->nullable();
+            $table->double('lat')->nullable();
+            $table->double('lng')->nullable();
+            $table->text('brief')->nullable();
             $table->string('email')->unique();
             $table->string('mobile')->unique();
             $table->foreignUuid('city_uuid')->nullable()->references('uuid')->on('cities')->nullOnDelete();

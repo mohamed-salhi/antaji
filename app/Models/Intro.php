@@ -14,7 +14,7 @@ class Intro extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['title','sup_title'];
-    protected $appends=['image','title_text','sup_title_text'];
+    protected $appends=['image','title_translate','sup_title_translate'];
     protected $hidden=['sup_title','title','imageIntro','updated_at','created_at'];
     protected $guarded = [];
     //Relations
@@ -23,11 +23,11 @@ class Intro extends Model
         return $this->morphOne(Upload::class, 'imageable');
     }
     //Attributes
-    public function getTitleTextAttribute()
+    public function getTitleTranslateAttribute()
     {
         return @$this->title;
     }
-    public function getSupTitleTextAttribute()
+    public function getSupTitleTranslateAttribute()
     {
         return @$this->sup_title;
     }
