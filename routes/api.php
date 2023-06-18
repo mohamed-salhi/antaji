@@ -27,13 +27,26 @@ Route::middleware(['guest:sanctum'])->prefix('auth')->group(function () {
     Route::post('/register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
+
     Route::post('logout/{fcm?}/{token?}', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
     Route::get('/home', [\App\Http\Controllers\Api\Home\HomeController::class, 'home']);
     Route::get('terms_conditions', [\App\Http\Controllers\Api\Home\HomeController::class, 'termsConditions']);
     Route::post('update_profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateProfile']);
     Route::get('profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'profile']);
     Route::post('contact', [\App\Http\Controllers\Api\Contact\ContactController::class, 'contact']);
-    Route::post('add_business', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusiness']);
-    Route::get('business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusiness']);
+    Route::post('add_business/video', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessVideo']);
+    Route::post('add_business/images', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessImages']);
+    Route::get('get_business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusiness']);
+    Route::delete('delete_business_image/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessImage']);
+    Route::delete('delete_business_video/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessVideo']);
+    Route::get('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'accountSettingsGet']);
+    Route::post('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateAccountSetting']);
+    Route::get('artists', [\App\Http\Controllers\Api\Home\HomeController::class, 'artists']);
+    Route::get('getCityFromCounty/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getCityFromCounty']);
+    Route::post('add_course', [\App\Http\Controllers\Api\Content\ContentController::class, 'addCourse']);
+    Route::post('add_serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'addServing']);
+    Route::post('add_location', [\App\Http\Controllers\Api\Content\ContentController::class, 'addLocation']);
+    Route::post('add_Product', [\App\Http\Controllers\Api\Content\ContentController::class, 'addProduct']);
+
 
 });

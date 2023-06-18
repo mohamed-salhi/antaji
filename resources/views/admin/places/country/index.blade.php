@@ -44,7 +44,20 @@
                                             <button class="btn btn-outline-primary button_modal" type="button"
                                                     data-toggle="modal" id=""
                                                     data-target="#full-modal-stem"><span><i
-                                                            class="fa fa-plus"></i>@lang('add')</span>
+                                                        class="fa fa-plus"></i>@lang('add')</span>
+                                            </button>
+                                            <button
+
+                                                class="btn_delete_all btn btn-outline-danger " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('delete')</span>
+                                            </button>
+                                            <button
+                                                    data-status="1"   class="btn_status btn btn-outline-success " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('activate')</span>
+                                            </button>
+                                            <button
+                                                    data-status="0"  class="btn_status btn btn-outline-warning " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
                                             </button>
                                         </div>
                                     </div>
@@ -72,10 +85,7 @@
                                             <button id="clear_btn" class="btn btn-outline-secondary" type="submit">
                                                 <span><i class="fa fa-undo"></i> @lang('reset')</span>
                                             </button>
-                                            <button id="btn_delete_all"
-                                                    class="btn_delete_all btn btn-outline-danger " type="button">
-                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i> @lang('delete')</span>
-                                            </button>
+
                                         </div>
                                     </div>
                                 </form>
@@ -260,6 +270,19 @@
                     d.status = $('#s_status').val();
                 }
             },
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: 'Excel',
+                    exportOptions: {
+                        columns: [1,2],
+                        modifier: {
+                            page: 'current'
+                        }
+                    }
+                }
+            ],
             columns: [{
                 "render": function (data, type, full, meta) {
                     return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>

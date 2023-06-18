@@ -18,7 +18,7 @@ class Country extends Model
     protected $translatable = ['name'];
     protected $guarded = [];
     protected $appends = ['name_translate', 'image'];
-    protected $hidden = ['name', 'uuid', 'imageCountry', 'updated_at', 'created_at', 'status'];
+    protected $hidden = ['name', 'imageCountry', 'updated_at', 'created_at', 'status'];
 
     //Relations
 

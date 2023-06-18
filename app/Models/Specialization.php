@@ -31,7 +31,7 @@ class Specialization extends Model
         self::creating(function ($item) {
             $item->uuid = Str::uuid();
         });
-        static::addGlobalScope('skill', function (Builder $builder) {
+        static::addGlobalScope('specialization', function (Builder $builder) {
             $builder->where('status', 1);//1==active
         });
 

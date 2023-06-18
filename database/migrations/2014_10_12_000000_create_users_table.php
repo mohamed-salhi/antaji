@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->string('name');
+            $table->string('status',1)->default(1);
             $table->string('specialization')->nullable();
             $table->double('lat')->nullable();
             $table->double('lng')->nullable();

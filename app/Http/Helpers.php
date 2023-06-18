@@ -125,7 +125,7 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
     $imagename = uniqid() . '.' . $file->getClientOriginalExtension();
     $file->move(public_path($path), $imagename);
     if (!$update) {
-        Upload::create([
+      return  Upload::create([
             'filename' =>  $imagename,
             'imageable_id' => $imageable_id,
             'imageable_type' => $model,

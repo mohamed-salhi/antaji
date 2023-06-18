@@ -20,7 +20,7 @@
                             <ol class="breadcrumb">
 {{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
 {{--                                </li>--}}
-                                <li class="breadcrumb-item"><a href="{{ route('city.index') }}">@lang('city')</a>
+                                <li class="breadcrumb-item"><a href="{{ route('cities.index') }}">@lang('city')</a>
                                 </li>
                             </ol>
                         </div>
@@ -45,6 +45,19 @@
                                                     data-toggle="modal" id=""
                                                     data-target="#full-modal-stem"><span><i
                                                         class="fa fa-plus"></i>@lang('add')</span>
+                                            </button>
+                                            <button
+
+                                                class="btn_delete_all btn btn-outline-danger " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('delete')</span>
+                                            </button>
+                                            <button
+                                                data-status="1"   class="btn_status btn btn-outline-success " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('activate')</span>
+                                            </button>
+                                            <button
+                                                data-status="0"  class="btn_status btn btn-outline-warning " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
                                             </button>
                                         </div>
                                     </div>
@@ -83,10 +96,7 @@
                                             <button id="clear_btn" class="btn btn-outline-secondary" type="submit">
                                                 <span><i class="fa fa-undo"></i> @lang('reset')</span>
                                             </button>
-                                            <button id="btn_delete_all"
-                                                    class="btn_delete_all btn btn-outline-danger " type="button">
-                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i> @lang('delete')</span>
-                                            </button>
+
 
                                         <div class="col-3" style="margin-top: 20px">
 
@@ -133,7 +143,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('city.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
+                <form action="{{ route('cities.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
@@ -150,7 +160,7 @@
                         @endforeach
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="">@lang('city')</label>
+                                <label for="">@lang('cities')</label>
                                 <select name="country_uuid" id="country_uuid" class="select form-control"
                                         data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
                                     <option selected disabled>@lang('select') @lang('country')</option>
@@ -185,7 +195,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('city.update') }}" method="POST" id="form_edit" class=""
+                <form action="{{ route('cities.update') }}" method="POST" id="form_edit" class=""
                       enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="uuid" id="uuid" class="form-control"/>
@@ -234,6 +244,7 @@
         });
         //bindTable
         var table = $('#datatable').DataTable({
+
             processing: true,
             serverSide: true,
             responsive: true,
@@ -256,12 +267,13 @@
                 @endif // "oPaginate": {"sPrevious": '<-', "sNext": '->'},
             },
             ajax: {
-                url: '{{ route('city.indexTable', app()->getLocale()) }}',
+                url: '{{ route('cities.indexTable', app()->getLocale()) }}',
                 data: function (d) {
                     d.status = $('#s_status').val();
                     d.country_uuid = $('#s_country_uuid').val();
                 }
             },
+
             columns: [{
                 "render": function (data, type, full, meta) {
                     return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>

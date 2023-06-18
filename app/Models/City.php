@@ -17,6 +17,7 @@ class City extends Model
     protected $translatable = ['name'];
     protected $guarded = [];
     protected $appends = ['name_translate', 'country_name'];
+    protected $hidden=['country','name','country_uuid','status','updated_at','created_at'];
 
 //Relations
     public function country()

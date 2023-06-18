@@ -16,6 +16,10 @@ class Skill extends Model
     protected $translatable = ['name'];
     protected $guarded = [];
     protected $appends = ['name_translate'];
+    protected $hidden=[
+        'name',
+'pivot'
+    ];
 
 
    //Attributes

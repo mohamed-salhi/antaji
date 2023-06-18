@@ -25,7 +25,7 @@
 {{--            @can('place-list')--}}
                 <li class="nav-item has-sub  " style="">
                     <a class="d-flex align-items-center" href="#">
-                        <i class="fa fa-home" style="font-size:24px;"></i>
+                        <i class="fa fa-map" style="font-size:24px;"></i>
                         <span class="menu-title text-truncate"
                               data-i18n="Charts">@lang('country'),@lang('city')</span></a>
                     <ul class="menu-content">
@@ -35,8 +35,8 @@
                                     class="menu-title text-truncate">@lang('countries')</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('city.index') ? 'active' : '' }} ">
-                            <a class="d-flex align-items-center" href="{{ route('city.index') }}">
+                        <li class="nav-item {{ request()->routeIs('cities.index') ? 'active' : '' }} ">
+                            <a class="d-flex align-items-center" href="{{ route('cities.index') }}">
                                 <i data-feather="file-text"></i><span
                                     class="menu-title text-truncate">@lang('cities')</span>
                             </a>
@@ -47,20 +47,30 @@
 
                 </li>
 {{--            @endcan--}}
-
-            <li class="nav-item has-sub  " style="">
-                <a class="d-flex align-items-center" href="#">
+            <li class="nav-item{{ request()->routeIs('services.index') ? 'active' : '' }} ">
+                <a class="d-flex align-items-center"  href="{{ route('services.index') }}">
                     <i class="fa fa-home" style="font-size:24px;"></i>
                     <span class="menu-title text-truncate"
+                          data-i18n="Charts">@lang('services')
+                    </span>
+                </a>
+            </li>
+
+            <li class="nav-item "{{ request()->routeIs('categories.index') ? 'active' : '' }} ">
+            <a class="d-flex align-items-center" href="{{ route('categories.index') }}">
+                <i class="fa fa-home" style="font-size:24px;"></i>
+                <span class="menu-title text-truncate"
+                      data-i18n="Charts">@lang('categories')</span></a>
+
+            </li>
+
+
+            <li class="nav-item "  {{ request()->routeIs('intros.index') ? 'active' : '' }} style="">
+                <a class="d-flex align-items-center"href="{{ route('intros.index') }}">
+                    <i class="fa fa-first-order " style="font-size:24px;"></i>
+                    <span class="menu-title text-truncate"
                           data-i18n="Charts">@lang('intros')</span></a>
-                <ul class="menu-content">
-                    <li class="nav-item {{ request()->routeIs('intros.index') ? 'active' : '' }} ">
-                        <a class="d-flex align-items-center" href="{{ route('intros.index') }}">
-                            <i data-feather="file-text"></i><span
-                                class="menu-title text-truncate">@lang('intros')</span>
-                        </a>
-                    </li>
-                </ul>
+
 
             </li>
             <li class="nav-item has-sub  " style="">
@@ -81,19 +91,21 @@
             </li>
             <li class="nav-item has-sub  " style="">
                 <a class="d-flex align-items-center" href="#">
-                    <i class="fa fa-home" style="font-size:24px;"></i>
+                    <i class="fa fa-gear" style="font-size:24px;"></i>
                     <span class="menu-title text-truncate"
-                          data-i18n="Charts">@lang('services')</span></a>
+                          data-i18n="Charts">@lang('users')</span></a>
                 <ul class="menu-content">
-                    <li class="nav-item {{ request()->routeIs('services.index') ? 'active' : '' }} ">
-                        <a class="d-flex align-items-center" href="{{ route('services.index') }}">
+                    <li class="nav-item {{ request()->routeIs('users.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('users.index') }}">
                             <i data-feather="file-text"></i><span
-                                class="menu-title text-truncate">@lang('services')</span>
+                                class="menu-title text-truncate">@lang('users')</span>
                         </a>
                     </li>
+
                 </ul>
 
             </li>
+
             <li class="nav-item has-sub  " style="">
                 <a class="d-flex align-items-center" href="#">
                     <i class="fa fa-home" style="font-size:24px;"></i>

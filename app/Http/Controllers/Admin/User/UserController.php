@@ -1,0 +1,206 @@
+<?php
+
+namespace App\Http\Controllers\Admin\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\Upload;
+use App\Models\User;
+use App\Models\ViewNotificationAdmin;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Validation\Rule;
+use Yajra\DataTables\Facades\DataTables;
+
+class UserController extends Controller
+{
+    public function index(Request $request)
+    {
+        $countries = Country::query()->select(['name', 'uuid'])->get();
+        return view('admin.users.index', compact('countries'));
+    }
+
+    public function store(Request $request)
+    {
+        $rules = [
+            'mobile' => 'required|unique:users,mobile|max:12',
+            'name' => 'required',
+            'email' => 'required|unique:users,email',
+            'country_uuid' => 'required|exists:countries,uuid',
+            'city_uuid' => ['required',
+                Rule::exists(City::class, 'uuid')->where(function ($query) use ($request) {
+                    $query->where('country_uuid', $request->country_uuid);
+                }),
+            ],
+            'type' => 'required|in:artist,user',
+            'personal_photo' => 'nullable',
+            'cover_Photo' => 'nullable',
+            'video' => 'required',
+            'skills' => 'nullable',
+            'brief' => 'nullable',
+            'lat' => 'nullable',
+            'lng' => 'nullable',
+            'address' => 'nullable',
+            'specialization_uuid' => 'required|exists:specializations,uuid',
+        ];
+        $this->validate($request, $rules);
+        $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'personal_photo', 'cover_Photo', 'video', 'skills', 'brief', 'lat', 'lng', 'address', 'specialization_uuid'));
+        UploadImage($request->personal_photo, User::PATH_PERSONAL, User::class, $user->uuid, false, null, Upload::IMAGE, 'personal_photo');
+        UploadImage($request->cover_Photo, User::PATH_COVER, User::class, $user->uuid, false, null, Upload::IMAGE, 'cover_photo');
+
+        if ($request->has('video')) {
+            UploadImage($request->video, User::PATH_VIDEO, User::class, $user->uuid, true, null, Upload::VIDEO);
+        }
+        $user->skills()->sync($request->skills);
+        return response()->json([
+            'item_edited'
+        ]);
+    }
+
+
+    public function update(Request $request)
+    {
+        $user = User::findOrFail($request->uuid);
+        $rules = [
+            'mobile' => 'required|unique:users,mobile|max:12',
+            'name' => 'required',
+            'email' => 'required|unique:users,email',
+            'country_uuid' => 'required|exists:countries,uuid',
+            'city_uuid' => ['required',
+                Rule::exists(City::class, 'uuid')->where(function ($query) use ($request) {
+                    $query->where('country_uuid', $request->country_uuid);
+                }),
+            ],
+            'type' => 'required|in:artist,user',
+            'personal_photo' => 'required',
+            'cover_Photo' => 'required',
+            'video' => 'required',
+            'skills' => 'nullable',
+            'brief' => 'nullable',
+            'lat' => 'nullable',
+            'lng' => 'nullable',
+            'address' => 'nullable',
+            'specialization_uuid' => 'required|exists:specializations,uuid',
+        ];
+        $this->validate($request, $rules);
+        $user->update($request->only('name', 'email', 'country_uuid', 'city_uuid', 'phone'));
+        if ($request->hasFile('cover_Photo')) {
+            UploadImage($request->cover_Photo, User::PATH_COVER, User::class, $user->uuid, true, null, Upload::IMAGE, 'cover_photo');
+        }
+        if ($request->hasFile('personal_photo')) {
+            UploadImage($request->personal_photo, User::PATH_PERSONAL, User::class, $user->uuid, true, null, Upload::IMAGE, 'personal_photo');
+        }
+        return response()->json([
+            'item_added'
+        ]);
+    }
+
+    public function destroy($uuid)
+    {
+        try {
+            $uuids = explode(',', $uuid);
+            $user = User::whereIn('uuid', $uuids)->get();
+            foreach ($user as $item) {
+                File::delete(public_path(User::PATH_PERSONAL . $user->imageUser->filename));
+                File::delete(public_path(User::PATH_VIDEO . $user->videoImage->filename));
+                File::delete(public_path(User::PATH_COVER . $user->coverImage->filename));
+                $item->coverImage()->delete();
+                $item->videoImage()->delete();
+                $item->imageUser()->delete();
+                $user->skills()->detach();
+                $item->delete();
+            }
+            return response()->json([
+                'done'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'err'
+            ]);
+        }
+    }
+
+    public function indexTable(Request $request)
+    {
+        $user = User::query()->where('type','user')->orderBy('created_at');
+        return Datatables::of($user)
+            ->filter(function ($query) use ($request) {
+                if ($request->status) {
+                    ($request->status == 1) ? $query->where('status', 1) : $query->where('status', 0);
+                }
+                if ($request->name) {
+                    $query->where('name', 'like', "%{$request->name}%");
+                }
+                if ($request->email) {
+                    $query->where('email', 'like', "%{$request->email}%");
+                }
+                if ($request->mobile) {
+                    $query->where('mobile', 'like', "%{$request->mobile}%");
+                }
+                if ($request->country_uuid) {
+                    $query->where('country_uuid', $request->country_uuid);
+                }
+                if ($request->city_uuid) {
+                    $query->where('city_uuid', $request->city_uuid);
+                }
+            })
+            ->addColumn('checkbox', function ($que) {
+                return $que->uuid;
+            })
+            ->addColumn('action', function ($que) {
+                $data_attr = '';
+                $data_attr .= 'data-uuid="' . $que->uuid . '" ';
+                $data_attr .= 'data-city_uuid="' . $que->city_uuid . '" ';
+                $data_attr .= 'data-country_uuid="' . $que->country_uuid . '" ';
+                $data_attr .= 'data-city_name="' . $que->city_name . '" ';
+                $data_attr .= 'data-country_name="' . $que->country_name . '" ';
+                $data_attr .= 'data-mobile="' . $que->phone . '" ';
+                $data_attr .= 'data-email="' . $que->email . '" ';
+                $data_attr .= 'data-image="' . $que->image . '" ';
+                $data_attr .= 'data-name="' . $que->name . '" ';
+//                $user = Auth()->user();
+
+
+                $string = '';
+//                if ($user->can('user-edit')) {
+                    $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"
+                    data-target="#edit_modal" ' . $data_attr . '>' . __('edit') . '</button>';
+//                }
+//                if ($user->can('user-delete')) {
+                    $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
+                        '">' . __('delete') . '</button>';
+//                }
+                $string .= '<button class="detail_btn btn btn-sm btn-outline-success btn_detail" data-toggle="modal"
+                    data-target="#detail_modal" ' . $data_attr . '>' . __('details') . '</button>';
+
+                return $string;
+            })->addColumn('status', function ($que) {
+                $currentUrl = url('/');
+                return '<div class="checkbox">
+                <input class="activate-row"  url="' . $currentUrl . "/users/activate/" . $que->uuid . '" type="checkbox" id="checkbox' . $que->uuid . '" ' .
+                    ($que->status ? 'checked' : '')
+                    . '>
+                <label for="checkbox' . $que->uuid . '"><span class="checkbox-icon"></span> </label>
+            </div>';
+            })
+            ->rawColumns(['action', 'status'])->toJson();
+    }
+
+    public function updateStatus($uuid)
+    {
+//        Gate::authorize('place.update');
+        $activate = User::findOrFail($uuid);
+        $activate->status = !$activate->status;
+        if (isset($activate) && $activate->save()) {
+            return $this->sendResponse(null, __('item_edited'));
+        }
+    }
+
+    public function country($uuid)
+    {
+        $City = City::where("country_uuid", $uuid)->pluck("name", "uuid");
+        return $City;
+    }
+}

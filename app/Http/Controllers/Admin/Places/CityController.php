@@ -125,27 +125,35 @@ class CityController extends Controller
                         '">' . __('delete') . '</button>';
 //                }
                 return $string;
-            }) ->addColumn('status', function ($que) {
+            })->addColumn('status', function ($que)  {
                 $currentUrl = url('/');
-                return '<div class="checkbox">
-                <input class="activate-row"  url="' . $currentUrl . "/cities/updateStatus/" . $que->uuid . '" type="checkbox" id="checkbox' . $que->uuid . '" ' .
-                    ($que->status ? 'checked' : '')
-                    . '>
-                <label for="checkbox' . $que->uuid . '"><span class="checkbox-icon"></span> </label>
-            </div>';
+                if ($que->status==1){
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/cities/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+                        '">' . __('active') . '</button>
+                    ';
+                }else{
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/cities/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+                        '">' . __('inactive') . '</button>
+                    ';
+                }
+                return $data;
             })
             ->rawColumns(['action', 'status'])->toJson();
     }
 
-    public function updateStatus($uuid)
+    public function updateStatus($status,$sup)
     {
-//        Gate::authorize('place.update');
-        $activate =  City::query()->withoutGlobalScope('city')->findOrFail($uuid);
-        $activate->status = !$activate->status;
-        if (isset($activate) && $activate->save()) {
-            return response()->json([
-                'item_edited'
+        $uuids=explode(',', $sup);
+
+        $activate =  City::query()->withoutGlobalScope('city')
+            ->whereIn('uuid',$uuids)
+            ->update([
+                'status'=>$status
             ]);
-        }
+        return response()->json([
+            'item_edited'
+        ]);
     }
 }

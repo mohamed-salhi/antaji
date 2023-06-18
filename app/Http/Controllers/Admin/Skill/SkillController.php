@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Skill;
 use App\Http\Controllers\Controller;
 use App\Models\Skill;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class SkillController extends Controller
@@ -18,7 +19,14 @@ class SkillController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->hasFile('excel')){
 
+            $file = request()->file('excel');
+            Excel::import(new \App\Imports\skills(), $file);
+            return response()->json([
+                'item_added'
+            ]);
+        }
         $rules = [];
         foreach (locales() as $key => $language) {
             $rules['name_' . $key] = 'required|string|max:45';
@@ -68,7 +76,7 @@ class SkillController extends Controller
 
     public function indexTable(Request $request)
     {
-        $skills = Skill::query()->withoutGlobalScope('city');
+        $skills = Skill::query()->withoutGlobalScope('skill');
 
         return Datatables::of($skills)
             ->filter(function ($query) use ($request) {
@@ -102,27 +110,36 @@ class SkillController extends Controller
                     '">' . __('delete') . '</button>';
 //                }
                 return $string;
-            }) ->addColumn('status', function ($que) {
+            })
+            ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');
-                return '<div class="checkbox">
-                <input class="activate-row"  url="' . $currentUrl . "/skills/updateStatus/" . $que->uuid . '" type="checkbox" id="checkbox' . $que->uuid . '" ' .
-                    ($que->status ? 'checked' : '')
-                    . '>
-                <label for="checkbox' . $que->uuid . '"><span class="checkbox-icon"></span> </label>
-            </div>';
+                if ($que->status==1){
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/skills/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+                        '">' . __('active') . '</button>
+                    ';
+                }else{
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/skills/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+                        '">' . __('inactive') . '</button>
+                    ';
+                }
+                return $data;
             })
             ->rawColumns(['action', 'status'])->toJson();
     }
 
-    public function updateStatus($uuid)
+    public function updateStatus($status,$sup)
     {
-//        Gate::authorize('place.update');
-        $activate =  Skill::query()->withoutGlobalScope('skill')->findOrFail($uuid);
-        $activate->status = !$activate->status;
-        if (isset($activate) && $activate->save()) {
-            return response()->json([
-                'item_edited'
+        $uuids=explode(',', $sup);
+
+        $activate =  Skill::query()->withoutGlobalScope('skill')
+            ->whereIn('uuid',$uuids)
+            ->update([
+                'status'=>$status
             ]);
-        }
+        return response()->json([
+            'item_edited'
+        ]);
     }
 }

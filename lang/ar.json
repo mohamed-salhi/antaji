@@ -542,5 +542,6 @@
     "intros": "المقدمة",
     "sub title": "العنوان الفرعي",
     "skills": "المهارات",
-    "specializations": "التخصصات"
+    "specializations": "التخصصات",
+    "sup category": "الفئة الفرعية"
 }

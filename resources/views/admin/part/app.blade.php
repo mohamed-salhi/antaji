@@ -450,6 +450,7 @@ var pageNot=2
         $('input').removeClass('is-invalid');
         $('select').removeClass('is-invalid');
         $('.invalid-feedback').text('');
+        console.log(data)
         $.ajax({
             type: method,
             cache: false,
@@ -459,19 +460,20 @@ var pageNot=2
             data: data,
 
             beforeSend: function () {
-                $('.btn btn-primary').html('saving ...').prop('disabled', true);
+                $('.done').html('saving ...').prop('disabled', true);
             },
             success: function (result) {
                 $('#full-modal-stem').modal('hide');
-                $('#add-car').modal('hide');
+                $('#model-excel').modal('hide');
                 $('#add_model_form').trigger("reset");
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
-                $('.btn btn-primary').prop('disabled', false);
+
                 table.draw()
             },
             error: function (data) {
+                $('.done').prop('disabled', false);
                 if (data.status === 422) {
                     var response = data.responseJSON;
                     $.each(response.errors, function (key, value) {
@@ -692,125 +694,125 @@ var pageNot=2
             },
         });
     });
-    $(document).ready(function () {
-        @can('help-list')
+    {{--$(document).ready(function () {--}}
+    {{--    @can('help-list')--}}
 
-        window.Echo.private('NotificationAdmin.help-list')
-            .listen('.NotificationAdmin', (e) => {
-              var count=  $('#count_not').text()
-                $('#count_not').html(parseInt(count)+1)
-                var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');
-                // Show loading animation.
-                var playPromise = x.play();
+    {{--    window.Echo.private('NotificationAdmin.help-list')--}}
+    {{--        .listen('.NotificationAdmin', (e) => {--}}
+    {{--          var count=  $('#count_not').text()--}}
+    {{--            $('#count_not').html(parseInt(count)+1)--}}
+    {{--            var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');--}}
+    {{--            // Show loading animation.--}}
+    {{--            var playPromise = x.play();--}}
 
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        x.play();
-                    })
-                        .catch(error => {
-                        });
-                }
-                $('#not').append(`
-            <div class="dropdown-divider "></div>
-            <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">
-                <i class="fas fa-recycle mr-2"></i> ${e[2]}
-            <span class="float-right text-muted text-sm">منذ 1 ثانية</span>
-            </a>
+    {{--            if (playPromise !== undefined) {--}}
+    {{--                playPromise.then(_ => {--}}
+    {{--                    x.play();--}}
+    {{--                })--}}
+    {{--                    .catch(error => {--}}
+    {{--                    });--}}
+    {{--            }--}}
+    {{--            $('#not').append(`--}}
+    {{--        <div class="dropdown-divider "></div>--}}
+    {{--        <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">--}}
+    {{--            <i class="fas fa-recycle mr-2"></i> ${e[2]}--}}
+    {{--        <span class="float-right text-muted text-sm">منذ 1 ثانية</span>--}}
+    {{--        </a>--}}
 
-            `)
-            })
-        @endcan
-        @can('user-list')
+    {{--        `)--}}
+    {{--        })--}}
+    {{--    @endcan--}}
+    {{--    @can('user-list')--}}
 
-        window.Echo.private('NotificationAdmin.user-list')
-            .listen('.NotificationAdmin', (e) => {
-                console.log(e)
-                var count=  $('#count_not').text()
-                console.log(count);
-                $('#count_not').html(parseInt(count)+1)
-                var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');
-                // Show loading animation.
-                var playPromise = x.play();
+    {{--    window.Echo.private('NotificationAdmin.user-list')--}}
+    {{--        .listen('.NotificationAdmin', (e) => {--}}
+    {{--            console.log(e)--}}
+    {{--            var count=  $('#count_not').text()--}}
+    {{--            console.log(count);--}}
+    {{--            $('#count_not').html(parseInt(count)+1)--}}
+    {{--            var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');--}}
+    {{--            // Show loading animation.--}}
+    {{--            var playPromise = x.play();--}}
 
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        x.play();
-                    })
-                        .catch(error => {
-                        });
+    {{--            if (playPromise !== undefined) {--}}
+    {{--                playPromise.then(_ => {--}}
+    {{--                    x.play();--}}
+    {{--                })--}}
+    {{--                    .catch(error => {--}}
+    {{--                    });--}}
 
-                }
-                $('#not').append(`
-            <div class="dropdown-divider "></div>
-            <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">
-                <i class="fas fa-recycle mr-2"></i> ${e[2]}
-            <span class="float-right text-muted text-sm">منذ 1 ثانية</span>
-            </a>
+    {{--            }--}}
+    {{--            $('#not').append(`--}}
+    {{--        <div class="dropdown-divider "></div>--}}
+    {{--        <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">--}}
+    {{--            <i class="fas fa-recycle mr-2"></i> ${e[2]}--}}
+    {{--        <span class="float-right text-muted text-sm">منذ 1 ثانية</span>--}}
+    {{--        </a>--}}
 
-            `)
-            })
-        @endcan
-        @can('competition-list')
+    {{--        `)--}}
+    {{--        })--}}
+    {{--    @endcan--}}
+    {{--    @can('competition-list')--}}
 
-        window.Echo.private('NotificationAdmin.competition-list')
-            .listen('.NotificationAdmin', (e) => {
-                console.log(e)
-                var count=  $('#count_not').text()
-                console.log(count);
-                $('#count_not').html(parseInt(count)+1)
-                var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');
-                // Show loading animation.
-                var playPromise = x.play();
+    {{--    window.Echo.private('NotificationAdmin.competition-list')--}}
+    {{--        .listen('.NotificationAdmin', (e) => {--}}
+    {{--            console.log(e)--}}
+    {{--            var count=  $('#count_not').text()--}}
+    {{--            console.log(count);--}}
+    {{--            $('#count_not').html(parseInt(count)+1)--}}
+    {{--            var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');--}}
+    {{--            // Show loading animation.--}}
+    {{--            var playPromise = x.play();--}}
 
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        x.play();
-                    })
-                        .catch(error => {
-                        });
+    {{--            if (playPromise !== undefined) {--}}
+    {{--                playPromise.then(_ => {--}}
+    {{--                    x.play();--}}
+    {{--                })--}}
+    {{--                    .catch(error => {--}}
+    {{--                    });--}}
 
-                }
-                $('#not').append(`
-            <div class="dropdown-divider "></div>
-            <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">
-                <i class="fas fa-recycle mr-2"></i> ${e[2]}
-            <span class="float-right text-muted text-sm">منذ 1 ثانية</span>
-            </a>
+    {{--            }--}}
+    {{--            $('#not').append(`--}}
+    {{--        <div class="dropdown-divider "></div>--}}
+    {{--        <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">--}}
+    {{--            <i class="fas fa-recycle mr-2"></i> ${e[2]}--}}
+    {{--        <span class="float-right text-muted text-sm">منذ 1 ثانية</span>--}}
+    {{--        </a>--}}
 
-            `)
-            })
-        @endcan
-        @can('reward-list')
+    {{--        `)--}}
+    {{--        })--}}
+    {{--    @endcan--}}
+    {{--    @can('reward-list')--}}
 
-        window.Echo.private('NotificationAdmin.reward-list')
-            .listen('.NotificationAdmin', (e) => {
-                console.log(e)
-                var count=  $('#count_not').text()
-                console.log(count);
-                $('#count_not').html(parseInt(count)+1)
-                var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');
-                // Show loading animation.
-                var playPromise = x.play();
+    {{--    window.Echo.private('NotificationAdmin.reward-list')--}}
+    {{--        .listen('.NotificationAdmin', (e) => {--}}
+    {{--            console.log(e)--}}
+    {{--            var count=  $('#count_not').text()--}}
+    {{--            console.log(count);--}}
+    {{--            $('#count_not').html(parseInt(count)+1)--}}
+    {{--            var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');--}}
+    {{--            // Show loading animation.--}}
+    {{--            var playPromise = x.play();--}}
 
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        x.play();
-                    })
-                        .catch(error => {
-                        });
+    {{--            if (playPromise !== undefined) {--}}
+    {{--                playPromise.then(_ => {--}}
+    {{--                    x.play();--}}
+    {{--                })--}}
+    {{--                    .catch(error => {--}}
+    {{--                    });--}}
 
-                }
-                $('#not').append(`
-            <div class="dropdown-divider "></div>
-            <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">
-                <i class="fas fa-recycle mr-2"></i> ${e[2]}
-            <span class="float-right text-muted text-sm">منذ 1 ثانية</span>
-            </a>
+    {{--            }--}}
+    {{--            $('#not').append(`--}}
+    {{--        <div class="dropdown-divider "></div>--}}
+    {{--        <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">--}}
+    {{--            <i class="fas fa-recycle mr-2"></i> ${e[2]}--}}
+    {{--        <span class="float-right text-muted text-sm">منذ 1 ثانية</span>--}}
+    {{--        </a>--}}
 
-            `)
-            })
-        @endcan
-    })
+    {{--        `)--}}
+    {{--        })--}}
+    {{--    @endcan--}}
+    {{--})--}}
 </script>
 
 </body>

@@ -17,6 +17,8 @@ class profileResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'address' => $this->address,
+            'name' => $this->name,
+            'skills' => $this->skills()->select('name')->get(),
             'lat' => $this->lat,
             'lng' => $this->lng,
             'brief' => $this->brief,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\places;
 
 use App\Http\Controllers\Admin\ResponseTrait;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Country;
 use App\Models\Image;
 use App\Models\Upload;
@@ -150,27 +151,37 @@ class countryController extends Controller
                         '">' . __('delete') . '</button>';
 //                }
                 return $string;
-            }) ->addColumn('status', function ($que) {
+            }) ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');
-                return '<div class="checkbox">
-                <input class="activate-row"  url="' . $currentUrl . "/countries/updateStatus/" . $que->uuid . '" type="checkbox" id="checkbox' . $que->id . '" ' .
-                    ($que->status ? 'checked' : '')
-                    . '>
-                <label for="checkbox' . $que->uuid . '"><span class="checkbox-icon"></span> </label>
-            </div>';
+                if ($que->status==1){
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/countries/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+                        '">' . __('active') . '</button>
+                    ';
+                }else{
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/countries/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+                        '">' . __('inactive') . '</button>
+                    ';
+                }
+                return $data;
             })
             ->rawColumns(['action', 'status'])->toJson();
     }
 
-    public function updateStatus($uuid)
+    public function updateStatus($status,$sup)
     {
-//        Gate::authorize('place.update');
-        $activate =  Country::query()->withoutGlobalScope('country')->findOrFail($uuid);
-        $activate->status = !$activate->status;
-        if (isset($activate) && $activate->save()) {
-            return  response()->json([
-                'item_edited'
+        $uuids=explode(',', $sup);
+
+        $activate =  Country::query()->withoutGlobalScope('country')
+            ->whereIn('uuid',$uuids)
+            ->update([
+                'status'=>$status
             ]);
-        }
+        return response()->json([
+            'item_edited'
+        ]);
     }
+
+
 }

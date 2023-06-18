@@ -59,8 +59,8 @@ class IntroController extends Controller
         $this->validate($request, $rules);
         $data = [];
         foreach (locales() as $key => $language) {
-            $data['title'][$key] = $request->get('name_' . $key);
-            $data['sup_title'][$key] = $request->get('name_' . $key);
+            $data['title'][$key] = $request->get('title_' . $key);
+            $data['sup_title'][$key] = $request->get('sup_title_' . $key);
         }
         $intro->update($data);
         if ($request->hasFile('image')) {

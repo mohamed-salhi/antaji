@@ -18,9 +18,9 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-     protected $primaryKey = 'uuid';
+    protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends=['image','cover_user','video_user'];
+    protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name'];
     protected $fillable = [
         'name',
         'email',
@@ -35,7 +35,9 @@ class User extends Authenticatable
         'lng',
         'address',
     ];
-
+    const PATH_COVER = "/upload/user/cover";
+    const PATH_PERSONAL = "/upload/user/personal";
+    const PATH_VIDEO = "/upload/user/video";
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -44,6 +46,13 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'country_uuid',
+        'city_uuid',
+        'city',
+        'country',
+        'coverImage',
+        'videoImage',
+        'imageUser'
     ];
 
     /**
@@ -55,75 +64,91 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-  /**
-     Relations
+
+    /**
+     * Relations
      */
-    public function country(){
-        return $this->belongsTo(Country::class,'country_uuid');
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country_uuid');
     }
-    public function specialization(){
-        return $this->belongsTo(Specialization::class,'specialization_uuid');
+
+    public function specialization()
+    {
+        return $this->belongsTo(Specialization::class, 'specialization_uuid');
     }
-    public function city(){
-        return $this->belongsTo(City::class,'city_uuid');
+
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_uuid');
     }
-    public function fcm_tokens(){
-        return $this->hasMany(FcmToken::class,'user_uuid');
+
+    public function fcm_tokens()
+    {
+        return $this->hasMany(FcmToken::class, 'user_uuid');
     }
+
     public function coverImage()
     {
-        return $this->morphOne(Upload::class, 'imageable')->where('type','=',Upload::IMAGE)->where('name','=','cover_photo');
+        return $this->morphOne(Upload::class, 'imageable')->where('type', '=', Upload::IMAGE)->where('name', '=', 'cover_photo');
     }
+
     public function videoImage()
     {
-        return $this->morphOne(Upload::class, 'imageable')->where('type','=',Upload::VIDEO);
+        return $this->morphOne(Upload::class, 'imageable')->where('type', '=', Upload::VIDEO);
     }
+
     public function imageUser()
     {
-        return $this->morphOne(Upload::class, 'imageable')->where('type','=',Upload::IMAGE)->where('name','=','personal_photo');
+        return $this->morphOne(Upload::class, 'imageable')->where('type', '=', Upload::IMAGE)->where('name', '=', 'personal_photo');
     }
 
     public function skills()
     {
-        return $this->belongsToMany(Skill::class,'skill_user','user_uuid','skill_uuid','uuid','uuid');
+        return $this->belongsToMany(Skill::class, 'skill_user', 'user_uuid', 'skill_uuid');
     }
 
 
     /**
-    Attribute
+     * Attribute
      */
     public function getCountryNameAttribute()
     {
-        return $this->country->name;
+        return @$this->country->name;
     }
+
     public function getCityNameAttribute()
     {
-        return $this->city->name;
+        return @$this->city->name;
     }
+
     public function getSpecializationNameAttribute()
     {
         return @$this->specialization->name;
     }
+
     public function getCoverUserAttribute()
     {
-        return url('/') . '/upload/user/cover/' .@$this->coverImage->filename;
+        return url('/') . '/upload/user/cover/' . @$this->coverImage->filename;
     }
+
     public function getVideoUserAttribute()
     {
-        return url('/') . '/upload/user/video/' .@$this->videoImage->filename;
+        return url('/') . '/upload/user/video/' . @$this->videoImage->filename;
     }
+
     public function getImageAttribute()
     {
-        if(@$this->imageUser->filename){
+        if (@$this->imageUser->filename) {
             return url('/') . '/upload/user/personal/' . @$this->imageUser->filename;
-        }else{
+        } else {
             return url('/') . '/upload/user/fea062c5fb579ac0dc5ae2c22c6c51fb.jpg';
 
         }
     }
 
     /**
-    Boot
+     * Boot
      */
     public static function boot()
     {

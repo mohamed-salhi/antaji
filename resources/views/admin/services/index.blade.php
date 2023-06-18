@@ -45,6 +45,19 @@
                                             data-toggle="modal" id="" data-target="#full-modal-stem"><span><i
                                                     class="fa fa-plus"></i>@lang('add')</span>
                                         </button>
+                                        <button id="btn_delete_all" class="btn_delete_all btn btn-outline-danger "
+                                                type="button">
+                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i>
+                                                    @lang('delete')</span>
+                                        </button>
+                                        <button
+                                            data-status="1"   class="btn_status btn btn-outline-success " type="button">
+                                            <span><i  aria-hidden="true"></i> @lang('activate')</span>
+                                        </button>
+                                        <button
+                                            data-status="0"  class="btn_status btn btn-outline-warning " type="button">
+                                            <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
+                                        </button>
                                     </div>
                                 </div>
                                 {{--                                @endcan --}}
@@ -78,11 +91,7 @@
                                             <button id="clear_btn" class="btn btn-outline-secondary" type="submit">
                                                 <span><i class="fa fa-undo"></i> @lang('reset')</span>
                                             </button>
-                                            <button id="btn_delete_all" class="btn_delete_all btn btn-outline-danger "
-                                                type="button">
-                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i>
-                                                    @lang('delete')</span>
-                                            </button>
+
                                         </div>
                                     </div>
                                 </form>

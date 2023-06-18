@@ -46,6 +46,25 @@
                                                 data-target="#full-modal-stem"><span><i
                                                     class="fa fa-plus"></i>@lang('add')</span>
                                         </button>
+                                        <button class="btn btn-gradient-success button_modal" type="button"
+                                                data-toggle="modal"
+                                                data-target="#model-excel"><span><i
+                                                    class="fa fa-plus"></i>@lang('add by excel')</span>
+                                        </button>
+
+                                        <button id="btn_delete_all" class="btn_delete_all btn btn-outline-danger "
+                                                type="button">
+                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i>
+                                                    @lang('delete')</span>
+                                        </button>
+                                        <button
+                                            data-status="1"   class="btn_status btn btn-outline-success " type="button">
+                                            <span><i  aria-hidden="true"></i> @lang('activate')</span>
+                                        </button>
+                                        <button
+                                            data-status="0"  class="btn_status btn btn-outline-warning " type="button">
+                                            <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
+                                        </button>
                                     </div>
                                 </div>
                                 {{--                                @endcan--}}
@@ -81,10 +100,7 @@
                                         <button id="clear_btn" class="btn btn-outline-secondary" type="submit">
                                             <span><i class="fa fa-undo"></i> @lang('reset')</span>
                                         </button>
-                                        <button id="btn_delete_all"
-                                                class="btn_delete_all btn btn-outline-danger " type="button">
-                                            <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i> @lang('delete')</span>
-                                        </button>
+
 
                                         <div class="col-3" style="margin-top: 20px">
 
@@ -112,6 +128,35 @@
                 </div>
             </section>
 
+        </div>
+    </div>
+    <div class="modal fade" id="model-excel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">@lang('add by excel')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('skills.store') }}" method="POST" id="add_model_form" class="add-mode-form">
+                    <div class="modal-body">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <br>
+                                <input type="file" name="excel" class="file-input" placeholder="@lang('add by excel')">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
+                        <button type="submit" class="btn btn-primary done">@lang('add')</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -144,7 +189,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary">@lang('add')</button>
+                        <button class="btn btn-primary done">@lang('add')</button>
                     </div>
 
                 </form>
@@ -229,6 +274,19 @@
                     d.name = $('#s_name').val();
                 }
             },
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: 'Excel',
+                    exportOptions: {
+                        columns: [1],
+                        modifier: {
+                            page: 'current'
+                        }
+                    }
+                }
+            ],
             columns: [{
                 "render": function (data, type, full, meta) {
                     return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>
