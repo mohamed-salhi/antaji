@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('locations', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->string('name');
+            $table->foreignUuid('user_uuid');
+            $table->string('status')->default(1);
+
             $table->string('price');
-            $table->foreignUuid('category_uuid');
+            $table->foreignUuid('category_contents_uuid');
             $table->text('details');
             $table->timestamps();
         });

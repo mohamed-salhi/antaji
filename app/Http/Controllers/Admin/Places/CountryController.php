@@ -32,7 +32,6 @@ class countryController extends Controller
 
     public function store(Request $request)
     {
-//        Gate::authorize('place.create');
         $rules = [];
         foreach (locales() as $key => $language) {
             $rules['name_' . $key] = 'required|string|max:255';
@@ -61,7 +60,6 @@ class countryController extends Controller
     {
         $country = Country::findOrFail($request->uuid);
 
-//        Gate::authorize('place.update');
         $rules = [];
         foreach (locales() as $key => $language) {
             $rules['name_' . $key] = 'required|string|max:255';
@@ -88,7 +86,6 @@ class countryController extends Controller
 
     public function destroy($uuid)
     {
-//        Gate::authorize('place.delete');
 
         try {
             $uuids=explode(',', $uuid);

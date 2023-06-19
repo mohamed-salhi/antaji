@@ -46,7 +46,7 @@ class Country extends Model
         self::creating(function ($item) {
             $item->uuid = Str::uuid();
         });
-        static::addGlobalScope('country', function (Builder $builder) {
+        static::addGlobalScope('status', function (Builder $builder) {
             $builder->where('status', 1);//1==active
         });
 

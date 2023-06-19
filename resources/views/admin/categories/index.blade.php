@@ -342,7 +342,8 @@
                 @foreach (locales() as $key => $value)
                 $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
                 @endforeach
-                // console.log(button.data('types'));
+                $('.image-preview').attr('src', button.data('image'));
+
 
             });
         });

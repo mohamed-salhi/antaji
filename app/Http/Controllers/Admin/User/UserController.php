@@ -124,11 +124,11 @@ class UserController extends Controller
 
     public function indexTable(Request $request)
     {
-        $user = User::query()->where('type','user')->orderBy('created_at');
+        $user = User::query()->withoutGlobalScope('user')->where('type','user')->orderBy('created_at');
         return Datatables::of($user)
             ->filter(function ($query) use ($request) {
-                if ($request->status) {
-                    ($request->status == 1) ? $query->where('status', 1) : $query->where('status', 0);
+                if ($request->status){
+                    ($request->status==1)?$query->where('status',1):$query->where('status',0);
                 }
                 if ($request->name) {
                     $query->where('name', 'like', "%{$request->name}%");
@@ -176,26 +176,36 @@ class UserController extends Controller
                     data-target="#detail_modal" ' . $data_attr . '>' . __('details') . '</button>';
 
                 return $string;
-            })->addColumn('status', function ($que) {
+            })   ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');
-                return '<div class="checkbox">
-                <input class="activate-row"  url="' . $currentUrl . "/users/activate/" . $que->uuid . '" type="checkbox" id="checkbox' . $que->uuid . '" ' .
-                    ($que->status ? 'checked' : '')
-                    . '>
-                <label for="checkbox' . $que->uuid . '"><span class="checkbox-icon"></span> </label>
-            </div>';
+                if ($que->status==1){
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/users/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+                        '">' . __('active') . '</button>
+                    ';
+                }else{
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/users/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+                        '">' . __('inactive') . '</button>
+                    ';
+                }
+                return $data;
             })
             ->rawColumns(['action', 'status'])->toJson();
     }
 
-    public function updateStatus($uuid)
+    public function updateStatus($status,$sup)
     {
-//        Gate::authorize('place.update');
-        $activate = User::findOrFail($uuid);
-        $activate->status = !$activate->status;
-        if (isset($activate) && $activate->save()) {
-            return $this->sendResponse(null, __('item_edited'));
-        }
+        $uuids=explode(',', $sup);
+
+        $activate =  User::query()->withoutGlobalScope('user')
+            ->whereIn('uuid',$uuids)
+            ->update([
+                'status'=>$status
+            ]);
+        return response()->json([
+            'item_edited'
+        ]);
     }
 
     public function country($uuid)

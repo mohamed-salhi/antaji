@@ -12,6 +12,38 @@ class Course extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $guarded = [];
+    protected $appends=['image','user_name'];
+
+    const PATH_COURSE="/upload/course/images/";
+    const PATH_COURSE_VIDEO="/upload/course/video/";
+
+    //Relations
+    public function imageCourse()
+    {
+        return $this->morphOne(Upload::class, 'imageable')->where('type',Upload::IMAGE);
+    }
+    public function videoCourse()
+    {
+        return $this->morphOne(Upload::class, 'imageable')->where('type',Upload::VIDEO);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_uuid');
+    }
+
+
+    //Attributes
+    public function getImageAttribute()
+    {
+        return url('/') .self::PATH_COURSE . @$this->imageCourse->filename;
+    }
+    public function getUserNameAttribute()
+    {
+        return @$this->user->name;
+    }
+
+
+
     //boot
     public static function boot()
     {

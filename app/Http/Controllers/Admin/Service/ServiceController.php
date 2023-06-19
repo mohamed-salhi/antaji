@@ -107,7 +107,7 @@ class ServiceController extends Controller
             ->addColumn('action', function ($que) {
                 $data_attr = '';
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
-                $data_attr .= 'data-image="' . $que->image . '" ';
+                $data_attr .= 'data-image="' . $que->icon . '" ';
                 foreach (locales() as $key => $value) {
                     $data_attr .= 'data-name_' . $key . '="' . $que->getTranslation('name', $key) . '" ';
                 }

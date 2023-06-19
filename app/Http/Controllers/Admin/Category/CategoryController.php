@@ -70,17 +70,26 @@ class CategoryController extends Controller
 
     public function destroy($uuid)
     {
-        $uuids=explode(',', $uuid);
 
-        $category= Category::query()->withoutGlobalScope('category')->whereIn('uuid', $uuids);
-        File::delete(public_path(Category::PATH_IMAGE.$category->imageCategory->filename));
-        $category->imageCategory()->delete();
-        $category->delete();
-        //        $category->types()->detach();
-        return response()->json([
-            'item_deleted'
-        ]);
+        try {
+            $uuids=explode(',', $uuid);
+            $Category=  Category::whereIn('uuid', $uuids)->get();
+
+            foreach ($Category as $item){
+                File::delete(public_path(Category::PATH_IMAGE.$item->imageCategory->filename));
+                $item->imageCategory()->delete();
+                $item->delete();
+            }
+            return response()->json([
+                'item_deleted'
+            ]);
+        }catch (\Exception $e){
+            return response()->json([
+                'err'
+            ]);
+        }
     }
+
 
 
     public function indexTable(Request $request)
@@ -104,6 +113,8 @@ class CategoryController extends Controller
             ->addColumn('action', function ($que) {
                 $data_attr = '';
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
+                $data_attr .= 'data-image="' . $que->image . '" ';
+
                 foreach (locales() as $key => $value) {
                     $data_attr .= 'data-name_' . $key . '="' . $que->getTranslation('name', $key) . '" ';
                 }
@@ -156,13 +167,13 @@ class CategoryController extends Controller
     }
 
     public function supIndex($uuid){
-        return view('admin.categories.sub',compact('uuid'));
+        return view('admin.categories.sup',compact('uuid'));
     }
     public function supIndexTable(Request $request ,$uuid)
     {
-        $sub= SupCategory::query()->withoutGlobalScope('sup')->where('category_uuid',$uuid)->orderBy('created_at');
+        $sup= SupCategory::query()->withoutGlobalScope('sup')->where('category_uuid',$uuid)->orderBy('created_at');
 
-        return Datatables::of($sub)
+        return Datatables::of($sup)
             ->filter(function ($query) use ($request) {
                 if ($request->get('name')) {
                     $locale = app()->getLocale();
@@ -179,6 +190,9 @@ class CategoryController extends Controller
             ->addColumn('action', function ($que) {
                 $data_attr = '';
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
+                $data_attr .= 'data-category_uuid="' . $que->category_uuid . '" ';
+                $data_attr .= 'data-image="' . $que->image . '" ';
+
                 foreach (locales() as $key => $value) {
                     $data_attr .= 'data-name_' . $key . '="' . $que->getTranslation('name', $key) . '" ';
                 }
@@ -268,4 +282,27 @@ class CategoryController extends Controller
             'item_edited'
         ]);
     }
+    public function supDestroy($uuid,$delete)
+    {
+
+        try {
+            $uuids=explode(',', $delete);
+            $Sup=  SupCategory::whereIn('uuid', $uuids)->get();
+
+            foreach ($Sup as $item){
+                File::delete(public_path(SupCategory::PATH_IMAGE.$item->imageCategory->filename));
+                $item->imageCategory()->delete();
+                $item->delete();
+            }
+            return response()->json([
+                'item_deleted'
+            ]);
+        }catch (\Exception $e){
+            return response()->json([
+                'err'
+            ]);
+        }
+    }
+
+
 }

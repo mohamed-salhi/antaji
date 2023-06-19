@@ -282,7 +282,8 @@
                     exportOptions: {
                         columns: [1],
                         modifier: {
-                            page: 'current'
+                            page: 'all',
+                            search: 'none'
                         }
                     }
                 }

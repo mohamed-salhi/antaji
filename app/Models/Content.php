@@ -12,10 +12,9 @@ class Content extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $guarded = [];
-    const PATH_LOCATION="/upload/location/images/";
-    const PATH_COURSE="/upload/course/images/";
-    const PATH_COURSE_VIDEO="/upload/course/video/";
-    const PATH_PRODUCT="/upload/product/images/";
+
+
+
 
     //boot
     public static function boot()

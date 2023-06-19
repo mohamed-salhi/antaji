@@ -158,7 +158,7 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
         } else {
             $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->first();
             if ($id) {
-                $image = Upload::where('id', $id)->first();
+                $image = Upload::where('uuid', $id)->first();
             }
             if ($image) {
                 File::delete(public_path(@$path . @$image->filename));

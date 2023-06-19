@@ -38,7 +38,6 @@
                                 <div class="head-label">
                                     <h4 class="card-title">@lang('services')</h4>
                                 </div>
-                                {{--                                @can('place-create') --}}
                                 <div class="text-right">
                                     <div class="form-group">
                                         <button class="btn btn-outline-primary button_modal" type="button"
@@ -60,7 +59,6 @@
                                         </button>
                                     </div>
                                 </div>
-                                {{--                                @endcan --}}
                             </div>
                             <div class="card-body">
                                 <form id="search_form">
@@ -192,14 +190,17 @@
                             </div>
                         @endforeach
 
-                        <div class="col-12">
-                            <div class="form-group">
-                                <br>
-                                <input type="file" accept="image/*" name="image" class="file-input">
-                                <img class="image-preview">
-                                <div class="invalid-feedback"></div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <br>
+                                    <input type="file" accept="image/*" name="image" class="file-input">
+                                    <div class="image">
+                                        <img class="image-preview">
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
                             </div>
-                        </div>
+                    </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
                                 data-dismiss="modal">@lang('close')</button>

@@ -1,4 +1,4 @@
-{{--@extends('admin.part.app')--}}
+@extends('admin.part.app')
 @section('title')
     @lang('users')
 @endsection
@@ -27,7 +27,7 @@
                         <h2 class="content-header-title float-left mb-0">@lang('users')</h2>
                         <div class="breadcrumb-wrapper">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>
+                                <li class="breadcrumb-item"><a href="{{ route('users.index') }}">@lang('home')</a>
                                 </li>
                                 <li class="breadcrumb-item"><a href="{{ route('users.index') }}">@lang('users')</a>
                                 </li>
@@ -47,18 +47,31 @@
                                 <div class="head-label">
                                     <h4 class="card-title">@lang('users')</h4>
                                 </div>
-                                @can('user.create')
+
                                     <div class="text-right">
                                         <div class="form-gruop">
                                             <button class="btn btn-outline-primary button_modal" type="button"
-                                                    data-toggle="modal" id="addd"
+                                                    data-toggle="modal" id=""
                                                     data-target="#full-modal-stem"><span><i
                                                         class="fa fa-plus"></i>@lang('add')</span>
+                                            </button>
+                                            <button
+
+                                                class="btn_delete_all btn btn-outline-danger " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('delete')</span>
+                                            </button>
+                                            <button
+                                                data-status="1"   class="btn_status btn btn-outline-success " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('activate')</span>
+                                            </button>
+                                            <button
+                                                data-status="0"  class="btn_status btn btn-outline-warning " type="button">
+                                                <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
                                             </button>
 
                                         </div>
                                     </div>
-                                @endcan
+
                             </div>
 
 
@@ -73,54 +86,48 @@
                                                        placeholder="@lang('mobile')">
                                             </div>
                                         </div>
-
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="city_uuid">@lang('city')</label>
-                                                <select name="city_uuid" id="s_city" class="search_input form-control"
+                                                <label for="s_name">@lang('name')</label>
+                                                <input id="s_name" type="text" class="search_input form-control"
+                                                       placeholder="@lang('name')">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="s_country_uuid">@lang('country')</label>
+                                                <select name="country_uuid" id="s_country_uuid"
+                                                        class="search_input form-control"
                                                         data-select2-id="select2-data-1-bgy2" tabindex="-1"
                                                         aria-hidden="true">
-                                                    <option selected disabled>Select @lang('city')</option>
-                                                    @foreach ($cities as $itemm)
+                                                    <option selected disabled>Select @lang('country')</option>
+                                                    @foreach ($countries as $itemm)
                                                         <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                                         </option>
                                                     @endforeach
                                                 </select>
+                                                <div class="invalid-feedback"></div>
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="area_uuid">@lang('area')</label>
-                                                <select name="area_uuid" id="s_area" class="search_input form-control"
+                                                <label for="s_city_uuid">@lang('city')</label>
+                                                <select name="city_uuid" id="s_city_uuid"
+                                                        class="search_input form-control"
                                                         data-select2-id="select2-data-1-bgy2" tabindex="-1"
                                                         aria-hidden="true">
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-3">
-                                            <div class="form-group">
-                                                <label for="s_user_type_id">@lang('type')</label>
-                                                <select id="s_user_type_id" class="search_input form-control"
-                                                        data-select2-id="select2-data-1-bgy2" tabindex="-1"
-                                                        aria-hidden="true">
-                                                    <option selected disabled>Select @lang('type')</option>
-                                                    @foreach ($user as $item)
-                                                        <option value="{{ $item->id }}"> {{ $item->Name }} </option>
-                                                    @endforeach
+                                                    <option selected disabled> @lang('select') @lang('city')</option>
+
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="">@lang('Discount Store Type')</label>
-                                                <select id="s_discount_type_uuid" class="search_input form-control"
-                                                        data-select2-id="select2-data-1-bgy2" tabindex="-1"
-                                                        aria-hidden="true">
-                                                    <option selected
-                                                            disabled>@lang('select') @lang('Discount Store Type')</option>
-                                                    @foreach ($type as $itemm)
-                                                        <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
-                                                    @endforeach
+                                                <label for="s_status">@lang('status')</label>
+                                                <select name="s_status" id="s_status" class="search_input form-control">
+                                                    <option selected disabled>@lang('select') @lang('status')</option>
+                                                    <option value="1"> @lang('active') </option>
+                                                    <option  value="2"> @lang('inactive') </option>
                                                 </select>
                                                 <div class="invalid-feedback"></div>
                                             </div>
@@ -132,10 +139,6 @@
                                                 </button>
                                                 <button id="clear_btn" class="btn btn-outline-secondary" type="submit">
                                                     <span><i class="fa fa-undo"></i> @lang('reset')</span>
-                                                </button>
-                                                <button id="btn_delete_all"
-                                                        class="btn_delete_all btn btn-outline-danger " type="button">
-                                                    <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i> @lang('delete')</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -157,7 +160,7 @@
                                         <th>@lang('image')</th>
                                         <th>@lang('country')</th>
                                         <th>@lang('city')</th>
-
+                                        <th>@lang('status')</th>
 {{--                                        @can('user.delete'||'user.update')--}}
                                             <th style="width: 225px;">@lang('actions')</th>
 {{--                                        @endcan--}}
@@ -227,7 +230,7 @@
                                     <select name="country_uuid" id="" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
                                         <option selected disabled>Select @lang('country')</option>
-                                        @foreach ($country as $itemm)
+                                        @foreach ($countries as $itemm)
                                             <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                             </option>
                                         @endforeach
@@ -324,19 +327,6 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">@lang('Discount Store Type')</label>
-                                    <select name="discount_type_uuid" id="discount_type_uuid"
-                                            class="select form-control">
-                                        <option selected disabled>Select @lang('Discount Store Type')</option>
-                                        @foreach ($type as $itemm)
-                                            <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -345,7 +335,7 @@
                                     <select name="country_uuid" id="edit_country" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
                                         <option selected disabled>Select @lang('country')</option>
-                                        @foreach ($country as $itemm)
+                                        @foreach ($countries as $itemm)
                                             <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                             </option>
                                         @endforeach
@@ -359,33 +349,6 @@
                                     <select name="city_uuid" id="edit_city" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
                                         <option disabled>Select @lang('city')</option>
-                                    </select>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">@lang('area')</label>
-                                    <select name="area_uuid" id="edit_area" class="select form-control"
-                                            data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('city')</option>
-
-                                    </select>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">@lang('type')</label>
-                                    <select name="user_type_id" id="edit_type" class="select form-control"
-                                            data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('type')</option>
-                                        @foreach ($user as $itemm)
-                                            <option value="{{ $itemm->id }}"> {{ $itemm->Name }} </option>
-
-                                        @endforeach
                                     </select>
                                     <div class="invalid-feedback"></div>
                                 </div>
@@ -487,11 +450,11 @@
                 @endif // "oPaginate": {"sPrevious": '<-', "sNext": '->'},
             },
             ajax: {
-                url: '{{ route('users.getData', app()->getLocale()) }}',
+                url: '{{ route('users.indexTable', app()->getLocale()) }}',
                 data: function (d) {
                     d.mobile = $('#s_mobile').val();
-                    d.city_uuid = $('#s_country').val();
-                    d.city_uuid = $('#s_city').val();
+                    d.city_uuid = $('#s_city_uuid').val();
+                    d.country_uuid = $('#s_country_uuid').val();
                     d.name = $('#s_name').val();
                     d.email = $('#s_email').val();
                     d.status = $('#s_status').val();
@@ -509,9 +472,14 @@
                     orderable: false,
                     searchable: false
                 },
+
                 {
                     data: 'name',
                     name: 'name'
+                },
+                {
+                    data: 'email',
+                    name: 'email'
                 },
                 {
                     data: 'mobile',
@@ -521,40 +489,31 @@
                     "data": 'image',
                     "name": 'image',
                     render: function (data, type, full, meta) {
-                        return (data) ?
-                            `<img src="{{ asset('uploads/${data}') }}" style="width:100px;height:100px;" class="img-fluid img-thumbnail">` :
-                            ' no image';
+                        return `<img src="${data}" style="width:100px;height:100px;"  class="img-fluid img-thumbnail">`;
                     },
+                    orderable: false,
+                    searchable: false
                 },
 
                 {
-                    data: 'about',
-                    name: 'about'
+                    data: 'country_name',
+                    name: 'country_name'
                 },
                 {
                     data: 'city_name',
-                    name: 'city'
+                    name: 'city_name'
                 },
                 {
-                    data: 'area_name',
-                    name: 'area'
+                    data: 'status',
+                    name: 'status'
                 },
-                {
-                    data: 'type_name',
-                    name: 'Type'
-                },
-                {
-                    data: 'DiscountStoreType',
-                    name: 'DiscountStoreType'
-                },
-                    @can('user.delete'||'user.update')
+
                 {
                     data: 'action',
                     name: 'action',
                     orderable: false,
                     searchable: true
                 },
-                @endcan
             ]
 
         });

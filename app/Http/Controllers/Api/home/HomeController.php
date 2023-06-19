@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\artists;
+use App\Models\Category;
 use App\Models\City;
 use App\Models\Service;
 use App\Models\Setting;
+use App\Models\SupCategory;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -47,5 +49,7 @@ class HomeController extends Controller
     public function getCityFromCounty($uuid){
         return mainResponse(true, "done", City::query()->where('country_uuid',$uuid)->get(), [], 200);
     }
-
+    public function getSupFromCategory($uuid){
+        return mainResponse(true, "done", SupCategory::query()->where('Category_uuid',$uuid)->get(), [], 200);
+    }
 }

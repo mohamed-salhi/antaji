@@ -670,30 +670,109 @@ var pageNot=2
         $('.invalid-feedback').text('');
     });
 
+    $(document).on("click", "#btn_update", function (e) {
+        var button = $(this)
+        e.preventDefault();
 
-    $(document).on("click", ".activate-row", function (event) {
-        var _this = $(this);
-        var action = _this.attr("url");
-        $.ajax({
-            type: "put",
-            url: action,
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+
+        var url = button.data('url')
+        var deletes = '@lang('confirm_update')'
+
+        Swal.fire({
+            title: '@lang('update_confirmation')',
+            text: deletes,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '@lang('yes')',
+            cancelButtonText: '@lang('cancel')',
+            customClass: {
+                confirmButton: 'btn btn-primary',
+                cancelButton: 'btn btn-outline-danger'
             },
-            contentType: "application/json",
-            success: function (data) {
-                toastr.success('@lang('done_successfully')', '', {
-                    rtl: isRtl
+            buttonsStyling: true
+        }).then(function (result) {
+            if (result.value) {
+                $.ajax({
+                    url: url,
+                    method: 'put',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                }).done(function () {
+                    toastr.success('@lang('updated')', '', {
+                        rtl: isRtl
+                    });
+                    table.draw()
+
+                }).fail(function () {
+                    toastr.error('@lang('something_wrong')', '', {
+                        rtl: isRtl
+                    });
                 });
-                table.draw()
-            },
-            error: function (data) {
-                toastr.error('@lang('something_wrong')', '', {
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                toastr.info('@lang('delete_canceled')', '', {
                     rtl: isRtl
-                });
-            },
+                })
+            }
         });
     });
+    $(document).on("click", ".btn_status", function (e) {
+        var button = $(this)
+        var status = $(this).data('status')
+        e.preventDefault();
+        var selected = new Array();
+        $("#datatable input[type=checkbox]:checked").each(function () {
+            selected.push(this.value);
+        });
+        if (selected.length > 0) {
+            $('input[id="delete_all_id"]').val(selected);
+            var uuid = selected;
+            Swal.fire({
+                title: '@lang('update_confirmation')',
+                text: '@lang('confirm_update')',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '@lang('yes')',
+                cancelButtonText: '@lang('cancel')',
+                customClass: {
+                    confirmButton: 'btn btn-primary',
+                    cancelButton: 'btn btn-outline-info'
+                },
+                buttonsStyling: true
+            }).then(function (result) {
+                if (result.value) {
+
+
+                    var url_path = window.location.href+ '/updateStatus/'+status
+                    const url = url_path.split("?")[0]+ '/' + uuid;
+                    $.ajax({
+                        url: url,
+                        method: 'put',
+                        type: 'put',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                    }).done(function () {
+                        toastr.success('@lang('update')', '', {
+                            rtl: isRtl
+                        });
+                        table.draw()
+
+                    }).fail(function () {
+                        toastr.error('@lang('something_wrong')', '', {
+                            rtl: isRtl
+                        });
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    toastr.info('@lang('update_canceled')', '', {
+                        rtl: isRtl
+                    })
+                }
+            });
+        }
+
+    });
+
     {{--$(document).ready(function () {--}}
     {{--    @can('help-list')--}}
 

@@ -16,8 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('price');
             $table->string('type');
-            $table->foreignUuid('main_category');
-            $table->foreignUuid('sub_category');
+            $table->foreignUuid('user_uuid');
+            $table->string('status')->default(1);
+
+            $table->foreignUuid('category_uuid');
+            $table->foreignUuid('sup_category_uuid');
             $table->text('details');
             $table->timestamps();
         });

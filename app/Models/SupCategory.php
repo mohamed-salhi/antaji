@@ -15,9 +15,9 @@ class SupCategory extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['name'];
-    protected $appends = ['name_translate','category_name'];
+    protected $appends = ['name_translate','category_name','image'];
     protected $guarded = [];
-    const PATH_IMAGE='upload/subcategory/images';
+    const PATH_IMAGE='/upload/subcategory/images/';
 
     //Relations
 //    public function types()
@@ -41,6 +41,10 @@ class SupCategory extends Model
     public function getCategoryNameAttribute()
     {
         return @$this->category->name;
+    }
+    public function getImageAttribute()
+    {
+        return url('/') .self::PATH_IMAGE . @$this->imageCategory->filename;
     }
     //boot
     public static function boot()

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -156,7 +157,9 @@ class User extends Authenticatable
         self::creating(function ($item) {
             $item->uuid = Str::uuid();
         });
-
+        static::addGlobalScope('user', function (Builder $builder) {
+            $builder->where('status', 1);//1==active
+        });
 
     }
 }

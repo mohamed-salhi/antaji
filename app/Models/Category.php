@@ -15,9 +15,9 @@ class Category extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['name'];
-    protected $appends = ['name_translate'];
+    protected $appends = ['name_translate','image'];
     protected $guarded = [];
-    const PATH_IMAGE='upload/category/images';
+    const PATH_IMAGE='/upload/category/images/';
 
     //Relations
 //    public function types()
@@ -38,7 +38,10 @@ class Category extends Model
     {
         return @$this->name;
     }
-
+    public function getImageAttribute()
+    {
+        return url('/') .self::PATH_IMAGE . @$this->imageCategory->filename;
+    }
     //boot
     public static function boot()
     {
