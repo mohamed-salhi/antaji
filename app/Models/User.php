@@ -36,9 +36,9 @@ class User extends Authenticatable
         'lng',
         'address',
     ];
-    const PATH_COVER = "/upload/user/cover";
-    const PATH_PERSONAL = "/upload/user/personal";
-    const PATH_VIDEO = "/upload/user/video";
+    const PATH_COVER = "/upload/user/cover/";
+    const PATH_PERSONAL = "/upload/user/personal/";
+    const PATH_VIDEO = "/upload/user/video/";
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -130,18 +130,18 @@ class User extends Authenticatable
 
     public function getCoverUserAttribute()
     {
-        return url('/') . '/upload/user/cover/' . @$this->coverImage->filename;
+        return url('/') . self::PATH_COVER . @$this->coverImage->filename;
     }
 
     public function getVideoUserAttribute()
     {
-        return url('/') . '/upload/user/video/' . @$this->videoImage->filename;
+        return url('/') . self::PATH_VIDEO . @$this->videoImage->filename;
     }
 
     public function getImageAttribute()
     {
         if (@$this->imageUser->filename) {
-            return url('/') . '/upload/user/personal/' . @$this->imageUser->filename;
+            return url('/') . self::PATH_PERSONAL . @$this->imageUser->filename;
         } else {
             return url('/') . '/upload/user/fea062c5fb579ac0dc5ae2c22c6c51fb.jpg';
 

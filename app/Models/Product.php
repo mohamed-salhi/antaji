@@ -29,6 +29,10 @@ class Product extends Model
     {
         return $this->belongsTo(SupCategory::class, 'sup_category_uuid');
     }
+    public function Specifications()
+    {
+        return $this->hasMany(Specification::class, 'product_uuid');
+    }
     public function imageProduct()
     {
         return $this->morphMany(Upload::class, 'imageable');

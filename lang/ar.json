@@ -129,6 +129,7 @@
     "property": "العقار",
     "property_code": "رمز العقار",
     "services": "الخدمات",
+    "our services": "خدماتنا",
     "service": "الخدمة",
     "comment": "التعليق",
     "rating": "التقييم",
@@ -553,5 +554,12 @@
     "leasing products": "المنتجات التاجبر",
     "courses": "الدورات",
     "course name": "مالك الدورة",
-    "course owner": "اسم الدورة"
+    "course owner": "اسم الدورة",
+    "personal photo": "الصورة الشخصية",
+    "artists": "الفنانين",
+    "working condition": "حالة العمل",
+    "service owner": "مالك الخدمة",
+    "service name": "اسم الخدمة",
+    "flag": "الصورة",
+    "cover image": "الصورة الغلاف"
 }

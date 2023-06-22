@@ -47,7 +47,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('add_course', [\App\Http\Controllers\Api\Content\ContentController::class, 'addCourse']);
     Route::post('add_serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'addServing']);
     Route::post('add_location', [\App\Http\Controllers\Api\Content\ContentController::class, 'addLocation']);
-    Route::post('add_Product', [\App\Http\Controllers\Api\Content\ContentController::class, 'addProduct']);
+    Route::post('add_product', [\App\Http\Controllers\Api\Content\ContentController::class, 'addProduct']);
+    Route::post('update_course', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateCourse']);
+    Route::post('update_serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateServing']);
+    Route::post('update_location', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateLocation']);
+    Route::post('update_product', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateProduct']);
+    Route::delete('delete_course/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteCourse']);
+    Route::delete('delete_serving/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteServing']);
+    Route::delete('delete_location/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteLocation']);
+    Route::delete('delete_product/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteProduct']);
 
 
 });

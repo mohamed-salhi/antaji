@@ -140,8 +140,15 @@ Route::group(
 
             });
             Route::controller(\App\Http\Controllers\Admin\setting\SettingController::class)->prefix('settings')->name('settings.')->group(function () {
-                Route::get('/', 'index')->name('index');
-                Route::post('/store', 'store')->name('store');
+                Route::get('/policies_privacy', [\App\Http\Controllers\Admin\setting\SettingController::class,'policies_privacy'])->name('policies_privacy');
+                Route::post('/policies_privacy', [\App\Http\Controllers\Admin\setting\SettingController::class,'policies_privacy_post'])->name('policies_privacy');
+                Route::get('/about_application', [\App\Http\Controllers\Admin\setting\SettingController::class,'about_application'])->name('about_application');
+                Route::post('/about_application', [\App\Http\Controllers\Admin\setting\SettingController::class,'about_application_post'])->name('about_application');
+                Route::get('/terms_conditions', [\App\Http\Controllers\Admin\setting\SettingController::class,'terms_conditions'])->name('terms_conditions');
+                Route::post('/terms_conditions', [\App\Http\Controllers\Admin\setting\SettingController::class,'terms_conditions_post'])->name('terms_conditions');
+                Route::get('/delete_my_account', [\App\Http\Controllers\Admin\setting\SettingController::class,'delete_my_account'])->name('delete_my_account');
+                Route::post('/delete_my_account', [\App\Http\Controllers\Admin\setting\SettingController::class,'delete_my_account_post'])->name('delete_my_account');
+
             });
             Route::controller(\App\Http\Controllers\Admin\Contact\ContactController::class)->prefix('contacts')->name('contacts.')->group(function () {
                 Route::get('/', 'index')->name('index');
@@ -174,6 +181,33 @@ Route::group(
                 Route::get('/country/{uuid}', 'country')->name('country');
 
             });
+            Route::controller(\App\Http\Controllers\Admin\Artist\ArtistController::class)->prefix('artists')->name('artists.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{id}', 'updateStatus')->name('updateStatus');
+                Route::get('/country/{uuid}', 'country')->name('country');
+            });
+            Route::controller(\App\Http\Controllers\Admin\Serving\ServingController::class)->name('servings.')->prefix('servings')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+                Route::controller(\App\Http\Controllers\Admin\Serving\CategoryController::class)->name('categories.')->prefix('/categories')->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::post('/store', 'store')->name('store');
+                    Route::post('/update', 'update')->name('update');
+                    Route::delete('/{uuid}', 'destroy')->name('delete');
+                    Route::get('/indexTable', 'indexTable')->name('indexTable');
+                    Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+
+                });
+            });
+
         });
 
     });

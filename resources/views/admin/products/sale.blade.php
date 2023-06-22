@@ -243,11 +243,9 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="images">@lang('images')</label>
-                                <input type="file" multiple accept="image/*" class="form-control"
-                                       placeholder="@lang('images')" name="images[]" id="image">
-                                <div class="invalid-feedback"></div>
+                            <div class="input-field">
+                                <label class="active">Photos</label>
+                                <div class="input-images" style="padding-top: .5rem;"></div>
                             </div>
                         </div>
                     </div>
@@ -340,6 +338,13 @@
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="input-field">
+                                <label class="active">Photos</label>
+                                <div class="input-images-2" style="padding-top: .5rem;"></div>
+                            </div>
+                            <div class="invalid-feedback"></div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
@@ -478,6 +483,30 @@
                 var button = $(this)
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
+                let fileArray = button.data('images').split(',') + '';
+                if (fileArray.indexOf(',') >= 0) {
+                    fileArray = button.data('images').split(',');
+                }
+                let fileArrayUuids = button.data('images_uuid').split(',') + '';
+                if (fileArrayUuids.indexOf(',') >= 0) {
+                    fileArrayUuids = button.data('images_uuid').split(',');
+                }
+                var preloaded = []; // Empty array
+                $.each(fileArray, function (index, fileName) {
+                    var object = {
+                        id: fileArrayUuids[index],
+                        src: 'http://127.0.0.1:8000/upload/product/images/' + fileName
+                    };
+                    preloaded.push(object)
+                })
+
+                $('.input-images-2').imageUploader({
+                    preloaded: preloaded,
+                    imagesInputName: 'images[]',
+                    preloadedInputName: 'delete_images',
+                    maxSize: 2 * 1024 * 1024,
+                    maxFiles: 10
+                });
                 $('#edit_name').val(button.data('name'))
                 console.log(button.data('name'))
                 $('#edit_price').val(button.data('price'))

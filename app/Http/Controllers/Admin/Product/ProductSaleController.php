@@ -23,6 +23,8 @@ class ProductSaleController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'images' => 'required',
+            'images.*' => 'mimes:jpeg,jpg,png,gif,csv,txt,pdf|max:2048',
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
@@ -62,10 +64,23 @@ class ProductSaleController extends Controller
             'sup_category_uuid' => 'required|exists:sup_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
         ];
-        $product = Product::findOrFail($request->uuid);
+        $product = Product::query()->withoutGlobalScope('status')->findOrFail($request->uuid);
 
         $this->validate($request, $rules);
         $product->update($request->only('name','details','price','user_uuid','category_content_uuid'));
+        if (isset($request->delete_images)) {
+            $images = Upload::query()->where('imageable_type',Product::class)->where('imageable_id',$product->uuid)->whereNotIn('uuid', $request->delete_images)->get();
+
+            foreach ($images as $item) {
+                File::delete(public_path(Product::PATH_PRODUCT . $item->filename));
+                $item->delete();
+            }
+        }
+        if ($request->hasFile('images')) {
+            foreach ($request->images as $item) {
+                UploadImage($item, Product::PATH_PRODUCT, Product::class, $product->uuid, false, null, Upload::IMAGE);
+            }
+        }
         return response()->json([
             'item_edited'
         ]);
@@ -77,11 +92,13 @@ class ProductSaleController extends Controller
 
         try {
             $uuids=explode(',', $uuid);
-            $product=  Product::whereIn('uuid', $uuids)->get();
+            $product=  Product::query()->withoutGlobalScope('status')->whereIn('uuid', $uuids)->get();
 
             foreach ($product as $item){
-                File::delete(public_path(Product::PATH_PRODUCT.$item->imageProduct->filename));
-                $item->imageProduct()->delete();
+                foreach ($item->imageProduct as $image){
+                    File::delete(public_path(Product::PATH_PRODUCT.$image->filename));
+                    $image->delete();
+                }
                 $item->delete();
             }
             return response()->json([
@@ -128,6 +145,8 @@ class ProductSaleController extends Controller
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-category_uuid="' . $que->category_uuid . '" ';
                 $data_attr .= 'data-sup_category_uuid="' . $que->sup_category_uuid . '" ';
+                $data_attr .= 'data-images_uuid="' . implode(',', $que->imageProduct->pluck('uuid')->toArray()) .'" ';
+                $data_attr .= 'data-images="' . implode(',', $que->imageProduct->pluck('filename')->toArray()) .'" ';
 
                 $url = url('/products/sale/images/'.$que->uuid);
 
@@ -164,7 +183,7 @@ class ProductSaleController extends Controller
     {
         $uuids=explode(',', $sup);
 
-        $product =  Product::query()->withoutGlobalScope('status')
+        $product =  Product::query()->withoutGlobalScope('status')->orderByDesc('created_at')
             ->whereIn('uuid',$uuids)
             ->update([
                 'status'=>$status
@@ -174,7 +193,7 @@ class ProductSaleController extends Controller
         ]);
     }
     public function imageIndex($uuid){
-        return view('admin.products.sale.images', compact('uuid'));
+        return view('admin.products.images', compact('uuid'));
     }
     public function imageIndexTable(Request $request,$uuid)
     {
@@ -188,6 +207,7 @@ class ProductSaleController extends Controller
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
                 $data_attr .= 'data-imageable_id="' . $que->imageable_id . '" ';
                 $data_attr .= 'data-image="' .url('/').Product::PATH_PRODUCT.$que->filename . '" ';
+
                 $string = '';
                 $url = url('/products/sale/images/'.$que->imageable_id);
                 $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"

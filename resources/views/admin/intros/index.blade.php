@@ -38,7 +38,6 @@
                                 <div class="head-label">
                                     <h4 class="card-title">@lang('intros')</h4>
                                 </div>
-{{--                                @can('place-create')--}}
                                     <div class="text-right">
                                         <div class="form-group">
                                             <button class="btn btn-outline-primary button_modal" type="button"
@@ -48,37 +47,9 @@
                                             </button>
                                         </div>
                                     </div>
-{{--                                @endcan--}}
                             </div>
                             <div class="card-body">
-{{--                                <form id="search_form">--}}
-{{--                                    <div class="row">--}}
-{{--                                        <div class="col-md-3">--}}
-{{--                                            <div class="form-group">--}}
-{{--                                                <label for="s_status">@lang('status')</label>--}}
-{{--                                                <select name="s_status" id="s_status" class="search_input form-control">--}}
-{{--                                                    <option selected disabled>@lang('select') @lang('status')</option>--}}
-{{--                                                    <option value="1"> @lang('active') </option>--}}
-{{--                                                    <option  value="2"> @lang('inactive') </option>--}}
-{{--                                                </select>--}}
-{{--                                                <div class="invalid-feedback"></div>--}}
-{{--                                            </div>--}}
-{{--                                        </div>--}}
 
-{{--                                        <div class="col-3" style="margin-top: 20px">--}}
-{{--                                            <button id="search_btn" class="btn btn-outline-info" type="submit">--}}
-{{--                                                <span><i class="fa fa-search"></i> @lang('search')</span>--}}
-{{--                                            </button>--}}
-{{--                                            <button id="clear_btn" class="btn btn-outline-secondary" type="submit">--}}
-{{--                                                <span><i class="fa fa-undo"></i> @lang('reset')</span>--}}
-{{--                                            </button>--}}
-{{--                                            <button id="btn_delete_all"--}}
-{{--                                                    class="btn_delete_all btn btn-outline-danger " type="button">--}}
-{{--                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i> @lang('delete')</span>--}}
-{{--                                            </button>--}}
-{{--                                        </div>--}}
-{{--                                    </div>--}}
-{{--                                </form>--}}
                             </div>
                             <div class="table-responsive card-datatable" style="padding: 20px">
                                 <table class="table" id="datatable">
@@ -142,15 +113,28 @@
 
                             @endforeach
                             <div class="col-12">
-                                <div class="form-group">
-                                    <br>
-                                    <input type="file" accept="image/*" name="image" class="file-input">
-                                <div class="image">
-                                    <img class="image-preview">
+                                <label for="icon">@lang('flag')</label>
+                                <div>
+                                    <div class="fileinput fileinput-exists"
+                                         data-provides="fileinput">
+                                        <div class="fileinput-preview thumbnail"
+                                             data-trigger="fileinput"
+                                             style="width: 200px; height: 150px;">
+                                            <img id="flag"
+                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                                 alt=""/>
+                                        </div>
+                                        <div class="form-group">
+                                                    <span class="btn btn-secondary btn-file">
+                                                        <span class="fileinput-new"> @lang('select_image')</span>
+                                                        <span class="fileinput-exists"> @lang('select_image')</span>
+                                                        <input class="form-control" type="file" name="image">
+                                                    </span>
+                                            <div class="invalid-feedback" style="display: block;"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
+                                          </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
@@ -199,13 +183,28 @@
                                 </div>
                             @endforeach
                             <div class="col-12">
-                                <div class="form-group">
-                                    <br>
-                                    <input type="file" accept="image/*" name="image" class="file-input">
-                                    <img class="image-preview" >
-                                    <div class="invalid-feedback"></div>
+                                <label for="icon">@lang('flag')</label>
+                                <div>
+                                    <div class="fileinput fileinput-exists"
+                                         data-provides="fileinput">
+                                        <div class="fileinput-preview thumbnail"
+                                             data-trigger="fileinput"
+                                             style="width: 200px; height: 150px;">
+                                            <img id="edit_src_image"
+                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                                 alt=""/>
+                                        </div>
+                                        <div class="form-group">
+                                                    <span class="btn btn-secondary btn-file">
+                                                        <span class="fileinput-new"> @lang('select_image')</span>
+                                                        <span class="fileinput-exists"> @lang('select_image')</span>
+                                                        <input class="form-control" type="file" name="image">
+                                                    </span>
+                                            <div class="invalid-feedback" style="display: block;"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                                          </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
@@ -318,7 +317,7 @@
                 $('#edit_sup_title_{{ $key }}').val(button.data('sup_title_{{ $key }}'))
 
                 @endforeach
-                $('.image-preview').attr('src', button.data('image'));
+                $('#edit_src_image').attr('src', button.data('image'));
 
             });
         });

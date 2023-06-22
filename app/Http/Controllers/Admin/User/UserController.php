@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\User;
 use App\Http\Controllers\Controller;
 use App\Models\City;
 use App\Models\Country;
+use App\Models\Specialization;
 use App\Models\Upload;
 use App\Models\User;
 use App\Models\ViewNotificationAdmin;
@@ -19,7 +20,9 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $countries = Country::query()->select(['name', 'uuid'])->get();
-        return view('admin.users.index', compact('countries'));
+        $specializations = Specialization::query()->select(['name', 'uuid'])->get();
+
+        return view('admin.users.index', compact('countries', 'specializations'));
     }
 
     public function store(Request $request)
@@ -34,10 +37,10 @@ class UserController extends Controller
                     $query->where('country_uuid', $request->country_uuid);
                 }),
             ],
-            'type' => 'required|in:artist,user',
+//            'type' => 'required|in:artist,user',
             'personal_photo' => 'nullable',
             'cover_Photo' => 'nullable',
-            'video' => 'required',
+            'video' => 'nullable',
             'skills' => 'nullable',
             'brief' => 'nullable',
             'lat' => 'nullable',
@@ -46,37 +49,50 @@ class UserController extends Controller
             'specialization_uuid' => 'required|exists:specializations,uuid',
         ];
         $this->validate($request, $rules);
+        $request->merge([
+            'type'=> 'user',
+        ]);
         $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'personal_photo', 'cover_Photo', 'video', 'skills', 'brief', 'lat', 'lng', 'address', 'specialization_uuid'));
-        UploadImage($request->personal_photo, User::PATH_PERSONAL, User::class, $user->uuid, false, null, Upload::IMAGE, 'personal_photo');
-        UploadImage($request->cover_Photo, User::PATH_COVER, User::class, $user->uuid, false, null, Upload::IMAGE, 'cover_photo');
-
-        if ($request->has('video')) {
-            UploadImage($request->video, User::PATH_VIDEO, User::class, $user->uuid, true, null, Upload::VIDEO);
+        if ($request->hasFile('personal_photo')) {
+            UploadImage($request->personal_photo, User::PATH_PERSONAL, User::class, $user->uuid, false, null, Upload::IMAGE, 'personal_photo');
         }
-        $user->skills()->sync($request->skills);
+        if ($request->hasFile('cover_Photo')) {
+            UploadImage($request->cover_Photo, User::PATH_COVER, User::class, $user->uuid, false, null, Upload::IMAGE, 'cover_photo');
+        }
+        if ($request->hasFile('video')) {
+            UploadImage($request->video, User::PATH_VIDEO, User::class, $user->uuid, false, null, Upload::VIDEO);
+        }
         return response()->json([
-            'item_edited'
+            'item_added'
         ]);
     }
 
 
     public function update(Request $request)
     {
-        $user = User::findOrFail($request->uuid);
+        $user = User::query()->withoutGlobalScope('user')->findOrFail($request->uuid);
         $rules = [
-            'mobile' => 'required|unique:users,mobile|max:12',
             'name' => 'required',
-            'email' => 'required|unique:users,email',
+            'mobile' => [
+                'required',
+                'max:12',
+                Rule::unique('users', 'mobile')->ignore($user->uuid, 'uuid')
+            ],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($user->uuid, 'uuid')
+            ],
             'country_uuid' => 'required|exists:countries,uuid',
             'city_uuid' => ['required',
                 Rule::exists(City::class, 'uuid')->where(function ($query) use ($request) {
                     $query->where('country_uuid', $request->country_uuid);
                 }),
             ],
-            'type' => 'required|in:artist,user',
-            'personal_photo' => 'required',
-            'cover_Photo' => 'required',
-            'video' => 'required',
+//            'type' => 'required|in:artist,user',
+            'personal_photo' => 'nullable',
+            'cover_Photo' => 'nullable',
+            'video' => 'nullable',
             'skills' => 'nullable',
             'brief' => 'nullable',
             'lat' => 'nullable',
@@ -92,6 +108,9 @@ class UserController extends Controller
         if ($request->hasFile('personal_photo')) {
             UploadImage($request->personal_photo, User::PATH_PERSONAL, User::class, $user->uuid, true, null, Upload::IMAGE, 'personal_photo');
         }
+        if ($request->hasFile('video')) {
+            UploadImage($request->video, User::PATH_VIDEO, User::class, $user->uuid, true, null, Upload::VIDEO);
+        }
         return response()->json([
             'item_added'
         ]);
@@ -99,36 +118,36 @@ class UserController extends Controller
 
     public function destroy($uuid)
     {
-        try {
-            $uuids = explode(',', $uuid);
-            $user = User::whereIn('uuid', $uuids)->get();
-            foreach ($user as $item) {
-                File::delete(public_path(User::PATH_PERSONAL . $user->imageUser->filename));
-                File::delete(public_path(User::PATH_VIDEO . $user->videoImage->filename));
-                File::delete(public_path(User::PATH_COVER . $user->coverImage->filename));
-                $item->coverImage()->delete();
-                $item->videoImage()->delete();
-                $item->imageUser()->delete();
-                $user->skills()->detach();
-                $item->delete();
-            }
-            return response()->json([
-                'done'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'err'
-            ]);
+//        try {
+        $uuids = explode(',', $uuid);
+        $user = User::whereIn('uuid', $uuids)->get();
+        foreach ($user as $item) {
+            File::delete(public_path(User::PATH_PERSONAL . @$item->imageUser->filename));
+            File::delete(public_path(User::PATH_VIDEO . @$item->videoImage->filename));
+            File::delete(public_path(User::PATH_COVER . @$item->coverImage->filename));
+            $item->coverImage()->delete();
+            $item->videoImage()->delete();
+            $item->imageUser()->delete();
+            $item->skills()->detach();
+            $item->delete();
         }
+        return response()->json([
+            'done'
+        ]);
+//        } catch (\Exception $e) {
+//            return response()->json([
+//                'err'
+//            ]);
+//        }
     }
 
     public function indexTable(Request $request)
     {
-        $user = User::query()->withoutGlobalScope('user')->where('type','user')->orderBy('created_at');
+        $user = User::query()->withoutGlobalScope('user')->where('type', 'user')->orderBy('created_at');
         return Datatables::of($user)
             ->filter(function ($query) use ($request) {
-                if ($request->status){
-                    ($request->status==1)?$query->where('status',1):$query->where('status',0);
+                if ($request->status) {
+                    ($request->status == 1) ? $query->where('status', 1) : $query->where('status', 0);
                 }
                 if ($request->name) {
                     $query->where('name', 'like', "%{$request->name}%");
@@ -154,37 +173,44 @@ class UserController extends Controller
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
                 $data_attr .= 'data-city_uuid="' . $que->city_uuid . '" ';
                 $data_attr .= 'data-country_uuid="' . $que->country_uuid . '" ';
-                $data_attr .= 'data-city_name="' . $que->city_name . '" ';
-                $data_attr .= 'data-country_name="' . $que->country_name . '" ';
-                $data_attr .= 'data-mobile="' . $que->phone . '" ';
+                $data_attr .= 'data-mobile="' . $que->mobile . '" ';
                 $data_attr .= 'data-email="' . $que->email . '" ';
-                $data_attr .= 'data-image="' . $que->image . '" ';
+                $data_attr .= 'data-brief="' . $que->brief . '" ';
+                $data_attr .= 'data-lat="' . $que->lat . '" ';
+                $data_attr .= 'data-lng="' . $que->lng . '" ';
+                $data_attr .= 'data-address="' . $que->address . '" ';
+                $data_attr .= 'data-specialization_uuid="' . $que->specialization_uuid . '" ';
+                $data_attr .= 'data-type="' . $que->type . '" ';
+                $data_attr .= 'data-video="' . $que->video_user . '" ';
+                $data_attr .= 'data-address="' . $que->address . '" ';
+                $data_attr .= 'data-cover_user="' . $que->cover_user . '" ';
+                $data_attr .= 'data-personal_photo="' . $que->image . '" ';
                 $data_attr .= 'data-name="' . $que->name . '" ';
 //                $user = Auth()->user();
 
 
                 $string = '';
 //                if ($user->can('user-edit')) {
-                    $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"
+                $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"
                     data-target="#edit_modal" ' . $data_attr . '>' . __('edit') . '</button>';
 //                }
 //                if ($user->can('user-delete')) {
-                    $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
-                        '">' . __('delete') . '</button>';
+                $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
+                    '">' . __('delete') . '</button>';
 //                }
                 $string .= '<button class="detail_btn btn btn-sm btn-outline-success btn_detail" data-toggle="modal"
                     data-target="#detail_modal" ' . $data_attr . '>' . __('details') . '</button>';
 
                 return $string;
-            })   ->addColumn('status', function ($que)  {
+            })->addColumn('status', function ($que) {
                 $currentUrl = url('/');
-                if ($que->status==1){
-                    $data='
+                if ($que->status == 1) {
+                    $data = '
 <button type="button"  data-url="' . $currentUrl . "/users/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
                         '">' . __('active') . '</button>
                     ';
-                }else{
-                    $data='
+                } else {
+                    $data = '
 <button type="button"  data-url="' . $currentUrl . "/users/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
                         '">' . __('inactive') . '</button>
                     ';
@@ -194,14 +220,14 @@ class UserController extends Controller
             ->rawColumns(['action', 'status'])->toJson();
     }
 
-    public function updateStatus($status,$sup)
+    public function updateStatus($status, $sup)
     {
-        $uuids=explode(',', $sup);
+        $uuids = explode(',', $sup);
 
-        $activate =  User::query()->withoutGlobalScope('user')
-            ->whereIn('uuid',$uuids)
+        $activate = User::query()->withoutGlobalScope('user')
+            ->whereIn('uuid', $uuids)
             ->update([
-                'status'=>$status
+                'status' => $status
             ]);
         return response()->json([
             'item_edited'

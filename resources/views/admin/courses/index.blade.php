@@ -279,13 +279,26 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <div class="form-group">
-                                <br>
-                                <input type="file" accept="image/*" name="image" class="file-input">
-                                <div class="image">
-                                    <img class="image-preview">
+                            <label for="icon">@lang('flag')</label>
+                            <div>
+                                <div class="fileinput fileinput-exists"
+                                     data-provides="fileinput">
+                                    <div class="fileinput-preview thumbnail"
+                                         data-trigger="fileinput"
+                                         style="width: 200px; height: 150px;">
+                                        <img id="flag"
+                                             src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                             alt=""/>
+                                    </div>
+                                    <div class="form-group">
+                                                    <span class="btn btn-secondary btn-file">
+                                                        <span class="fileinput-new"> @lang('select_image')</span>
+                                                        <span class="fileinput-exists"> @lang('select_image')</span>
+                                                        <input class="form-control" type="file" name="image">
+                                                    </span>
+                                        <div class="invalid-feedback" style="display: block;"></div>
+                                    </div>
                                 </div>
-                                <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="col-12">
@@ -309,6 +322,29 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="video_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <br>
+                    <video id="video-1" controls class="video-preview"></video>
+                    <div class="invalid-feedback"></div>
+                </div>
+{{--                <video width="320" height="240" autoplay>--}}
+{{--                    <source id="video-1" type="video/mp4">--}}
+{{--                    <source src="movie.ogg" type="video/ogg">--}}
+{{--                    Your browser does not support the video tag.--}}
+{{--                </video>--}}
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal -->
     <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
@@ -367,15 +403,28 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <div class="form-group">
-                                <br>
-                                <input type="file" accept="image/*" name="image" class="file-input">
-                                <div class="image">
-                                    <img class="image-preview">
+                            <label for="icon">@lang('flag')</label>
+                            <div>
+                                <div class="fileinput fileinput-exists"
+                                     data-provides="fileinput">
+                                    <div class="fileinput-preview thumbnail"
+                                         data-trigger="fileinput"
+                                         style="width: 200px; height: 150px;">
+                                        <img id="edit_src_image"
+                                             src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                             alt=""/>
+                                    </div>
+                                    <div class="form-group">
+                                                    <span class="btn btn-secondary btn-file">
+                                                        <span class="fileinput-new"> @lang('select_image')</span>
+                                                        <span class="fileinput-exists"> @lang('select_image')</span>
+                                                        <input class="form-control" type="file" name="image">
+                                                    </span>
+                                        <div class="invalid-feedback" style="display: block;"></div>
+                                    </div>
                                 </div>
-                                <div class="invalid-feedback"></div>
                             </div>
-                        </div>
+                                      </div>
                         <div class="col-12">
                             <div class="form-group">
                                 <br>
@@ -499,10 +548,19 @@
                 console.log(button.data('name'))
                 $('#edit_price').val(button.data('price'))
                 $('#edit_details').val(button.data('details'))
+                $('#edit_src_image').attr('src', button.data('image'));
+                console.log(button.data('image'))
                 $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
                 $('#edit_category_contents_uuid').val(button.data('category_contents_uuid')).trigger('change');
 
             });
+            $(document).on('click', '.video_btn', function (event) {
+                var button = $(this)
+                console.log(button.data('video'))
+                $('#video-1').attr('src', button.data('video'));
+
+            });
+
         });
     </script>
 @endsection

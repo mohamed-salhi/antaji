@@ -160,20 +160,20 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('locations.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
+                <form action="{{ route('locations.store') }}" method="POST" id="add_model_form" class="add-mode-form"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
 
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="name">@lang('name') </label>
-                                    <input type="text" class="form-control"
-                                           placeholder="@lang('name')" name="name"
-                                           id="name">
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="name">@lang('name') </label>
+                                <input type="text" class="form-control"
+                                       placeholder="@lang('name')" name="name"
+                                       id="name">
+                                <div class="invalid-feedback"></div>
                             </div>
+                        </div>
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="price">@lang('price') </label>
@@ -187,23 +187,32 @@
                             <div class="form-group">
                                 <label for="price">@lang('details') </label>
                                 <textarea class="form-control"
-                                       placeholder="@lang('details')" name="details"
+                                          placeholder="@lang('details')" name="details"
                                           id="details"></textarea>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
+                        {{--                        <div class="col-12">--}}
+                        {{--                            <div class="form-group">--}}
+                        {{--                                <label for="">@lang('categories')</label>--}}
+                        {{--                                <select name="category_contents_uuid" id="category_contents_uuid"--}}
+                        {{--                                        class="select form-control"--}}
+                        {{--                                        data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">--}}
+                        {{--                                    <option selected disabled>@lang('select') @lang('categories')</option>--}}
+                        {{--                                    @foreach ($category_contents as $item)--}}
+                        {{--                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>--}}
+                        {{--                                    @endforeach--}}
+                        {{--                                </select>--}}
+                        {{--                                <div class="invalid-feedback"></div>--}}
+                        {{--                            </div>--}}
+                        {{--                        </div>--}}
                         <div class="col-12">
-                            <div class="form-group">
-                                <label for="">@lang('categories')</label>
-                                <select name="category_contents_uuid" id="category_contents_uuid" class="select form-control"
-                                        data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                    <option selected disabled>@lang('select') @lang('categories')</option>
-                                    @foreach ($category_contents as $item)
-                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
+                            <label class="form-label select-label">@lang('select'),@lang('categories')</label>
+                            <select name="category_contents_uuid[]" class="select" multiple>
+                                @foreach ($category_contents as $item)
+                                    <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-12">
                             <div class="form-group">
@@ -219,15 +228,12 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="images">@lang('images')</label>
-                                <input type="file" multiple accept="image/*" class="form-control"
-                                       placeholder="@lang('images')" name="images[]" id="image">
-                                <div class="invalid-feedback"></div>
+                            <div class="input-field">
+                                <label class="active">Photos</label>
+                                <div class="input-images" style="padding-top: .5rem;"></div>
                             </div>
                         </div>
                     </div>
-
 
 
                     <div class="modal-footer">
@@ -251,21 +257,21 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('locations.update') }}" method="POST" id="form_edit" class=""
+                <form action="{{ route('locations.update') }}" method="POST" id="form_edit"
                       enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="uuid" id="uuid" class="form-control"/>
                     <div class="modal-body">
 
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="name">@lang('name')</label>
-                                    <input type="text" class="form-control"
-                                           placeholder="@lang('name')"
-                                           name="name" id="edit_name">
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="name">@lang('name')</label>
+                                <input type="text" class="form-control"
+                                       placeholder="@lang('name')"
+                                       name="name" id="edit_name">
+                                <div class="invalid-feedback"></div>
                             </div>
+                        </div>
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="price">@lang('price')</label>
@@ -279,7 +285,7 @@
                             <div class="form-group">
                                 <label for="details">@lang('details')</label>
                                 <textarea type="text" class="form-control"
-                                       placeholder="@lang('details')"
+                                          placeholder="@lang('details')"
                                           name="details" id="edit_details"></textarea>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -297,17 +303,24 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <div class="form-group">
-                                <label for="edit_category_contents_uuid">@lang('categories')</label>
-                                <select class="form-control" id="edit_category_contents_uuid" name="category_contents_uuid" required>
-                                    <option value="">@lang('select') @lang('categories')</option>
-                                    @foreach ($category_contents as $item)
-                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
+                            <label for="edit_category_contents_uuid" class="form-label select-label">@lang('select')
+                                ,@lang('categories')</label>
+                            <select id="edit_category_contents_uuid" name="category_contents_uuid[]" class="select"
+                                    multiple>
+                                @foreach ($category_contents as $item)
+                                    <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback"></div>
                         </div>
+                    <div class="col-12">
+                        <div class="input-field">
+                            <label class="active">Photos</label>
+                            <div class="input-images-2" style="padding-top: .5rem;"></div>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
@@ -320,8 +333,11 @@
     </div>
 @endsection
 @section('scripts')
+
     <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
     <script type="text/javascript">
+
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -414,13 +430,39 @@
                 var button = $(this)
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
+                let fileArray = button.data('images').split(',') + '';
+                if (fileArray.indexOf(',') >= 0) {
+                    fileArray = button.data('images').split(',');
+                }
+                let fileArrayUuids = button.data('images_uuid').split(',') + '';
+                if (fileArrayUuids.indexOf(',') >= 0) {
+                    fileArrayUuids = button.data('images_uuid').split(',');
+                }
+                var preloaded = []; // Empty array
+                $.each(fileArray, function (index, fileName) {
+                    var object = {
+                        id: fileArrayUuids[index],
+                        src: 'http://127.0.0.1:8000/upload/location/images/' + fileName
+                    };
+                    preloaded.push(object)
+                })
+
+                $('.input-images-2').imageUploader({
+                    preloaded: preloaded,
+                    imagesInputName: 'images[]',
+                    preloadedInputName: 'delete_images',
+                    maxSize: 2 * 1024 * 1024,
+                    maxFiles: 10
+                });
                 $('#edit_name').val(button.data('name'))
-                console.log(button.data('name'))
                 $('#edit_price').val(button.data('price'))
                 $('#edit_details').val(button.data('details'))
                 $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
-                $('#edit_category_contents_uuid').val(button.data('category_contents_uuid')).trigger('change');
-
+                var category_contents_uuids = button.data('category_contents_uuid') + '';
+                if (category_contents_uuids.indexOf(',') >= 0) {
+                    category_contents_uuids = button.data('category_contents_uuid').split(',');
+                }
+                $('#edit_category_contents_uuid').val(category_contents_uuids).trigger('change');
             });
         });
     </script>

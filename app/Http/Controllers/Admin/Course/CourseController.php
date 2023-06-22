@@ -75,9 +75,9 @@ class CourseController extends Controller
     public function destroy($uuid)
     {
 
-        try {
+
             $uuids=explode(',', $uuid);
-            $courses=  Course::whereIn('uuid', $uuids)->get();
+            $courses=  Course::query()->withoutGlobalScope('status')->whereIn('uuid', $uuids)->get();
 
             foreach ($courses as $item){
                 File::delete(public_path(Course::PATH_COURSE.$item->imageCourse->filename));
@@ -89,11 +89,7 @@ class CourseController extends Controller
             return response()->json([
                 'item_deleted'
             ]);
-        }catch (\Exception $e){
-            return response()->json([
-                'err'
-            ]);
-        }
+
     }
 
     public function indexTable(Request $request)
@@ -121,7 +117,11 @@ class CourseController extends Controller
                 $data_attr .= 'data-name="' . $que->name . '" ';
                 $data_attr .= 'data-price="' . $que->price . '" ';
                 $data_attr .= 'data-details="' . $que->details . '" ';
+                $data_attr .= 'data-details="' . $que->details . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
+                $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
+                $data_attr .= 'data-image="' . $que->image . '" ';
+
 
                 $url = url('/courses/images/'.$que->uuid);
 
@@ -134,6 +134,9 @@ class CourseController extends Controller
 
                 $string .= ' <a href="'.$url.'"  class="btn btn-sm btn-outline-info btn_image" data-uuid="' . $que->uuid .
                     '">' . __('details') . '  </a>';
+                $string .= '<button class="edit_btn btn btn-sm btn-outline-primary video_btn" data-toggle="modal"
+                    data-target="#video_modal" data-video="' . $que->video .'">' . __('video') . '</button>';
+
                 return $string;
             }) ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');

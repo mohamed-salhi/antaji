@@ -24,7 +24,10 @@ class ProductLeasingController extends Controller
     }
     public function store(Request $request)
     {
+
         $rules = [
+            'images' => 'required',
+            'images.*' => 'mimes:jpeg,jpg,png,gif,csv,txt,pdf|max:2048',
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
@@ -68,10 +71,22 @@ class ProductLeasingController extends Controller
 
         $this->validate($request, $rules);
         $product->update($request->only('name','details','price','user_uuid','category_content_uuid'));
+        if (isset($request->delete_images)) {
+            $images = Upload::query()->where('imageable_type',Product::class)->where('imageable_id',$product->uuid)->whereNotIn('uuid', $request->delete_images)->get();
+
+            foreach ($images as $item) {
+                File::delete(public_path(Product::PATH_PRODUCT . $item->filename));
+                $item->delete();
+            }
+        }
+        if ($request->hasFile('images')) {
+            foreach ($request->images as $item) {
+                UploadImage($item, Product::PATH_PRODUCT, Product::class, $product->uuid, false, null, Upload::IMAGE);
+            }
+        }
         return response()->json([
             'item_edited'
         ]);
-
     }
 
     public function destroy($uuid)
@@ -82,8 +97,10 @@ class ProductLeasingController extends Controller
             $product=  Product::whereIn('uuid', $uuids)->get();
 
             foreach ($product as $item){
-                File::delete(public_path(Product::PATH_PRODUCT.$item->imageProduct->filename));
-                $item->imageProduct()->delete();
+                foreach ($item->imageProduct as $image){
+                    File::delete(public_path(Product::PATH_PRODUCT.$image->filename));
+                    $image->delete();
+                }
                 $item->delete();
             }
             return response()->json([
@@ -98,7 +115,7 @@ class ProductLeasingController extends Controller
 
     public function indexTable(Request $request)
     {
-        $product = Product::query()->withoutGlobalScope('status')->where('type','leasing')->orderBy('created_at');
+        $product = Product::query()->withoutGlobalScope('status')->where('type','leasing')->orderByDesc('created_at');
         return Datatables::of($product)
             ->filter(function ($query) use ($request) {
                 if ($request->status){
@@ -130,6 +147,8 @@ class ProductLeasingController extends Controller
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-category_uuid="' . $que->category_uuid . '" ';
                 $data_attr .= 'data-sup_category_uuid="' . $que->sup_category_uuid . '" ';
+                $data_attr .= 'data-images_uuid="' . implode(',', $que->imageProduct->pluck('uuid')->toArray()) .'" ';
+                $data_attr .= 'data-images="' . implode(',', $que->imageProduct->pluck('filename')->toArray()) .'" ';
 
                 $url = url('/products/leasing/images/'.$que->uuid);
 

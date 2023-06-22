@@ -20,19 +20,10 @@ class Category extends Model
     const PATH_IMAGE='/upload/category/images/';
 
     //Relations
-//    public function types()
-//    {
-//        return $this->belongsToMany(Type::class, 'category_type', 'category_uuid', 'type_uuid');
-//    }
     public function imageCategory()
     {
         return $this->morphOne(Upload::class, 'imageable');
     }
-
-//    public function sup_category()
-//    {
-//        return $this->belongsTo(SupCategory::class, 'category_uuid');
-//    }
     //Attributes
     public function getNameTranslateAttribute()
     {

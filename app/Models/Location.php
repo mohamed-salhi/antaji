@@ -20,13 +20,17 @@ class Location extends Model
     {
         return $this->morphMany(Upload::class, 'imageable');
     }
-    public function category()
-    {
-        return $this->belongsTo(CategoryContent::class, 'category_contents_uuid');
-    }
+//    public function category()
+//    {
+//        return $this->belongsTo(CategoryContent::class, 'category_contents_uuid');
+//    }
     public function user()
     {
         return $this->belongsTo(User::class, 'user_uuid');
+    }
+    public function categories()
+    {
+        return $this->belongsToMany(CategoryContent::class, 'category_locations', 'location_uuid', 'category_contents_uuid');
     }
     //Attributes
     public function getCategoryNameAttribute()

@@ -134,6 +134,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- BEGIN: Vendor CSS-->
+    <link type="text/css" rel="stylesheet" href="{{asset('dashboard/dist/image-uploader.min.css')}}">
+
     <link rel="stylesheet" type="text/css"
           href="{{ asset('dashboard/app-assets/vendors/css/vendors' . rtl_assets() . '.min.css') }}">
     <link rel="stylesheet" type="text/css"
@@ -300,6 +302,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+
+<script type="text/javascript" src="{{ asset('dashboard/dist/image-uploader.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('dashboard/dist/image-uploader_2.min.js') }}"></script>
+
+<script type="text/javascript" src="{{ asset('dashboard/src/image-uploader.js') }}"></script>
+
 <!-- END: Page Vendor JS-->
 
 <!-- BEGIN: Theme JS-->
@@ -426,7 +434,7 @@ var pageNot=2
             }
         });
         $(document).ready(function(){
-            $('#file-input').on('change', function(){
+            $('#file-input').on('change', function () {
                 var input = $(this)[0];
                 if (input.files && input.files[0]) {
                     var reader = new FileReader();
@@ -439,7 +447,9 @@ var pageNot=2
         });
     })
 
-
+    $('.input-images').imageUploader({
+        imagesInputName: 'images[]'
+    });
     $('.add-mode-form').on('submit', function (event) {
         $('.search_input').val("").trigger("change")
 
@@ -463,14 +473,15 @@ var pageNot=2
                 $('.done').html('saving ...').prop('disabled', true);
             },
             success: function (result) {
-                $('#full-modal-stem').modal('hide');
-                $('#model-excel').modal('hide');
-                $('#add_model_form').trigger("reset");
+                table.draw()
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
+                $('#full-modal-stem').modal('hide');
+                $('#model-excel').modal('hide');
+                $('#add_model_form').trigger("reset");
 
-                table.draw()
+
             },
             error: function (data) {
                 $('.done').prop('disabled', false);
@@ -741,8 +752,6 @@ var pageNot=2
                 buttonsStyling: true
             }).then(function (result) {
                 if (result.value) {
-
-
                     var url_path = window.location.href+ '/updateStatus/'+status
                     const url = url_path.split("?")[0]+ '/' + uuid;
                     $.ajax({

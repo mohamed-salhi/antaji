@@ -27,6 +27,8 @@ class CategoryController extends Controller
         foreach (locales() as $key => $language) {
             $rules['name_' . $key] = 'required|string|max:45';
         }
+        $rules['image'] = 'required|image';
+
         $this->validate($request, $rules);
         $data = [];
         foreach (locales() as $key => $language) {
@@ -94,7 +96,7 @@ class CategoryController extends Controller
 
     public function indexTable(Request $request)
     {
-        $category= Category::query()->withoutGlobalScope('category')->orderBy('created_at');
+        $category= Category::query()->withoutGlobalScope('category')->orderByDesc('created_at');
 
         return Datatables::of($category)
             ->filter(function ($query) use ($request) {

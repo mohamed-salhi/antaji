@@ -92,7 +92,7 @@ class countryController extends Controller
             $country=  Country::whereIn('uuid', $uuids)->get();
 
             foreach ($country as $item){
-                File::delete(public_path('upload/country/'.$item->imageCountry->filename));
+                File::delete(public_path('/upload/country/'.$item->imageCountry->filename));
                 $item->imageCountry()->delete();
                 $item->delete();
             }

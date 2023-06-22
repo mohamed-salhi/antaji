@@ -111,6 +111,8 @@
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('name')</th>
                                         <th>@lang('sup category')</th>
+                                        <th>@lang('image')</th>
+
                                         <th>@lang('status')</th>
                                         <th style="width: 225px;">@lang('actions')</th>
                                     </tr>
@@ -156,13 +158,26 @@
                             </div>
                         @endforeach
                             <div class="col-12">
-                                <div class="form-group">
-                                    <br>
-                                    <input type="file" accept="image/*" name="image" class="file-input">
-                                    <div class="image">
-                                        <img class="image-preview">
+                                <label for="icon">@lang('flag')</label>
+                                <div>
+                                    <div class="fileinput fileinput-exists"
+                                         data-provides="fileinput">
+                                        <div class="fileinput-preview thumbnail"
+                                             data-trigger="fileinput"
+                                             style="width: 200px; height: 150px;">
+                                            <img id="flag"
+                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                                 alt=""/>
+                                        </div>
+                                        <div class="form-group">
+                                                    <span class="btn btn-secondary btn-file">
+                                                        <span class="fileinput-new"> @lang('select_image')</span>
+                                                        <span class="fileinput-exists"> @lang('select_image')</span>
+                                                        <input class="form-control" type="file" name="image">
+                                                    </span>
+                                            <div class="invalid-feedback" style="display: block;"></div>
+                                        </div>
                                     </div>
-                                    <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                     </div>
@@ -217,15 +232,28 @@
 
                         @endforeach
                             <div class="col-12">
-                                <div class="form-group">
-                                    <br>
-                                    <input type="file" accept="image/*" name="image" class="file-input">
-                                    <div class="image">
-                                        <img class="image-preview">
+                                <label for="icon">@lang('flag')</label>
+                                <div>
+                                    <div class="fileinput fileinput-exists"
+                                         data-provides="fileinput">
+                                        <div class="fileinput-preview thumbnail"
+                                             data-trigger="fileinput"
+                                             style="width: 200px; height: 150px;">
+                                            <img id="edit_src_image"
+                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                                 alt=""/>
+                                        </div>
+                                        <div class="form-group">
+                                                    <span class="btn btn-secondary btn-file">
+                                                        <span class="fileinput-new"> @lang('select_image')</span>
+                                                        <span class="fileinput-exists"> @lang('select_image')</span>
+                                                        <input class="form-control" type="file" name="image">
+                                                    </span>
+                                            <div class="invalid-feedback" style="display: block;"></div>
+                                        </div>
                                     </div>
-                                    <div class="invalid-feedback"></div>
                                 </div>
-                            </div>
+                                          </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
@@ -312,6 +340,15 @@
                     name: 'category_name'
                 },
                 {
+                    "data": 'image',
+                    "name": 'image',
+                    render: function (data, type, full, meta) {
+                        return `<img src="${data}" style="width:100px;height:100px;"  class="img-fluid img-thumbnail">`;
+                    },
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'status',
                     name: 'status'
                 },
@@ -339,7 +376,7 @@
                 @foreach (locales() as $key => $value)
                 $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
                 @endforeach
-                $('.image-preview').attr('src', button.data('image'));
+                $('#edit_src_image').attr('src', button.data('image'));
 
             });
         });

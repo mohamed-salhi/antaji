@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -12,7 +13,7 @@ class Course extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $guarded = [];
-    protected $appends=['image','user_name'];
+    protected $appends=['image','user_name','video'];
 
     const PATH_COURSE="/upload/course/images/";
     const PATH_COURSE_VIDEO="/upload/course/video/";
@@ -37,6 +38,10 @@ class Course extends Model
     {
         return url('/') .self::PATH_COURSE . @$this->imageCourse->filename;
     }
+    public function getVideoAttribute()
+    {
+        return url('/') .self::PATH_COURSE_VIDEO . @$this->videoCourse->filename;
+    }
     public function getUserNameAttribute()
     {
         return @$this->user->name;
@@ -50,6 +55,9 @@ class Course extends Model
         parent::boot();
         self::creating(function ($item) {
             $item->uuid = Str::uuid();
+        });
+        static::addGlobalScope('status', function (Builder $builder) {
+            $builder->where('status', 1);//1==active
         });
 
     }}
