@@ -238,7 +238,7 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary">@lang('add')</button>
+                        <button class="btn btn-primary done">@lang('add')</button>
                     </div>
 
                 </form>
@@ -324,7 +324,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('save changes')</button>
+                            <button class="btn btn-primary done">@lang('save changes')</button>
                         </div>
                     </div>
                 </form>
@@ -398,8 +398,8 @@
                     name: 'price'
                 },
                 {
-                    data: 'category_name',
-                    name: 'category_name',
+                    data: 'categories',
+                    name: 'categories',
                     orderable: false,
                     searchable: false,
                 },
@@ -438,6 +438,16 @@
                 if (fileArrayUuids.indexOf(',') >= 0) {
                     fileArrayUuids = button.data('images_uuid').split(',');
                 }
+
+                $('#edit_name').val(button.data('name'))
+                $('#edit_price').val(button.data('price'))
+                $('#edit_details').val(button.data('details'))
+                $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
+                var category_contents_uuids = button.data('category_contents_uuid') + '';
+                if (category_contents_uuids.indexOf(',') >= 0) {
+                    category_contents_uuids = button.data('category_contents_uuid').split(',');
+                }
+                $('#edit_category_contents_uuid').val(category_contents_uuids).trigger('change');
                 var preloaded = []; // Empty array
                 $.each(fileArray, function (index, fileName) {
                     var object = {
@@ -454,15 +464,6 @@
                     maxSize: 2 * 1024 * 1024,
                     maxFiles: 10
                 });
-                $('#edit_name').val(button.data('name'))
-                $('#edit_price').val(button.data('price'))
-                $('#edit_details').val(button.data('details'))
-                $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
-                var category_contents_uuids = button.data('category_contents_uuid') + '';
-                if (category_contents_uuids.indexOf(',') >= 0) {
-                    category_contents_uuids = button.data('category_contents_uuid').split(',');
-                }
-                $('#edit_category_contents_uuid').val(category_contents_uuids).trigger('change');
             });
         });
     </script>

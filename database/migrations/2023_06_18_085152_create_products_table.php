@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('type');
             $table->foreignUuid('user_uuid');
             $table->string('status')->default(1);
-
+            $table->double('view')->default(0);
             $table->foreignUuid('category_uuid');
             $table->foreignUuid('sup_category_uuid');
             $table->text('details');

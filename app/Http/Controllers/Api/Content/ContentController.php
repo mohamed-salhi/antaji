@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Api\Content;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CourseResource;
+use App\Http\Resources\LocationResource;
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\ServingResource;
 use App\Models\CategoryContent;
 use App\Models\Content;
 use App\Models\Course;
@@ -12,6 +16,7 @@ use App\Models\Serving;
 use App\Models\Specification;
 use App\Models\SupCategory;
 use App\Models\Upload;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -53,7 +58,6 @@ class ContentController extends Controller
 
         return mainResponse(true, 'done', $location, [], 101);
     }
-
     public function addServing(Request $request)
     {
 
@@ -83,7 +87,6 @@ class ContentController extends Controller
         ]);
         return mainResponse(true, 'done', $serving, [], 101);
     }
-
     public function addCourse(Request $request)
     {
 
@@ -114,7 +117,6 @@ class ContentController extends Controller
         }
         return mainResponse(true, 'done', $course, [], 101);
     }
-
     public function addProduct(Request $request)
     {
 
@@ -128,7 +130,7 @@ class ContentController extends Controller
                     $query->where('category_uuid', $request->category_uuid);
                 }),
             ],
-            'type' => 'required|in:sale,Leasing',
+            'type' => 'required|in:sale,leasing',
 
         ];
 
@@ -170,7 +172,7 @@ class ContentController extends Controller
             'details' => 'required',
             'category_contents_uuid' => ['required',
                 Rule::exists(CategoryContent::class, 'uuid')->where('type', 'serving'),
-            ], 'required|exists:category_contents,uuid',
+            ],
             'city_uuid' => 'required|exists:cities,uuid',
             'from' => 'required|date|after:' . date('Y/m/d'),
             'to' => 'required|date|after:' . $request->form,
@@ -191,7 +193,6 @@ class ContentController extends Controller
 
 
     }
-
     public function updateLocation(Request $request)
     {
         $rules = [
@@ -228,7 +229,6 @@ class ContentController extends Controller
         return mainResponse(true, 'done', $location, [], 101);
 
     }
-
     public function updateProduct(Request $request)
     {
 
@@ -282,7 +282,6 @@ class ContentController extends Controller
 
 
     }
-
     public function updateCourse(Request $request)
     {
         ;
@@ -373,4 +372,45 @@ class ContentController extends Controller
             }
         }
     }
+    public function getMyLocation(Request $request){
+        $user = Auth::guard('sanctum')->user();
+        $name=$request->name??'';
+        $location=Location::query()->where('user_uuid',$user->uuid)
+            ->when($name, function (Builder $query, string $name) {
+                $query->where('name', $name);
+            })->get();
+        return mainResponse(true, 'done', LocationResource::collection($location), [], 200);
+    }
+    public function getMyServing(Request $request){
+        $user = Auth::guard('sanctum')->user();
+        $name=$request->name??'';
+        $serving=Serving::query()->where('user_uuid',$user->uuid)
+            ->when($name, function (Builder $query, string $name) {
+                $query->where('name', $name);
+            })->get();
+        return mainResponse(true, 'done', ServingResource::collection($serving), [], 200);
+    }
+    public function getMyCourse(Request $request){
+        $user = Auth::guard('sanctum')->user();
+        $name=$request->name??'';
+        $course=Course::query()->where('user_uuid',$user->uuid)
+            ->when($name, function (Builder $query, string $name) {
+                $query->where('name', $name);
+            })->get();
+        return mainResponse(true, 'done', CourseResource::collection($course), [], 200);
+    }
+    public function getMyProduct(Request $request,$type){
+        if ($type=="leasing" ||$type=='sale') {
+            $user = Auth::guard('sanctum')->user();
+            $name = $request->name ?? '';
+            $product = Product::query()->where('user_uuid', $user->uuid)->where('type', $type)
+                ->when($name, function (Builder $query, string $name) {
+                    $query->where('name', $name);
+                })->get();
+            return mainResponse(true, 'done', ProductResource::collection($product), [], 200);
+        }else{
+            return mainResponse(true, 'type not sale || leasing', [], ['type not sale || leasing'], 404);
+
+        }
+        }
 }

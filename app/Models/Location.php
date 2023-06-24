@@ -12,7 +12,7 @@ class Location extends Model
     use HasFactory;
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends=['category_name','user_name'];
+    protected $appends=['user_name'];
     protected $guarded = [];
     const PATH_LOCATION="/upload/location/images/";
     //Relations
@@ -33,10 +33,10 @@ class Location extends Model
         return $this->belongsToMany(CategoryContent::class, 'category_locations', 'location_uuid', 'category_contents_uuid');
     }
     //Attributes
-    public function getCategoryNameAttribute()
-    {
-        return @$this->category->name;
-    }
+//    public function getCategoryNameAttribute()
+//    {
+//        return @$this->category->name;
+//    }
     public function getUserNameAttribute()
     {
         return @$this->user->name;

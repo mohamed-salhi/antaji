@@ -17,7 +17,7 @@ class CategoryContent extends Model
     protected $translatable = ['name'];
     protected $guarded = [];
     protected $appends = ['name_translate'];
-    protected $hidden=['name','status','updated_at','created_at'];
+    protected $hidden=['name','status','updated_at','created_at','pivot'];
 
     //Relations
     //Attributes

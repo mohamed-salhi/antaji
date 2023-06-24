@@ -215,7 +215,7 @@
             <li class="nav-item dropdown dropdown-language">
                 <a class="nav-link dropdown-toggle" id="dropdown-flag" href="javascript:void(0);"
                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="selected-language">{{ LaravelLocalization::getCurrentLocaleNative() }}</span>
+                    <span class="selected-language" style="color:#ffffff;">{{ LaravelLocalization::getCurrentLocaleNative() }}</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-flag">
                     @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
@@ -229,7 +229,7 @@
                 <a class="nav-link dropdown-toggle dropdown-user-link" id="dropdown-user"
                    href="javascript:void(0);" data-toggle="dropdown" aria-haspopup="true"
                    aria-expanded="false">
-                    <div class="user-nav d-sm-flex d-none"><span class="font-weight-bolder">Admin</span>
+                    <div class="user-nav d-sm-flex d-none"><span class="font-weight-bolder " style="color:#ffffff;">Admin</span>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-user">
@@ -473,6 +473,8 @@ var pageNot=2
                 $('.done').html('saving ...').prop('disabled', true);
             },
             success: function (result) {
+                $('.done').html('add').prop('disabled', false);
+
                 table.draw()
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
@@ -484,7 +486,8 @@ var pageNot=2
 
             },
             error: function (data) {
-                $('.done').prop('disabled', false);
+                $('.done').html('add').prop('disabled', false);
+
                 if (data.status === 422) {
                     var response = data.responseJSON;
                     $.each(response.errors, function (key, value) {
@@ -675,6 +678,7 @@ var pageNot=2
 
     $(document).on('click', '.button_modal', function (event) {
         $('input').removeClass('is-invalid');
+
         $('select').removeClass('is-invalid');
         $('.image-preview').remove();
         $('.image').append(`<img class="image-preview">`)
@@ -684,8 +688,6 @@ var pageNot=2
     $(document).on("click", "#btn_update", function (e) {
         var button = $(this)
         e.preventDefault();
-
-
         var url = button.data('url')
         var deletes = '@lang('confirm_update')'
 
@@ -781,6 +783,9 @@ var pageNot=2
         }
 
     });
+    // $('#edit_modal').on('hidden.bs.modal', function () {
+    //
+    // })
 
     {{--$(document).ready(function () {--}}
     {{--    @can('help-list')--}}

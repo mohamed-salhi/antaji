@@ -15,8 +15,9 @@ class Category extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['name'];
-    protected $appends = ['name_translate','image'];
+    protected $appends = ['name_translate','image','product_count'];
     protected $guarded = [];
+    protected $hidden=['imageCategory','name','created_at','updated_at','status','products'];
     const PATH_IMAGE='/upload/category/images/';
 
     //Relations
@@ -24,10 +25,18 @@ class Category extends Model
     {
         return $this->morphOne(Upload::class, 'imageable');
     }
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'category_uuid');
+    }
     //Attributes
     public function getNameTranslateAttribute()
     {
         return @$this->name;
+    }
+    public function getProductCountAttribute()
+    {
+        return $this->products()->count();
     }
     public function getImageAttribute()
     {

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('status',1)->default(1);
             $table->string('specialization_uuid')->nullable();
             $table->double('address')->nullable();
+            $table->double('view')->default(0);
+
             $table->double('lat')->nullable();
             $table->double('lng')->nullable();
             $table->text('brief')->nullable();

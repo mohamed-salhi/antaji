@@ -15,8 +15,9 @@ class SupCategory extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['name'];
-    protected $appends = ['name_translate','category_name','image'];
+    protected $appends = ['name_translate','category_name','image','product_count'];
     protected $guarded = [];
+    protected $hidden=['updated_at','created_at','status','name','category','imageCategory','status'];
     const PATH_IMAGE='/upload/subcategory/images/';
 
     //Relations
@@ -37,6 +38,10 @@ class SupCategory extends Model
     public function getNameTranslateAttribute()
     {
         return @$this->name;
+    }
+    public function getProductCountAttribute()
+    {
+        return Product::query()->where('sup_category_uuid',$this->uuid)->count();
     }
     public function getCategoryNameAttribute()
     {

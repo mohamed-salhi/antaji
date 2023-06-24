@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignUuid('category_contents_uuid');
             $table->foreignUuid('user_uuid');
-
+            $table->double('view')->default(0);
             $table->string('working_condition');
             $table->date('from');
             $table->date('to');

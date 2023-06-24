@@ -56,6 +56,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('delete_serving/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteServing']);
     Route::delete('delete_location/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteLocation']);
     Route::delete('delete_product/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteProduct']);
+    Route::get('get_My_Location', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyLocation']);
+    Route::get('get_My_Serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyServing']);
+    Route::get('get_My_Course', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyCourse']);
+    Route::get('get_My_Product/{type}', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyProduct']);
 
+    Route::get('getProductFromCategory/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getProductFromCategory']);
+    Route::get('getDetailsProduct/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDetailsProduct']);
+
+    Route::get('services/sell_buy', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'sellBuy']);
+    Route::get('services/leasing', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'leasing']);
+    Route::get('services/locations', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'locations']);
+    Route::get('services/services', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'services']);
+    Route::get('business/video/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'businessVideo']);
+
+    Route::get('profile/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProfile']);
+    Route::get('profile/{uuid}/products/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
+    Route::get('profile/{uuid}/business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
 
 });

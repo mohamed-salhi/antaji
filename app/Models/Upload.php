@@ -12,8 +12,10 @@ class Upload extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $guarded=[];
+    protected $hidden=['type','created_at','updated_at'];
     protected $appends=[
-        'type_attachment'
+        'type_attachment',
+//        'images'
     ];
 
     //Variables
@@ -31,6 +33,9 @@ class Upload extends Model
 
         }
     }
+//    public function getImagesAttribute(){
+//        return url('/').$this->imageable.$this->filename;
+//    }
 
     //Relations
     public function imageable()

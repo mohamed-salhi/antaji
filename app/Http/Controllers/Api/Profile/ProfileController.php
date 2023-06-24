@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\acountSetting;
+use App\Http\Resources\ProductHomeResource;
 use App\Http\Resources\ProfileResource;
 use App\Models\Busines;
 use App\Models\Businessimages;
 use App\Models\BusinessVideo;
+use App\Models\Product;
 use App\Models\Skill;
 use App\Models\Upload;
 use App\Models\User;
@@ -64,7 +66,6 @@ class ProfileController extends Controller
         }
 
     }
-
     public function updateProfile(Request $request)
     {
         $rules = [
@@ -131,7 +132,6 @@ class ProfileController extends Controller
 
 
     }
-
     public function addBusinessImages(Request $request)
     {
         $rules['images'] = 'required';
@@ -172,7 +172,6 @@ class ProfileController extends Controller
             return mainResponse(false, "image not found", [], ["image not found"], 101);
         }
     }
-
     public function deleteBusinessVideo($Business)
     {
         $businessVideo = BusinessVideo::query()->find($Business);
@@ -204,4 +203,35 @@ class ProfileController extends Controller
 
     }
 
+    public function getProfile($uuid){
+        $artist=User::query()->find($uuid);
+        return mainResponse(true, 'ok', new profileResource($artist), []);
+    }
+    public function getBusinessProfile($uuid,$type){
+        if ($type == "video") {
+            $business = BusinessVideo::query()->where('user_uuid', $uuid)->get();
+        } elseif ($type == "images") {
+            $business = Businessimages::query()->where('user_uuid', $uuid)->first();
+        } else {
+            return mainResponse(false, 'type must video||images', [], ['type must video||images'], 404);
+        }
+        return mainResponse(true, 'done', $business, [], 200);
+    }
+    public function getProductProfile($uuid,$type){
+        if ($type == "sale") {
+            $products = Product::query()
+                ->where('type','sale')
+                ->where('user_uuid', $uuid)
+                ->get();
+        } elseif ($type == "leasing") {
+            $products = Product::query()
+                ->where('type','leasing')
+                ->where('user_uuid', $uuid)
+                ->get();
+        } else {
+            return mainResponse(false, 'type must sale||leasing', [], ['type must video||images'], 404);
+        }
+        $products=ProductHomeResource::collection($products);
+        return mainResponse(true, 'done', $products, [], 200);
+    }
 }

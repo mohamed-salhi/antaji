@@ -172,8 +172,17 @@ class LocationController extends Controller
                     ';
                 }
                 return $data;
+            })->addColumn('categories',function ($que){
+                $string='';
+                $i=1;
+                foreach ($que->categories as $item) {
+                $string.=       ' <span class="date'.$i.'">'.$item->name.',</span>';
+                $i++;
+                }
+                '<div class="date-cell">'.$string.'</div>';
+                return $string;
             })
-            ->rawColumns(['action', 'status'])->toJson();
+            ->rawColumns(['action', 'status','categories'])->toJson();
     }
 
     public function updateStatus($status, $sup)
