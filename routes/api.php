@@ -74,4 +74,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('profile/{uuid}/products/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
     Route::get('profile/{uuid}/business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
 
+    Route::post('delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'addDeliveryAddresses']);
+    Route::get('delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDeliveryAddresses']);
+    Route::post('update/delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'updateDeliveryAddresses']);
+    Route::delete('delete/delivery_addresses/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'deleteDeliveryAddresses']);
+    Route::post('add/cart', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'addCart']);
+    Route::get('get/cart', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getCart']);
+
+
 });

@@ -69,10 +69,18 @@
                                     <div class="row">
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="s_name">@lang('name')</label>
+                                                <label for="s_user_name">@lang('name') @lang('location owner')</label>
+                                                <input id="s_user_name" type="text"
+                                                       class="search_input form-control"
+                                                       placeholder="@lang('name') @lang('location owner')">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_name">@lang('location name')</label>
                                                 <input id="s_name" type="text"
                                                        class="search_input form-control"
-                                                       placeholder="@lang('name')">
+                                                       placeholder="@lang('location name')">
                                             </div>
                                         </div>
                                         <div class="col-3">
@@ -96,8 +104,8 @@
                                         </div>
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="s_country_uuid">@lang('categories')</label>
-                                                <select name="s_country_uuid" id="s_country_uuid"
+                                                <label for="s_category_contents_uuid">@lang('categories')</label>
+                                                <select name="s_category_contents_uuid" id="s_category_contents_uuid"
                                                         class="search_input form-control">
                                                     <option selected
                                                             disabled>@lang('select')  @lang('categories')</option>
@@ -371,7 +379,10 @@
                 url: '{{ route('locations.indexTable', app()->getLocale()) }}',
                 data: function (d) {
                     d.status = $('#s_status').val();
-                    d.country_uuid = $('#s_country_uuid').val();
+                    d.price = $('#s_price').val();
+                    d.name = $('#s_name').val();
+                    d.category_contents_uuid = $('#s_category_contents_uuid').val();
+                    d.user_name = $('#s_user_name').val();
                 }
             },
 
@@ -428,16 +439,11 @@
                 $('.invalid-feedback').text('');
                 event.preventDefault();
                 var button = $(this)
+                console.log(button.data('images'))
+                console.log(button.data('images_uuid'))
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
-                let fileArray = button.data('images').split(',') + '';
-                if (fileArray.indexOf(',') >= 0) {
-                    fileArray = button.data('images').split(',');
-                }
-                let fileArrayUuids = button.data('images_uuid').split(',') + '';
-                if (fileArrayUuids.indexOf(',') >= 0) {
-                    fileArrayUuids = button.data('images_uuid').split(',');
-                }
+
 
                 $('#edit_name').val(button.data('name'))
                 $('#edit_price').val(button.data('price'))
@@ -448,6 +454,16 @@
                     category_contents_uuids = button.data('category_contents_uuid').split(',');
                 }
                 $('#edit_category_contents_uuid').val(category_contents_uuids).trigger('change');
+
+
+                let fileArray = button.data('images').split(',') + '';
+                if (fileArray.indexOf(',') >= 0) {
+                    fileArray = button.data('images').split(',');
+                }
+                let fileArrayUuids = button.data('images_uuid').split(',') + '';
+                if (fileArrayUuids.indexOf(',') >= 0) {
+                    fileArrayUuids = button.data('images_uuid').split(',');
+                }
                 var preloaded = []; // Empty array
                 $.each(fileArray, function (index, fileName) {
                     var object = {

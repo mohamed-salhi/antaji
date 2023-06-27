@@ -108,22 +108,24 @@ class countryController extends Controller
 
     public function indexTable(Request $request)
     {
-        $countrys = Country::query()->withoutGlobalScope('country');
+        $countrys = Country::query()->withoutGlobalScope('status');
         return Datatables::of($countrys)
             ->filter(function ($query) use ($request) {
                 if ($request->status){
-                    $query->where('status',$request->status);
+                    ($request->status==1)?$query->where('status',$request->status):$query->where('status',0);
                 }
-//                if ($request->get('search')) {
-//                    $query->orWhere('key','like', "%{$request->search['value']}%");
-//                    $query->where('name->' . locale(), 'like', "%{$request->search['value']}%");
-//
-//                    foreach (locales() as $key => $value) {
-//                        if ($key != locale())
-//                            $query->orWhere('name->' . $key, 'like', "%{$request->search['value']}%");
-//                    }
-//
-//                }
+                if ($request->key){
+                    $query->where('key',$request->key);
+                }
+                if ($request->name) {
+                    $query->where('name->' . locale(), 'like', "%{$request->name}%");
+
+                    foreach (locales() as $key => $value) {
+                        if ($key != locale())
+                            $query->orWhere('name->' . $key, 'like', "%{$request->name}%");
+                    }
+
+                }
             })
             ->addColumn('checkbox',function ($que){
                 return $que->uuid;
@@ -170,7 +172,7 @@ class countryController extends Controller
     {
         $uuids=explode(',', $sup);
 
-        $activate =  Country::query()->withoutGlobalScope('country')
+        $activate =  Country::query()->withoutGlobalScope('status')
             ->whereIn('uuid',$uuids)
             ->update([
                 'status'=>$status

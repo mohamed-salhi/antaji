@@ -561,5 +561,15 @@
     "service owner": "مالك الخدمة",
     "service name": "اسم الخدمة",
     "flag": "الصورة",
-    "cover image": "الصورة الغلاف"
+    "cover image": "الصورة الغلاف",
+    "Business Gallery Video": "معرض الاعمال فيديو",
+    "Business photo gallery": "معرض الاعمال صور ",
+    "views": "المشاهدات",
+    "Artist name": "اسم الفنان",
+    "location count": "عدد المواقع",
+    "services count": "عدد الخدمات",
+    "Fixed price": "سعر ثابت",
+    "contract": "عقد",
+    "hour": "ساعة",
+    "count": "عدد"
 }

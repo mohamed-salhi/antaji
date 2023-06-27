@@ -21,7 +21,6 @@ class LocationController extends Controller
     {
         $category_contents = CategoryContent::query()->where('type', 'location')->select('uuid', 'name')->get();
         $users = User::query()->select('name', 'uuid')->get();
-
         return view('admin.locations.index', compact('category_contents', 'users'));
     }
 
@@ -32,6 +31,8 @@ class LocationController extends Controller
             'price' => 'required|int',
             'details' => 'required',
             'user_uuid' => 'required|exists:users,uuid',
+            'images' => 'required',
+            'images.*' => 'mimes:jpeg,jpg,png|max:2048'
         ];
         $this->validate($request, $rules);
         $location = Location::query()->create($request->only('name', 'user_uuid', 'price', 'details'));
@@ -64,6 +65,7 @@ class LocationController extends Controller
             'details' => 'required',
             'user_uuid' => 'required|exists:users,uuid',
             'category_contents_uuid' => 'required|exists:category_contents,uuid',
+
         ];
 
         $this->validate($request, $rules);
@@ -101,7 +103,7 @@ class LocationController extends Controller
                 File::delete(public_path(Location::PATH_LOCATION . $image->filename));
                 $image->delete();
             }
-
+           $item->cart()->delete();
             $item->delete();
         }
         return response()->json([
@@ -120,13 +122,23 @@ class LocationController extends Controller
         return Datatables::of($location)
             ->filter(function ($query) use ($request) {
                 if ($request->status) {
-                    $query->where('status', $request->status);
+                    ($request->status==1)?$query->where('status',$request->status):$query->where('status',0);
                 }
                 if ($request->price) {
                     $query->where('price', $request->price);
                 }
                 if ($request->name) {
                     $query->where('name', $request->name);
+                }
+                if ($request->user_name) {
+                    $query->whereHas('user', function($q) use ($request){
+                        $q->where('name','like', "%{$request->user_name}%");
+                    });
+                }
+                if ($request->category_contents_uuid) {
+                    $query->whereHas('categories', function($q) use ($request){
+                        $q->where('uuid',$request->category_contents_uuid);
+                    });
                 }
 //
             })

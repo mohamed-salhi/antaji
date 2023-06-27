@@ -147,9 +147,9 @@
                                                         class="search_input form-control">
                                                     <option selected
                                                             disabled>@lang('select')  @lang('working condition')</option>
-                                                    <option value="hour"> hour</option>
-                                                    <option value="contract"> contract</option>
-                                                    <option value="Fixed_price"> Fixed_price</option>
+                                                    <option value="hour"> @lang('hour')</option>
+                                                    <option value="contract"> @lang('contract')</option>
+                                                    <option value="Fixed_price"> @lang('Fixed price')</option>
                                                 </select>
                                             </div>
                                         </div>

@@ -27,7 +27,7 @@ class ProductLeasingController extends Controller
 
         $rules = [
             'images' => 'required',
-            'images.*' => 'mimes:jpeg,jpg,png,gif,csv,txt,pdf|max:2048',
+            'images.*' => 'mimes:jpeg,jpg,png|max:2048',
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
@@ -67,9 +67,10 @@ class ProductLeasingController extends Controller
             'sup_category_uuid' => 'required|exists:sup_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
         ];
-        $product = Product::findOrFail($request->uuid);
 
         $this->validate($request, $rules);
+        $product = Product::findOrFail($request->uuid);
+
         $product->update($request->only('name','details','price','user_uuid','category_content_uuid'));
         if (isset($request->delete_images)) {
             $images = Upload::query()->where('imageable_type',Product::class)->where('imageable_id',$product->uuid)->whereNotIn('uuid', $request->delete_images)->get();
@@ -101,6 +102,7 @@ class ProductLeasingController extends Controller
                     File::delete(public_path(Product::PATH_PRODUCT.$image->filename));
                     $image->delete();
                 }
+                $item->cart()->delete();
                 $item->delete();
             }
             return response()->json([
@@ -119,7 +121,7 @@ class ProductLeasingController extends Controller
         return Datatables::of($product)
             ->filter(function ($query) use ($request) {
                 if ($request->status){
-                    $query->where('status',$request->status);
+                    ($request->status==1)?$query->where('status',$request->status):$query->where('status',0);
                 }
                 if ($request->price){
                     $query->where('price',$request->price);

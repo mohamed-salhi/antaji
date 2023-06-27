@@ -107,12 +107,9 @@
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('name')</th>
                                         <th>@lang('type')</th>
-{{--                                        @can('place-edit')--}}
-                                            <th>@lang('status')</th>
-{{--                                        @endcan--}}
-{{--                                        @if(\Illuminate\Support\Facades\Auth::user()->can('place-edit')||\Illuminate\Support\Facades\Auth::user()->can('place-delete'))--}}
+                                        <th>@lang('location count')</th>
+                                        <th>@lang('status')</th>
                                             <th style="width: 225px;">@lang('actions')</th>
-{{--                                        @endif--}}
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -262,6 +259,10 @@
                 {
                     data: 'type',
                     name: 'type'
+                },
+                {
+                    data: 'content_count',
+                    name: 'content_count'
                 },
                 {
                     data: 'status',

@@ -1,6 +1,6 @@
 @extends('admin.part.app')
 @section('title')
-    @lang('categories')
+    @lang('Business photo gallery')
 @endsection
 @section('styles')
     <style>
@@ -15,12 +15,13 @@
             <div class="content-header-left col-md-9 col-12 mb-2">
                 <div class="row breadcrumbs-top">
                     <div class="col-12">
-                        <h2 class="content-header-title float-left mb-0">@lang('categories')</h2>
+                        <h2 class="content-header-title float-left mb-0">@lang('Business photo gallery')</h2>
                         <div class="breadcrumb-wrapper">
                             <ol class="breadcrumb">
-{{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
-{{--                                </li>--}}
-                                <li class="breadcrumb-item"><a href="{{ route('locations.categories.index') }}">@lang('categories')</a>
+                                {{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
+                                {{--                                </li>--}}
+                                <li class="breadcrumb-item"><a
+                                        href="{{ route('business.images.index') }}">@lang('Business photo gallery')</a>
                                 </li>
                             </ol>
                         </div>
@@ -36,52 +37,53 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="head-label">
-                                    <h4 class="card-title">@lang('categories')</h4>
+                                    <h4 class="card-title">@lang('Business photo gallery')</h4>
                                 </div>
-                                    <div class="text-right">
-                                        <div class="form-group">
-                                            <button class="btn btn-outline-primary button_modal" type="button"
-                                                    data-toggle="modal" id=""
-                                                    data-target="#full-modal-stem"><span><i
-                                                        class="fa fa-plus"></i>@lang('add')</span>
-                                            </button>
-                                            <button
+                                {{--                                @can('place-create')--}}
+                                <div class="text-right">
+                                    <div class="form-group">
+                                        <button class="btn btn-outline-primary button_modal" type="button"
+                                                data-toggle="modal" id=""
+                                                data-target="#full-modal-stem"><span><i
+                                                    class="fa fa-plus"></i>@lang('add')</span>
+                                        </button>
+                                        <button
 
-                                                class="btn_delete_all btn btn-outline-danger " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('delete')</span>
-                                            </button>
-                                            <button
-                                                data-status="1"   class="btn_status btn btn-outline-success " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('activate')</span>
-                                            </button>
-                                            <button
-                                                data-status="0"  class="btn_status btn btn-outline-warning " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
-                                            </button>
-                                        </div>
+                                            class="btn_delete_all btn btn-outline-danger " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('delete')</span>
+                                        </button>
+                                        <button
+                                            data-status="1" class="btn_status btn btn-outline-success " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('activate')</span>
+                                        </button>
+                                        <button
+                                            data-status="0" class="btn_status btn btn-outline-warning " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('deactivate')</span>
+                                        </button>
                                     </div>
+                                </div>
+                                {{--                                @endcan--}}
                             </div>
                             <div class="card-body">
                                 <form id="search_form">
                                     <div class="row">
-
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="s_status">@lang('status')</label>
-                                                <select name="s_status" id="s_status" class="search_input form-control">
-                                                    <option selected disabled>@lang('select') @lang('status')</option>
-                                                    <option value="1"> @lang('active') </option>
-                                                    <option  value="2"> @lang('inactive') </option>
-                                                </select>
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <label for="s_name">@lang('name')</label>
                                                 <input id="s_name" type="text"
                                                        class="search_input form-control"
                                                        placeholder="@lang('name')">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="s_status">@lang('status')</label>
+                                                <select name="s_status" id="s_status" class="search_input form-control">
+                                                    <option selected disabled>@lang('select') @lang('status')</option>
+                                                    <option value="1"> @lang('active') </option>
+                                                    <option value="2"> @lang('inactive') </option>
+                                                </select>
+                                                <div class="invalid-feedback"></div>
                                             </div>
                                         </div>
                                         <div class="col-3" style="margin-top: 20px">
@@ -93,8 +95,9 @@
                                             </button>
 
 
-                                        <div class="col-3" style="margin-top: 20px">
+                                            <div class="col-3" style="margin-top: 20px">
 
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
@@ -105,11 +108,9 @@
                                     <tr>
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
-                                        <th>@lang('name')</th>
-                                        <th>@lang('type')</th>
-                                        <th>@lang('services count')</th>
-                                            <th>@lang('status')</th>
-                                            <th style="width: 225px;">@lang('actions')</th>
+                                        <th>@lang('Artist name')</th>
+                                        <th>@lang('status')</th>
+                                        <th style="width: 225px;">@lang('actions')</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -135,32 +136,40 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('servings.categories.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
+                <form action="{{ route('business.images.store') }}" method="POST" id="add_model_form" class="add-mode-form"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
-                        @foreach (locales() as $key => $value)
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="name_{{ $key }}">@lang('name') @lang($value)</label>
-                                    <input type="text" class="form-control"
-                                           placeholder="@lang('name') @lang($value)" name="name_{{ $key }}"
-                                           id="name_{{ $key }}">
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="">@lang('users')</label>
+                                <select name="user_uuid" id="country_uuid" class="select form-control"
+                                        data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
+                                    <option selected disabled>@lang('select') @lang('users')</option>
+                                    @foreach ($users as $item)
+                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback"></div>
                             </div>
-                        @endforeach
+                        </div>
+                        <div class="col-md-12">
+                            <div class="input-field">
+                                <label class="active">Photos</label>
+                                <div class="input-images" style="padding-top: .5rem;"></div>
+                            </div>
+                        </div>
                     </div>
 
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary">@lang('add')</button>
+                        <button class="btn btn-primary done">@lang('add')</button>
                     </div>
 
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
     </div>
 
     <!-- Modal -->
@@ -174,27 +183,35 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('servings.categories.update') }}" method="POST" id="form_edit" class=""
+                <form action="{{ route('business.images.update') }}" method="POST" id="form_edit"
                       enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="uuid" id="uuid" class="form-control"/>
                     <div class="modal-body">
-                        @foreach (locales() as $key => $value)
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="name_{{ $key }}">@lang('name') @lang($value)</label>
-                                    <input type="text" class="form-control"
-                                           placeholder="@lang('name') @lang($value)"
-                                           name="name_{{ $key }}" id="edit_name_{{ $key }}">
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="user_uuid">@lang('users')</label>
+                                <select class="form-control" id="edit_user_uuid" name="user_uuid" required>
+                                    <option value="">@lang('select') @lang('users')</option>
+                                    @foreach ($users as $item)
+                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback"></div>
                             </div>
-                        @endforeach
+                        </div>
+                    <div class="col-12">
+                        <div class="input-field">
+                            <label class="active">Photos</label>
+                            <div class="input-images-2" style="padding-top: .5rem;"></div>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                    </div>
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('save changes')</button>
+                            <button class="btn btn-primary done">@lang('save changes')</button>
                         </div>
                     </div>
                 </form>
@@ -203,8 +220,11 @@
     </div>
 @endsection
 @section('scripts')
+
     <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
     <script type="text/javascript">
+
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -235,7 +255,7 @@
                 @endif // "oPaginate": {"sPrevious": '<-', "sNext": '->'},
             },
             ajax: {
-                url: '{{ route('servings.categories.indexTable', app()->getLocale()) }}',
+                url: '{{ route('business.images.indexTable', app()->getLocale()) }}',
                 data: function (d) {
                     d.status = $('#s_status').val();
                     d.name = $('#s_name').val();
@@ -253,17 +273,10 @@
                 searchable: false
             },
                 {
-                    data: 'name_translate',
-                    name: 'name'
+                    data: 'user_name',
+                    name: 'user_name'
                 },
-                {
-                    data: 'type',
-                    name: 'type'
-                },
-                {
-                    data: 'content_count',
-                    name: 'content_count'
-                },
+
                 {
                     data: 'status',
                     name: 'status'
@@ -274,7 +287,6 @@
                     orderable: false,
                     searchable: true
                 },
-{{--                @endif--}}
             ]
 
         });
@@ -286,13 +298,35 @@
                 $('.invalid-feedback').text('');
                 event.preventDefault();
                 var button = $(this)
+                console.log(button.data('images'))
+                console.log(button.data('images_uuid'))
                 var uuid = button.data('uuid')
-                $('#edit_country_uuid').val(button.data('country_uuid')).trigger('change');
                 $('#uuid').val(uuid);
-                @foreach (locales() as $key => $value)
-                $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
-                @endforeach
+                $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
+                let fileArray = button.data('images').split(',') + '';
+                if (fileArray.indexOf(',') >= 0) {
+                    fileArray = button.data('images').split(',');
+                }
+                let fileArrayUuids = button.data('images_uuid').split(',') + '';
+                if (fileArrayUuids.indexOf(',') >= 0) {
+                    fileArrayUuids = button.data('images_uuid').split(',');
+                }
+                var preloaded = []; // Empty array
+                $.each(fileArray, function (index, fileName) {
+                    var object = {
+                        id: fileArrayUuids[index],
+                        src: '{{url('/')}}'+'{{$path}}' + fileName
+                    };
+                    preloaded.push(object)
+                })
 
+                $('.input-images-2').imageUploader({
+                    preloaded: preloaded,
+                    imagesInputName: 'images[]',
+                    preloadedInputName: 'delete_images',
+                    maxSize: 2 * 1024 * 1024,
+                    maxFiles: 10
+                });
             });
         });
     </script>

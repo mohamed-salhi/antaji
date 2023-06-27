@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('businessimages', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->integer('view')->default(0);
+            $table->string('status')->default(1);
             $table->foreignUuid('user_uuid')->references('uuid')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });

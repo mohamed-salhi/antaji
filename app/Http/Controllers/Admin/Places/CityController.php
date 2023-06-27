@@ -89,16 +89,21 @@ class CityController extends Controller
 
         return Datatables::of($city)
             ->filter(function ($query) use ($request) {
-                if ($request->get('search')) {
-                    $locale = app()->getLocale();
-                    $query->where('name->'.locale(), 'like', "%{$request->search['value']}%");
+                if ($request->name) {
+                    $query->where('name->' . locale(), 'like', "%{$request->name}%");
+
+                    foreach (locales() as $key => $value) {
+                        if ($key != locale())
+                            $query->orWhere('name->' . $key, 'like', "%{$request->name}%");
+                    }
+
                 }
                 if ($request->get("country_uuid")){
                     $query->where('country_uuid', $request->get("country_uuid"));
 
                 }
                 if ($request->status){
-                    $query->where('status',$request->status);
+                    ($request->status==1)?$query->where('status',$request->status):$query->where('status',0);
                 }
 
             })

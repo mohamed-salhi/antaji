@@ -31,7 +31,7 @@ class ServicesController extends Controller
         if ($request->has('price')) {
             $products->$orderPrice('price');
         }
-        $products = $products->get();
+        $products = $products->paginate();
         return mainResponse(true, "done", ProductHomeResource::collection($products), [], 200);
 
     }

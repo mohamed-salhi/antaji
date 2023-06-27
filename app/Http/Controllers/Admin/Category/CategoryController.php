@@ -105,7 +105,7 @@ class CategoryController extends Controller
                     $query->where('name->'.locale(), 'like', "%{$request->get('name')}%");
                 }
                 if ($request->status){
-                    $query->where('status',$request->status);
+                    ($request->status==1)?$query->where('status',$request->status):$query->where('status',0);
                 }
 
             })

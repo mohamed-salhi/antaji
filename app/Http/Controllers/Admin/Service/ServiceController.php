@@ -90,7 +90,7 @@ class ServiceController extends Controller
         return Datatables::of($service)
             ->filter(function ($query) use ($request) {
                 if ($request->status){
-                    $query->where('status',$request->status);
+                    ($request->status==1)?$query->where('status',$request->status):$query->where('status',0);
                 }
                 if ($request->name){
                     $query->where('name->' . locale(), 'like', "%{$request->name}%");

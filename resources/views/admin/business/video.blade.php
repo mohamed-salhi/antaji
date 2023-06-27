@@ -1,6 +1,6 @@
 @extends('admin.part.app')
 @section('title')
-    @lang('Countrys')
+    @lang('Business Gallery Video')
 @endsection
 @section('styles')
     <style>
@@ -15,12 +15,13 @@
             <div class="content-header-left col-md-9 col-12 mb-2">
                 <div class="row breadcrumbs-top">
                     <div class="col-12">
-                        <h2 class="content-header-title float-left mb-0">@lang('Countrys')</h2>
+                        <h2 class="content-header-title float-left mb-0">@lang('business')</h2>
                         <div class="breadcrumb-wrapper">
                             <ol class="breadcrumb">
-{{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
-{{--                                </li>--}}
-                                <li class="breadcrumb-item"><a href="{{ route('countries.index') }}">@lang('Countrys')</a>
+                                {{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a> --}}
+                                {{--                                </li> --}}
+                                <li class="breadcrumb-item"><a
+                                        href="{{ route('business.video.index') }}">@lang('Business Gallery Video')</a>
                                 </li>
                             </ol>
                         </div>
@@ -36,32 +37,29 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="head-label">
-                                    <h4 class="card-title">@lang('Countrys')</h4>
+                                    <h4 class="card-title">@lang('Business Gallery Video')</h4>
                                 </div>
-{{--                                @can('place-create')--}}
-                                    <div class="text-right">
-                                        <div class="form-group">
-                                            <button class="btn btn-outline-primary button_modal" type="button"
-                                                    data-toggle="modal" id=""
-                                                    data-target="#full-modal-stem"><span><i
-                                                        class="fa fa-plus"></i>@lang('add')</span>
-                                            </button>
-                                            <button
-
-                                                class="btn_delete_all btn btn-outline-danger " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('delete')</span>
-                                            </button>
-                                            <button
-                                                    data-status="1"   class="btn_status btn btn-outline-success " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('activate')</span>
-                                            </button>
-                                            <button
-                                                    data-status="0"  class="btn_status btn btn-outline-warning " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
-                                            </button>
-                                        </div>
+                                <div class="text-right">
+                                    <div class="form-group">
+                                        <button class="btn btn-outline-primary button_modal" type="button"
+                                                data-toggle="modal" id="" data-target="#full-modal-stem"><span><i
+                                                    class="fa fa-plus"></i>@lang('add')</span>
+                                        </button>
+                                        <button id="btn_delete_all" class="btn_delete_all btn btn-outline-danger "
+                                                type="button">
+                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i>
+                                                    @lang('delete')</span>
+                                        </button>
+                                        <button
+                                            data-status="1" class="btn_status btn btn-outline-success " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('activate')</span>
+                                        </button>
+                                        <button
+                                            data-status="0" class="btn_status btn btn-outline-warning " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('deactivate')</span>
+                                        </button>
                                     </div>
-{{--                                @endcan--}}
+                                </div>
                             </div>
                             <div class="card-body">
                                 <form id="search_form">
@@ -72,26 +70,41 @@
                                                 <select name="s_status" id="s_status" class="search_input form-control">
                                                     <option selected disabled>@lang('select') @lang('status')</option>
                                                     <option value="1"> @lang('active') </option>
-                                                    <option  value="2"> @lang('inactive') </option>
+                                                    <option value="2"> @lang('inactive') </option>
                                                 </select>
                                                 <div class="invalid-feedback"></div>
                                             </div>
-
                                         </div>
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="s_name">@lang('name')</label>
+                                                <label for="s_name">@lang('Artist name')</label>
                                                 <input id="s_name" type="text"
                                                        class="search_input form-control"
-                                                       placeholder="@lang('name')">
+                                                       placeholder="@lang('Artist name')">
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="s_key">@lang('key')</label>
-                                                <input id="s_key" type="number"
+                                                <label for="s_title">@lang('title')</label>
+                                                <input id="s_title" type="text"
                                                        class="search_input form-control"
-                                                       placeholder="@lang('key')">
+                                                       placeholder="@lang('title')">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_view">@lang('view')</label>
+                                                <input id="s_view" type="number"
+                                                       class="search_input form-control"
+                                                       placeholder="@lang('view')">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_time">@lang('time')</label>
+                                                <input id="s_time" type="time"
+                                                       class="search_input form-control"
+                                                       placeholder="@lang('time')">
                                             </div>
                                         </div>
                                         <div class="col-3" style="margin-top: 20px">
@@ -112,15 +125,13 @@
                                     <tr>
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
-                                            <th>@lang('name')</th>
-                                            <th>@lang('key')</th>
-                                            <th>@lang('image')</th>
-{{--                                        @can('place-edit')--}}
-                                            <th>@lang('status')</th>
-{{--                                        @endcan--}}
-{{--                                        @if(\Illuminate\Support\Facades\Auth::user()->can('place-edit')||\Illuminate\Support\Facades\Auth::user()->can('place-delete'))--}}
-                                            <th style="width: 225px;">@lang('actions')</th>
-{{--                                        @endif--}}
+                                        <th>@lang('Artist name')</th>
+                                        <th>@lang('title')</th>
+                                        <th>@lang('image')</th>
+                                        <th>@lang('views')</th>
+                                        <th>@lang('time')</th>
+                                        <th>@lang('status')</th>
+                                        <th style="width: 225px;">@lang('actions')</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -145,50 +156,63 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('countries.store') }}" method="POST" id="add_model_form" class="add-mode-form">
+                <form action="{{ route('business.video.store') }}" method="POST" id="add_model_form" class="add-mode-form">
+                    @csrf
                     <div class="modal-body">
-                        @foreach (locales() as $key => $value)
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label for="name_{{ $key }}">@lang('name') @lang($value)</label>
+                                    <label for="title">@lang('title')</label>
                                     <input type="text" class="form-control"
-                                           placeholder="@lang('name') @lang($value)" name="name_{{ $key }}"
-                                           id="name_{{ $key }}">
+                                           placeholder="@lang('title')" name="title"
+                                           id="title">
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                        @endforeach
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="phone">@lang('key')</label>
-                                    <input type="text" class="form-control" placeholder="@lang('key')"
-                                           name="key" id="key">
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="">@lang('users')</label>
+                                <select name="user_uuid" id="country_uuid" class="select form-control"
+                                        data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
+                                    <option selected disabled>@lang('select') @lang('users')</option>
+                                    @foreach ($users as $item)
+                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback"></div>
                             </div>
-                            <div class="col-12">
-                                <label for="icon">@lang('flag')</label>
-                                <div>
-                                    <div class="fileinput fileinput-exists"
-                                         data-provides="fileinput">
-                                        <div class="fileinput-preview thumbnail"
-                                             data-trigger="fileinput"
-                                             style="width: 200px; height: 150px;">
-                                            <img id="flag"
-                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
-                                                 alt=""/>
-                                        </div>
-                                        <div class="form-group">
+                        </div>
+                        <div class="col-12">
+                            <label for="icon">@lang('flag')</label>
+                            <div>
+                                <div class="fileinput fileinput-exists"
+                                     data-provides="fileinput">
+                                    <div class="fileinput-preview thumbnail"
+                                         data-trigger="fileinput"
+                                         style="width: 200px; height: 150px;">
+                                        <img id="flag"
+                                             src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                             alt=""/>
+                                    </div>
+                                    <div class="form-group">
                                                     <span class="btn btn-secondary btn-file">
                                                         <span class="fileinput-new"> @lang('select_image')</span>
                                                         <span class="fileinput-exists"> @lang('select_image')</span>
                                                         <input class="form-control" type="file" name="image">
                                                     </span>
-                                            <div class="invalid-feedback" style="display: block;"></div>
-                                        </div>
+                                        <div class="invalid-feedback" style="display: block;"></div>
                                     </div>
                                 </div>
                             </div>
+                                      
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <br>
+                                <input type="file" id="file-input" name="video">
+                                <video id="video-preview" controls></video>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
@@ -209,62 +233,74 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('countries.update') }}" method="POST" id="form_edit" class=""
+                <form action="{{ route('business.video.update') }}" method="POST" id="form_edit" class=""
                       enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="uuid" id="uuid" class="form-control"/>
                     <div class="modal-body">
-                        @foreach (locales() as $key => $value)
+
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label for="name_{{ $key }}">@lang('name') @lang($value)</label>
+                                    <label for="edit_title">@lang('title') </label>
                                     <input type="text" class="form-control"
-                                           placeholder="@lang('name') @lang($value)"
-                                           name="name_{{ $key }}" id="edit_name_{{ $key }}">
+                                           placeholder="@lang('title')"
+                                           name="title" id="edit_title">
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                        @endforeach
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="phone">@lang('key')</label>
-                                    <input type="text" class="form-control" placeholder="@lang('key')"
-                                           name="key" id="edit_key">
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="user_uuid">@lang('users')</label>
+                                <select class="form-control" id="edit_user_uuid" name="user_uuid" required>
+                                    <option value="">@lang('select') @lang('users')</option>
+                                    @foreach ($users as $item)
+                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback"></div>
                             </div>
-                            <div class="col-12">
-                                <label for="icon">@lang('flag')</label>
-                                <div>
-                                    <div class="fileinput fileinput-exists"
-                                         data-provides="fileinput">
-                                        <div class="fileinput-preview thumbnail"
-                                             data-trigger="fileinput"
-                                             style="width: 200px; height: 150px;">
-                                            <img id="edit_src_image"
-                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
-                                                 alt=""/>
-                                        </div>
-                                        <div class="form-group">
+                        </div>
+                        <div class="col-12">
+                            <label for="icon">@lang('flag')</label>
+                            <div>
+                                <div class="fileinput fileinput-exists"
+                                     data-provides="fileinput">
+                                    <div class="fileinput-preview thumbnail"
+                                         data-trigger="fileinput"
+                                         style="width: 200px; height: 150px;">
+                                        <img id="edit_src_image"
+                                             src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                             alt=""/>
+                                    </div>
+                                    <div class="form-group">
                                                     <span class="btn btn-secondary btn-file">
                                                         <span class="fileinput-new"> @lang('select_image')</span>
                                                         <span class="fileinput-exists"> @lang('select_image')</span>
                                                         <input class="form-control" type="file" name="image">
                                                     </span>
-                                            <div class="invalid-feedback" style="display: block;"></div>
-                                        </div>
+                                        <div class="invalid-feedback" style="display: block;"></div>
                                     </div>
                                 </div>
-                                          </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary"
-                                    data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('save changes')</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <br>
+                                <input type="file" accept="video/*" name="video" id="file-input">
+                                <video id="video-1" class="video-preview" controls></video>
+                                <div class="invalid-feedback"></div>
+                            </div>
                         </div>
                     </div>
-                </form>
-            </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">@lang('close')</button>
+                        <button class="btn btn-primary">@lang('save changes')</button>
+                    </div>
+
+            </form>
         </div>
+    </div>
     </div>
     <!-- Modal -->
 @endsection
@@ -283,6 +319,7 @@
         var table = $('#datatable').DataTable({
             processing: true,
             serverSide: true,
+            "bInfo": false,
             "oLanguage": {
                 @if (app()->isLocale('ar'))
                 "sEmptyTable": "ليست هناك بيانات متاحة في الجدول",
@@ -307,27 +344,17 @@
                 }
             },
             ajax: {
-                url: '{{ route('countries.indexTable', app()->getLocale()) }}',
+                url: '{{ route('business.video.indexTable', app()->getLocale()) }}',
 
                 data: function (d) {
                     d.status = $('#s_status').val();
-                    d.key = $('#s_key').val();
                     d.name = $('#s_name').val();
+                    d.title = $('#s_title').val();
+                    d.view = $('#s_view').val();
+                    d.time = $('#s_time').val();
+
                 }
             },
-            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: [
-                {
-                    extend: 'excel',
-                    text: 'Excel',
-                    exportOptions: {
-                        columns: [1,2],
-                        modifier: {
-                            page: 'current'
-                        }
-                    }
-                }
-            ],
             columns: [{
                 "render": function (data, type, full, meta) {
                     return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>
@@ -339,13 +366,14 @@
                 searchable: false
             },
                 {
-                    data: 'name_translate',
-                    name: 'name'
+                    data: 'user_name',
+                    name: 'user_name'
                 },
                 {
-                    data: 'key',
-                    name: 'key'
+                    data: 'title',
+                    name: 'title'
                 },
+
                 {
                     "data": 'image',
                     "name": 'image',
@@ -355,20 +383,24 @@
                     orderable: false,
                     searchable: false
                 },
-{{--                    @can('place-edit')--}}
+                {
+                    data: 'view',
+                    name: 'view'
+                },
+                {
+                    data: 'time',
+                    name: 'time'
+                },
                 {
                     data: 'status',
                     name: 'status'
                 },
-{{--                    @endcan--}}
-{{--                    @if(\Illuminate\Support\Facades\Auth::user()->can('place-edit')||\Illuminate\Support\Facades\Auth::user()->can('place-delete'))--}}
                 {
                     data: 'action',
                     name: 'action',
                     orderable: false,
                     searchable: true
                 },
-{{--                @endif--}}
             ]
 
         });
@@ -382,11 +414,12 @@
                 var button = $(this)
                 var uuid = button.data('uuid');
                 $('#uuid').val(uuid);
-                @foreach (locales() as $key => $value)
-                $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
-                @endforeach
-                $('#edit_key').val(button.data('key'));
+
+                $('#edit_title').val(button.data('title'))
+                $('#edit_time').val(button.data('time'))
+                $('#edit_view').val(button.data('view'))
                 $('#edit_src_image').attr('src', button.data('image'));
+                $('#video-1').attr('src', button.data('video'));
 
             });
         });

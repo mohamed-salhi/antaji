@@ -190,6 +190,20 @@ Route::group(
                 Route::put('/updateStatus/{status}/{id}', 'updateStatus')->name('updateStatus');
                 Route::get('/country/{uuid}', 'country')->name('country');
             });
+            Route::controller(\App\Http\Controllers\Admin\Business\BusinessController::class)->prefix('business')->name('business.')->group(function () {
+                Route::get('/video', 'indexVideo')->name('video.index');
+                Route::post('/video/store', 'storeVideo')->name('video.store');
+                Route::post('/video/update', 'updateVideo')->name('video.update');
+                Route::delete('/video/{id}', 'destroyVideo')->name('video.delete');
+                Route::get('/video/indexTable', 'indexTableVideo')->name('video.indexTable');
+                Route::put('/video/updateStatus/{status}/{id}', 'updateStatusVideo')->name('video.updateStatus');
+                Route::get('/images', 'indexImages')->name('images.index');
+                Route::post('/images/store', 'storeImages')->name('images.store');
+                Route::post('/images/update', 'updateImages')->name('images.update');
+                Route::delete('/images/{id}', 'destroyImages')->name('images.delete');
+                Route::get('/images/indexTable', 'indexTableImages')->name('images.indexTable');
+                Route::put('/images/updateStatus/{status}/{id}', 'updateStatusImages')->name('images.updateStatus');
+            });
             Route::controller(\App\Http\Controllers\Admin\Serving\ServingController::class)->name('servings.')->prefix('servings')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/store', 'store')->name('store');

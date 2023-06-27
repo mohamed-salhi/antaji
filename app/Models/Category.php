@@ -15,7 +15,7 @@ class Category extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['name'];
-    protected $appends = ['name_translate','image','product_count'];
+    protected $appends = ['name_translate','image','product_count','sub_count'];
     protected $guarded = [];
     protected $hidden=['imageCategory','name','created_at','updated_at','status','products'];
     const PATH_IMAGE='/upload/category/images/';
@@ -29,6 +29,10 @@ class Category extends Model
     {
         return $this->hasMany(Product::class, 'category_uuid');
     }
+    public function sub()
+    {
+        return $this->hasMany(SupCategory::class, 'category_uuid');
+    }
     //Attributes
     public function getNameTranslateAttribute()
     {
@@ -37,6 +41,10 @@ class Category extends Model
     public function getProductCountAttribute()
     {
         return $this->products()->count();
+    }
+    public function getSubCountAttribute()
+    {
+        return $this->sub()->count();
     }
     public function getImageAttribute()
     {

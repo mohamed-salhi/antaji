@@ -89,6 +89,14 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_name">@lang('name')</label>
+                                                <input id="s_name" type="text"
+                                                       class="search_input form-control"
+                                                       placeholder="@lang('name')">
+                                            </div>
+                                        </div>
                                         <div class="col-3" style="margin-top: 20px">
                                             <button id="search_btn" class="btn btn-outline-info" type="submit">
                                                 <span><i class="fa fa-search"></i> @lang('search')</span>
@@ -271,6 +279,8 @@
                 data: function (d) {
                     d.status = $('#s_status').val();
                     d.country_uuid = $('#s_country_uuid').val();
+                    d.name = $('#s_name').val();
+
                 }
             },
 

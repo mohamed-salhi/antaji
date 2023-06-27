@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('delivery_addresses', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->double('address');
+            $table->string('address');
             $table->double('lat');
             $table->double('lng');
             $table->foreignUuid('user_uuid')->nullable()->references('uuid')->on('users')->cascadeOnDelete()->cascadeOnUpdate();

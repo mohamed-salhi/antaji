@@ -117,7 +117,7 @@ class ProductSaleController extends Controller
         return Datatables::of($product)
             ->filter(function ($query) use ($request) {
                 if ($request->status){
-                    $query->where('status',$request->status);
+                    ($request->status==1)?$query->where('status',$request->status):$query->where('status',0);
                 }
                 if ($request->price){
                     $query->where('price',$request->price);

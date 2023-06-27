@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Models;
+
+use DateTime;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+
+class Cart extends Model
+{
+    use HasFactory;
+    protected $primaryKey = 'uuid';
+    public $incrementing = false;
+   protected $appends=['content_owner_name','content_owner_uuid','content_count','day_count'];
+   protected $hidden=['content'];
+    protected $guarded = [];
+
+    //Relations
+public function content(){
+    if ($this->type=='product'){
+        return $this->belongsTo(Product::class,'content_uuid');
+    }
+    if ($this->type=='location'){
+        return $this->belongsTo(Location::class,'content_uuid');
+    }
+}
+
+    //Attributes
+    public function getContentOwnerNameAttribute()
+    {
+        return @$this->content->user->name;
+    }
+    public function getContentOwnerUuidAttribute()
+    {
+        return @$this->content->user->uuid;
+    }
+    public function getContentCountAttribute()
+    {
+        return @$this->content()->count();
+    }
+    public function getDayCountAttribute()
+    {
+        $startDate = Carbon::parse($this->start);
+        $endDate = Carbon::parse($this->end);
+        $daysDifference = $endDate->diffInDays($startDate);
+        return  $daysDifference;
+    }
+    //Boot
+
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($item) {
+            $item->uuid = Str::uuid();
+        });
+    }
+}

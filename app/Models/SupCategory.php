@@ -29,7 +29,10 @@ class SupCategory extends Model
     {
         return $this->morphOne(Upload::class, 'imageable');
     }
-
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'sup_category_uuid');
+    }
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_uuid');
@@ -41,12 +44,13 @@ class SupCategory extends Model
     }
     public function getProductCountAttribute()
     {
-        return Product::query()->where('sup_category_uuid',$this->uuid)->count();
+     return @$this->products()->count();
     }
     public function getCategoryNameAttribute()
     {
         return @$this->category->name;
     }
+
     public function getImageAttribute()
     {
         return url('/') .self::PATH_IMAGE . @$this->imageCategory->filename;

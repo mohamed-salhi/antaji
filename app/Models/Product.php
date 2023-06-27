@@ -12,7 +12,7 @@ class Product extends Model
     use HasFactory;
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends=['attachments','category_name','user_name','sup_category_name'];
+    protected $appends=['attachments','category_name','user_name','sup_category_name','image'];
     protected $hidden=['imageProduct','user','category','supCategory','status','updated_at','created_at'];
 
     protected $guarded = [];
@@ -26,6 +26,10 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_uuid');
     }
+    public function cart()
+    {
+        return $this->hasMany(Cart::class, 'content_uuid');
+    }
     public function supCategory()
     {
         return $this->belongsTo(SupCategory::class, 'sup_category_uuid');
@@ -37,6 +41,10 @@ class Product extends Model
     public function imageProduct()
     {
         return $this->morphMany(Upload::class, 'imageable');
+    }
+    public function oneImageProduct()
+    {
+        return $this->morphOne(Upload::class, 'imageable');
     }
     //Attributes
     public function getCategoryNameAttribute()
@@ -53,7 +61,7 @@ class Product extends Model
     }
     public function getImageAttribute()
     {
-        return url('/').self::PATH_PRODUCT. @$this->imageProduct()->pluck('filename')->first();
+        return url('/').self::PATH_PRODUCT. @$this->oneImageProduct->filename;
     }
     public function getAttachmentsAttribute()
     {

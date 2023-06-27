@@ -20,10 +20,10 @@ class Location extends Model
     {
         return $this->morphMany(Upload::class, 'imageable');
     }
-//    public function category()
-//    {
-//        return $this->belongsTo(CategoryContent::class, 'category_contents_uuid');
-//    }
+    public function cart()
+    {
+        return $this->hasMany(Cart::class, 'content_uuid');
+    }
     public function user()
     {
         return $this->belongsTo(User::class, 'user_uuid');

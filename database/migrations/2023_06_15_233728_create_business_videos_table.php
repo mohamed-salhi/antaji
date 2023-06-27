@@ -15,6 +15,8 @@ return new class extends Migration
             $table->uuid()->primary();
             $table->integer('view')->default(0);
             $table->string('title')->nullable();
+            $table->string('status')->default(1);
+
             $table->string('time')->nullable();
             $table->foreignUuid('user_uuid')->references('uuid')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();

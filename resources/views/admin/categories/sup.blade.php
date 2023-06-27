@@ -111,6 +111,7 @@
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('name')</th>
                                         <th>@lang('sup category')</th>
+                                        <th>@lang('count') @lang('products')</th>
                                         <th>@lang('image')</th>
 
                                         <th>@lang('status')</th>
@@ -315,7 +316,7 @@
                     exportOptions: {
                         columns: [1],
                         modifier: {
-                            page: 'current'
+                            page: 'all'
                         }
                     }
                 }
@@ -340,6 +341,12 @@
                     name: 'category_name'
                 },
                 {
+                    data: 'product_count',
+                    name: 'product_count',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     "data": 'image',
                     "name": 'image',
                     render: function (data, type, full, meta) {
@@ -348,6 +355,7 @@
                     orderable: false,
                     searchable: false
                 },
+
                 {
                     data: 'status',
                     name: 'status'
