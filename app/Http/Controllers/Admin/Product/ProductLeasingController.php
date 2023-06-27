@@ -129,6 +129,11 @@ class ProductLeasingController extends Controller
                 if ($request->name){
                     $query->where('name',$request->name);
                 }
+                if ($request->user_name) {
+                    $query->whereHas('user', function($q) use ($request){
+                        $q->where('name','like', "%{$request->user_name}%");
+                    });
+                }
                 if ($request->category_uuid) {
                     $query->where('category_uuid', $request->category_uuid);
                 }

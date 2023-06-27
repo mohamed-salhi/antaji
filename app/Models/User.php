@@ -130,12 +130,12 @@ class User extends Authenticatable
 
     public function getCoverUserAttribute()
     {
-        return url('/') . self::PATH_COVER . @$this->coverImage->filename;
+        return (@$this->coverImage->filename)? url('/') . self::PATH_COVER . @$this->coverImage->filename:null;
     }
 
     public function getVideoUserAttribute()
     {
-        return url('/') . self::PATH_VIDEO . @$this->videoImage->filename;
+        return (@$this->videoImage->filename)? url('/') . self::PATH_VIDEO . @$this->videoImage->filename:null;
     }
 
     public function getImageAttribute()

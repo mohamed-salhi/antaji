@@ -372,12 +372,14 @@ class ContentController extends Controller
             }
         }
     }
+
+
     public function getMyLocation(Request $request){
         $user = Auth::guard('sanctum')->user();
         $name=$request->name??'';
         $location=Location::query()->where('user_uuid',$user->uuid)
             ->when($name, function (Builder $query, string $name) {
-                $query->where('name', $name);
+                $query->where('name', 'like', "%{$name}%");
             })->get();
         return mainResponse(true, 'done', LocationResource::collection($location), [], 200);
     }
@@ -386,7 +388,7 @@ class ContentController extends Controller
         $name=$request->name??'';
         $serving=Serving::query()->where('user_uuid',$user->uuid)
             ->when($name, function (Builder $query, string $name) {
-                $query->where('name', $name);
+                $query->where('name', 'like', "%{$name}%");
             })->get();
         return mainResponse(true, 'done', ServingResource::collection($serving), [], 200);
     }
@@ -395,7 +397,7 @@ class ContentController extends Controller
         $name=$request->name??'';
         $course=Course::query()->where('user_uuid',$user->uuid)
             ->when($name, function (Builder $query, string $name) {
-                $query->where('name', $name);
+                $query->where('name', 'like', "%{$name}%");
             })->get();
         return mainResponse(true, 'done', CourseResource::collection($course), [], 200);
     }
@@ -405,7 +407,7 @@ class ContentController extends Controller
             $name = $request->name ?? '';
             $product = Product::query()->where('user_uuid', $user->uuid)->where('type', $type)
                 ->when($name, function (Builder $query, string $name) {
-                    $query->where('name', $name);
+                    $query->where('name', 'like', "%{$name}%");
                 })->get();
             return mainResponse(true, 'done', ProductResource::collection($product), [], 200);
         }else{

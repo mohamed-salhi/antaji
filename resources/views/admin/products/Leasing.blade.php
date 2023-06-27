@@ -69,18 +69,52 @@
                                     <div class="row">
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="s_name">@lang('name')</label>
+                                                <label for="s_name">@lang('product name')</label>
                                                 <input id="s_name" type="text"
                                                        class="search_input form-control"
-                                                       placeholder="@lang('name')">
+                                                       placeholder="@lang('product name')">
                                             </div>
                                         </div>
+
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_user_name">@lang('user name')</label>
+                                                <input id="s_user_name" type="text"
+                                                       class="search_input form-control"
+                                                       placeholder="@lang('user name')">
+                                            </div>
+                                        </div>
+
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <label for="s_price">@lang('price')</label>
                                                 <input id="s_price" type="text"
                                                        class="search_input form-control"
                                                        placeholder="@lang('price')">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_category_uuid">@lang('categories')</label>
+                                                <select  name="category_uuid" id="s_category_uuid"
+                                                        class="search_input form-control">
+                                                    <option selected
+                                                            disabled>@lang('select')  @lang('categories')</option>
+                                                    @foreach ($categories as $item)
+                                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_sup_category_uuid">@lang('sub categories')</label>
+                                                <select name="sup_category_uuid" id="s_sup_category_uuid"
+                                                        class="search_input form-control">
+                                                    <option selected
+                                                            disabled>@lang('select')  @lang('sub categories')</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -94,31 +128,6 @@
                                                 <div class="invalid-feedback"></div>
                                             </div>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="form-group">
-                                                <label for="s_category_uuid">@lang('categories')</label>
-                                                <select name="s_category_uuid" id="s_category_uuid"
-                                                        class="search_input form-control">
-                                                    <option selected
-                                                            disabled>@lang('select')  @lang('categories')</option>
-                                                    @foreach ($categories as $item)
-                                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-3">
-                                            <div class="form-group">
-                                                <label for="s_sup_category_uuid">@lang('sup categories')</label>
-                                                <select name="sup_category_uuid" id="s_sup_category_uuid"
-                                                        class="search_input form-control">
-                                                    <option selected
-                                                            disabled>@lang('select')  @lang('sup categories')</option>
-
-                                                </select>
-                                            </div>
-                                        </div>
-
 
                                         <div class="col-3" style="margin-top: 20px">
                                             <button id="search_btn" class="btn btn-outline-info" type="submit">
@@ -395,10 +404,28 @@
                 url: '{{ route('products.leasing.indexTable', app()->getLocale()) }}',
                 data: function (d) {
                     d.status = $('#s_status').val();
-                    d.country_uuid = $('#s_country_uuid').val();
+                    d.sup_category_uuid = $('#s_sup_category_uuid').val();
+                    d.category_uuid = $('#s_category_uuid').val();
+                    d.user_name = $('#s_user_name').val();
+                    d.price = $('#s_price').val();
+                    d.name = $('#s_name').val();
+
                 }
             },
-
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: 'Excel',
+                    exportOptions: {
+                        // columns: [1],
+                        modifier: {
+                            page: 'all',
+                            search: 'none'
+                        }
+                    }
+                }
+            ],
             columns: [{
                 "render": function (data, type, full, meta) {
                     return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>

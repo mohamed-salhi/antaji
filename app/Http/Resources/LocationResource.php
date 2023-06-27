@@ -17,7 +17,8 @@ class LocationResource extends JsonResource
         return [
             'uuid'=>$this->uuid,
             'name'=>$this->name,
-            'category_name'=>$this->categories,
+            'image'=>$this->image,
+//            'category_name'=>$this->categories,
             'price'=>$this->price,
         ];
     }

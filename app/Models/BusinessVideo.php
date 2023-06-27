@@ -12,9 +12,9 @@ class BusinessVideo extends Model
     use HasFactory;
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends=['image','video','user_name'];
+    protected $appends=['image','video','artist_name','artist_image'];
     protected $guarded = [];
-    protected $hidden=['imageBusiness','videoBusiness','user_uuid','updated_at','created_at'];
+    protected $hidden=['imageBusiness','videoBusiness','user_uuid','updated_at','created_at','status','artist_image','artist_name'];
     const PATH_VIDEO='/upload/business/video/';
     const PATH_IMAGE='/upload/business/image/';
 
@@ -40,9 +40,13 @@ class BusinessVideo extends Model
     {
         return url('/') . self::PATH_VIDEO . @$this->videoBusiness->filename;
     }
-    public function getUserNameAttribute()
+    public function getArtistNameAttribute()
     {
         return $this->artists->name;
+    }
+    public function getArtistImageAttribute()
+    {
+        return $this->artists->image;
     }
     //Boot
     public static function boot()

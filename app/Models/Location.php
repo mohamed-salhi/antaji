@@ -12,13 +12,17 @@ class Location extends Model
     use HasFactory;
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends=['user_name'];
+    protected $appends=['user_name','image'];
     protected $guarded = [];
     const PATH_LOCATION="/upload/location/images/";
     //Relations
     public function imageLocation()
     {
         return $this->morphMany(Upload::class, 'imageable');
+    }
+    public function oneImageLocation()
+    {
+        return $this->morphOne(Upload::class, 'imageable');
     }
     public function cart()
     {
@@ -37,6 +41,10 @@ class Location extends Model
 //    {
 //        return @$this->category->name;
 //    }
+    public function getImageAttribute()
+    {
+        return url('/').self::PATH_LOCATION. @$this->oneImageLocation->filename;
+    }
     public function getUserNameAttribute()
     {
         return @$this->user->name;

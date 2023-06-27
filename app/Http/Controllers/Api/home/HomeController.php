@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\artists;
+use App\Http\Resources\BusinessVideoResource;
 use App\Http\Resources\LocationResource;
 use App\Http\Resources\ProductHomeResource;
 use App\Models\BusinessVideo;
@@ -27,20 +28,20 @@ class HomeController extends Controller
     public function home()
     {
         $services = Service::select('name')->get();
-        $categories = Category::query()->take(10)->get();
-        $productLeasing = ProductHomeResource::collection(Product::query()->where('type', 'leasing')->take(10)->get());
-        $productNewLeasing = ProductHomeResource::collection(Product::query()->where('type', 'leasing')->orderByDesc('created_at')->take(10)->get());
-        $productSale = ProductHomeResource::collection(Product::query()->where('type', 'sale')->take(10)->get());
-        $productNewSale = ProductHomeResource::collection(Product::query()->where('type', 'sale')->orderByDesc('created_at')->take(10)->get());
-        $artists = artists::collection(User::query()->where('type', 'artist')->take(10)->get());
-        $locations = LocationResource::collection(Location::query()->orderByDesc('created_at')->take(10)->get());
-        $businessVideo = BusinessVideo::query()->orderByDesc('created_at')->take(10)->get();
+        $categories = Category::query()->take(6)->get();
+        $productLeasing = ProductHomeResource::collection(Product::query()->where('type', 'leasing')->take(6)->get());
+        $productNewLeasing = ProductHomeResource::collection(Product::query()->where('type', 'leasing')->orderByDesc('created_at')->take(6)->get());
+        $productSale = ProductHomeResource::collection(Product::query()->where('type', 'sale')->take(6)->get());
+        $productNewSale = ProductHomeResource::collection(Product::query()->where('type', 'sale')->orderByDesc('created_at')->take(6)->get());
+        $artists = artists::collection(User::query()->where('type', 'artist')->take(6)->get());
+        $locations = LocationResource::collection(Location::query()->orderByDesc('created_at')->take(6)->get());
+        $businessVideo = BusinessVideoResource::collection(BusinessVideo::query()->orderByDesc('created_at')->take(6)->get());
         return mainResponse(true, "done", compact('services', 'categories', 'productLeasing', 'productNewLeasing', 'productSale', 'productNewSale', 'artists', 'locations', 'businessVideo'), [], 200);
     }
 
     public function termsConditions()
     {
-        $setting = Setting::all();
+        $setting = Setting::query()->select('terms_conditions')->get();
         return mainResponse(true, "done", $setting, [], 200);
     }
 

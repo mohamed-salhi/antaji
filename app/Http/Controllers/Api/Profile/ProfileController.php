@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Api\Profile;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\acountSetting;
 use App\Http\Resources\ProductHomeResource;
-use App\Http\Resources\ProfileResource;
+use App\Http\Resources\profileArtistResource;
+use App\Http\Resources\profileUserResource;
 use App\Models\Busines;
 use App\Models\Businessimages;
 use App\Models\BusinessVideo;
@@ -25,28 +26,33 @@ class ProfileController extends Controller
     public function profile()
     {
         $user = Auth::guard('sanctum')->user();
-        return mainResponse(true, 'ok', new profileResource($user), []);
+        if ($user->type == 'artist') {
+            return mainResponse(true, 'ok', new profileArtistResource($user), []);
+        }
+        return mainResponse(true, 'ok', new profileUserResource($user), []);
+
+    }
+    public function accountSettingsGet()
+    {
+        $user = Auth::guard('sanctum')->user();
+        return mainResponse(true, "done", acountSetting::collection($user->select('uuid', 'name', 'email', 'mobile', 'country_uuid', 'city_uuid')->get()), [], 201);
     }
 
-    public function accountSettingsGet(){
-        $user = Auth::guard('sanctum')->user();
-        return mainResponse(true, "done", acountSetting::collection($user->select('uuid','name','email','mobile','country_uuid','city_uuid')->get()), [], 201);
-    }
     public function updateAccountSetting(Request $request)
     {
         $user = Auth::guard('sanctum')->user();
 
         $rules = [
             'name' => 'required',
-            'email' =>  [
+            'email' => [
                 'required',
                 'email',
-                Rule::unique('users','email')->ignore($user->uuid,'uuid')
+                Rule::unique('users', 'email')->ignore($user->uuid, 'uuid')
             ],
-            'mobile' =>  [
+            'mobile' => [
                 'required',
                 'max:12',
-                Rule::unique('users','mobile')->ignore($user->uuid,'uuid')
+                Rule::unique('users', 'mobile')->ignore($user->uuid, 'uuid')
             ],
             'country_uuid' => 'required|exists:countries,uuid',
             'city_uuid' => 'required|exists:cities,uuid',
@@ -56,43 +62,49 @@ class ProfileController extends Controller
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
-        $user->update($request->only('name','email','mobile','country_uuid','city_uuid'));
+        $user->update($request->only('name', 'email', 'mobile', 'country_uuid', 'city_uuid'));
         if ($user) {
             return mainResponse(true, "done", $user, [], 201);
 
-        }else{
+        } else {
             return mainResponse(false, 'حصل خطا ما', [], ['حصل خطا ما'], 500);
 
         }
 
     }
+
     public function updateProfile(Request $request)
     {
         $rules = [
             'personal_photo' => 'required',
             'cover_Photo' => 'required',
             'video' => 'required',
-            'skills' => 'required',
             'brief' => 'required',
             'lat' => 'required',
             'lng' => 'required',
             'address' => 'required',
-            'specialization_uuid' => 'required|exists:specializations,uuid',
         ];
-
+        $user = Auth::guard('sanctum')->user();
+        if ($user->type == 'artist') {
+            $rules['skills'] = 'required';
+            $rules['specialization_uuid'] = 'required|exists:specializations,uuid';
+        }
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
-        $user = Auth::guard('sanctum')->user();
-        $user->update($request->only('brief', 'lat', 'lng', 'specialization_uuid', 'address'));
+        if ($user->type == 'artist') {
+            $user->update($request->only('brief', 'lat', 'lng', 'specialization_uuid', 'address'));
+            $user->skills()->sync($request->skills);
+        }else{
+            $user->update($request->only('brief', 'lat', 'lng', 'address'));
+        }
         UploadImage($request->personal_photo, "upload/user/personal", User::class, $user->uuid, true, null, Upload::IMAGE, 'personal_photo');
         UploadImage($request->cover_Photo, "upload/user/cover", User::class, $user->uuid, true, null, Upload::IMAGE, 'cover_photo');
 
         if ($request->has('video')) {
             UploadImage($request->video, "upload/user/video", User::class, $user->uuid, true, null, Upload::VIDEO);
         }
-        $user->skills()->sync($request->skills);
         return mainResponse(true, "done", $user, [], 201);
 
     }
@@ -119,11 +131,11 @@ class ProfileController extends Controller
         }
         if ($request->hasFile('video')) {
 
-          $video=  UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $busines->uuid, false, null, Upload::VIDEO);
+            $video = UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $busines->uuid, false, null, Upload::VIDEO);
             $getID3 = new \getID3;
-            $video_file = $getID3->analyze('upload/business/video/'.$video->filename);
+            $video_file = $getID3->analyze('upload/business/video/' . $video->filename);
             $duration_string = $video_file['playtime_string'];
-            $busines->time=$duration_string;
+            $busines->time = $duration_string;
             $busines->save();
         }
 
@@ -132,6 +144,7 @@ class ProfileController extends Controller
 
 
     }
+
     public function addBusinessImages(Request $request)
     {
         $rules['images'] = 'required';
@@ -172,6 +185,7 @@ class ProfileController extends Controller
             return mainResponse(false, "image not found", [], ["image not found"], 101);
         }
     }
+
     public function deleteBusinessVideo($Business)
     {
         $businessVideo = BusinessVideo::query()->find($Business);
@@ -203,11 +217,17 @@ class ProfileController extends Controller
 
     }
 
-    public function getProfile($uuid){
-        $artist=User::query()->find($uuid);
-        return mainResponse(true, 'ok', new profileResource($artist), []);
+    public function getProfile($uuid)
+    {
+        $user = User::query()->find($uuid);
+        if ($user->type == 'artist') {
+            return mainResponse(true, 'ok', new profileArtistResource($user), []);
+        }
+        return mainResponse(true, 'ok', new profileUserResource($user), []);
     }
-    public function getBusinessProfile($uuid,$type){
+
+    public function getBusinessProfile($uuid, $type)
+    {
         if ($type == "video") {
             $business = BusinessVideo::query()->where('user_uuid', $uuid)->get();
         } elseif ($type == "images") {
@@ -217,21 +237,23 @@ class ProfileController extends Controller
         }
         return mainResponse(true, 'done', $business, [], 200);
     }
-    public function getProductProfile($uuid,$type){
+
+    public function getProductProfile($uuid, $type)
+    {
         if ($type == "sale") {
             $products = Product::query()
-                ->where('type','sale')
+                ->where('type', 'sale')
                 ->where('user_uuid', $uuid)
                 ->get();
         } elseif ($type == "leasing") {
             $products = Product::query()
-                ->where('type','leasing')
+                ->where('type', 'leasing')
                 ->where('user_uuid', $uuid)
                 ->get();
         } else {
             return mainResponse(false, 'type must sale||leasing', [], ['type must video||images'], 404);
         }
-        $products=ProductHomeResource::collection($products);
+        $products = ProductHomeResource::collection($products);
         return mainResponse(true, 'done', $products, [], 200);
     }
 }
