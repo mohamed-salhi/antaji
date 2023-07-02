@@ -9,6 +9,24 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
+    public function index(){
+        $settings=Setting::query()->first();
+        return view('admin.settings.index',compact('settings'));
+    }
+public function post(Request $request){
+    $rules = [
+        'commission'=>'required'
+    ];
+    $this->validate($request, $rules);
+    $data = [
+        'commission'=>$request->commission
+    ];
+    $setting=  Setting::query()->updateOrCreate(['id'=>1],$data);
+    return response()->json([
+        'item_edited'
+    ]);
+
+}
     public function terms_conditions(){
         $settings=Setting::query()->first();
         return view('admin.settings.terms_conditions',compact('settings'));

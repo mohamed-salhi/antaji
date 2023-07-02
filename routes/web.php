@@ -148,6 +148,8 @@ Route::group(
                 Route::post('/terms_conditions', [\App\Http\Controllers\Admin\setting\SettingController::class,'terms_conditions_post'])->name('terms_conditions');
                 Route::get('/delete_my_account', [\App\Http\Controllers\Admin\setting\SettingController::class,'delete_my_account'])->name('delete_my_account');
                 Route::post('/delete_my_account', [\App\Http\Controllers\Admin\setting\SettingController::class,'delete_my_account_post'])->name('delete_my_account');
+                Route::post('/', [\App\Http\Controllers\Admin\setting\SettingController::class,'post'])->name('index');
+                Route::get('/', [\App\Http\Controllers\Admin\setting\SettingController::class,'index'])->name('index');
 
             });
             Route::controller(\App\Http\Controllers\Admin\Contact\ContactController::class)->prefix('contacts')->name('contacts.')->group(function () {
@@ -220,6 +222,13 @@ Route::group(
                     Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
 
                 });
+            });
+            Route::controller(\App\Http\Controllers\Admin\PaymentGateway\paymentGatewayController::class)->prefix('paymentGateways')->name('paymentGateways.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/getData', 'getData')->name('getData');
+                Route::put('/activate/{uuid}', 'activate')->name('activate');
+                Route::get('content/checkout/{uuid}','checkout')->name('checkout')->withoutMiddleware(['auth']);;
+                Route::get('content/pay/{uuid}','pay')->name('pay')->withoutMiddleware(['auth']);;
             });
 
         });

@@ -572,5 +572,8 @@
     "Fixed price": "سعر ثابت",
     "contract": "عقد",
     "hour": "ساعة",
-    "count": "عدد"
+    "count": "عدد",
+    "commission": "العمولة",
+
+    "delete my account": "حذف حسابي"
 }

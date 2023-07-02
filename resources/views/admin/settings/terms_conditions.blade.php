@@ -48,13 +48,13 @@
                                 <form action="{{route('settings.terms_conditions')}}" method="post">
                                     @csrf
                                   <div class="row " >
-                                      <div>
+                                      <div class="mr-lg-75">
                                           <h1 class="text-primary">@lang('terms conditions') @lang('Arabic')</h1>
                                           <textarea id="about_application" class="myTextarea1" name="terms_conditions_ar" >{{$settings->getTranslation('terms_conditions', 'ar') }}</textarea>
                                           <div class="invalid-feedback"></div>
                                       </div>
 
-                                      <div>
+                                      <div class="ml-lg-75">
                                           <h1 class="text-primary">@lang('terms conditions') @lang('English')</h1>
                                           <textarea id="policies_privacy" class="myTextarea3" name="terms_conditions_en">{{$settings->getTranslation('terms_conditions', 'en') }}</textarea>
                                           <div class="invalid-feedback"></div>

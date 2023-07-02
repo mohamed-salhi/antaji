@@ -92,7 +92,7 @@ class HomeController extends Controller
 
     public function getDetailsProduct($uuid)
     {
-        $product = Product::query()->where('uuid', $uuid)->with('specifications')->get();
+        $product = Product::query()->where('uuid', $uuid)->with('specifications')->with('user:name,uuid')->get();
         if ($product) {
             return mainResponse(true, "done", $product, [], 200);
 

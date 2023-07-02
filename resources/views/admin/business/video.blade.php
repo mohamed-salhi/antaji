@@ -366,8 +366,8 @@
                 searchable: false
             },
                 {
-                    data: 'user_name',
-                    name: 'user_name'
+                    data: 'artist_name',
+                    name: 'artist_name'
                 },
                 {
                     data: 'title',

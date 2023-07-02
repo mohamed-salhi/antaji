@@ -56,7 +56,8 @@ class AuthController extends Controller
         $item = Verification::query()->where('mobile', $request->mobile)->first();
         if ($item && Hash::check($request->code, $item->code)) {
             $user = User::query()->where('mobile', $request->mobile)->first();
-                $user->setAttribute('token', $user->createToken('api')->plainTextToken);
+//                $user->setAttribute('token', $user->createToken('api')->plainTextToken);
+            $token=$user->createToken('api')->plainTextToken;
                 FcmToken::query()->create([
                     "user_uuid"=>$user->uuid,
                     "fcm_device"=>$request->fcm_device,
@@ -68,7 +69,7 @@ class AuthController extends Controller
             return mainResponse(false, __('Code is not correct'), [], []);
         }
 
-        return mainResponse(true, __('ok'), compact('user'), []);
+        return mainResponse(true, __('ok'),compact('token'), []);
     }
     public function again(Request $request){
         $rules = [
@@ -139,5 +140,5 @@ class AuthController extends Controller
 
 
     }
-  
+
 }

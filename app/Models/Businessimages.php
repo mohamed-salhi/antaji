@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 class Businessimages extends Model
 {
     use HasFactory;
-    use HasFactory;
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $appends=['images','user_name'];

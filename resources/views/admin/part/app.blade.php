@@ -474,11 +474,11 @@ var pageNot=2
             },
             success: function (result) {
                 $('.done').html('add').prop('disabled', false);
-
-                table.draw()
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
+                table.draw()
+
                 $('#full-modal-stem').modal('hide');
                 $('#model-excel').modal('hide');
                 $('#add_model_form').trigger("reset");

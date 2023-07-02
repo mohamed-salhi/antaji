@@ -17,7 +17,7 @@ class Category extends Model
     protected $translatable = ['name'];
     protected $appends = ['name_translate','image','product_count','sub_count'];
     protected $guarded = [];
-    protected $hidden=['imageCategory','name','created_at','updated_at','status','products','sub_count'];
+    protected $hidden=['imageCategory','name','created_at','updated_at','status','products'];
     const PATH_IMAGE='/upload/category/images/';
 
     //Relations

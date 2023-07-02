@@ -13,7 +13,7 @@ class Product extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $appends=['attachments','category_name','user_name','sup_category_name','image'];
-    protected $hidden=['imageProduct','user','category','supCategory','status','updated_at','created_at'];
+    protected $hidden=['imageProduct','category','supCategory','status','updated_at','created_at'];
 
     protected $guarded = [];
     const PATH_PRODUCT="/upload/product/images/";

@@ -14,24 +14,45 @@ class Cart extends Model
     use HasFactory;
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-   protected $appends=['content_owner_name','content_owner_uuid','content_count','day_count'];
+//       protected $appends=['image'];
+
+   protected $appends=['content_owner_name','content_owner_uuid','content_count','day_count','content_owner_image'];
    protected $hidden=['content'];
     protected $guarded = [];
 
     //Relations
-public function content(){
-    if ($this->type=='product'){
-        return $this->belongsTo(Product::class,'content_uuid');
+public function content()
+{
+
+    if ($this->type == 'product') {
+        return $this->belongsTo(Product::class, 'content_uuid');
     }
-    if ($this->type=='location'){
-        return $this->belongsTo(Location::class,'content_uuid');
+    if ($this->type == 'location') {
+        return $this->belongsTo(Location::class, 'content_uuid');
     }
 }
+    public function products()
+    {
+        return $this->belongsTo(Product::class, 'content_uuid');
+    }
 
-    //Attributes
+    public function locations()
+    {
+        return $this->belongsTo(Location::class, 'content_uuid');
+    }
+
+//    Attributes
+    public function getImageAttribute()
+    {
+        return @$this->content->oneImageProduct->filename;
+    }
     public function getContentOwnerNameAttribute()
     {
         return @$this->content->user->name;
+    }
+    public function getContentOwnerImageAttribute()
+    {
+        return @$this->content->user->image;
     }
     public function getContentOwnerUuidAttribute()
     {

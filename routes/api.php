@@ -79,8 +79,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDeliveryAddresses']);
     Route::post('update/delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'updateDeliveryAddresses']);
     Route::delete('delete/delivery_addresses/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'deleteDeliveryAddresses']);
-    Route::post('add/cart', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'addCart']);
-    Route::get('get/cart', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getCart']);
 
+    Route::post('add/cart', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'addCart']);
+    Route::get('delete/cart/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'deteteCart']);
+    Route::post('update/cart/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'updateCart']);
+
+    Route::get('get/cart/{uuid?}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getCart']);
+    Route::get('get/payment', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getPagePay']);
+
+//    Route::get('get/paymentGateways', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'paymentGateways']);
+    Route::post('content/checkout', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'checkout']);
 
 });

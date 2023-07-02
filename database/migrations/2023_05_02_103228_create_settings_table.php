@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('policies_privacy');
             $table->text('terms_conditions');
             $table->text('delete_my_account');
+            $table->string('commission');
             $table->timestamps();
         });
     }

@@ -20,7 +20,8 @@
                             <ol class="breadcrumb">
                                 {{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
                                 {{--                                </li>--}}
-                                <li class="breadcrumb-item"><a href="{{ route('settings.about_application') }}">@lang('settings')</a>
+                                <li class="breadcrumb-item"><a
+                                        href="{{ route('settings.about_application') }}">@lang('settings')</a>
                                 </li>
                             </ol>
                         </div>
@@ -29,7 +30,7 @@
             </div>
         </div>
         <div class="content-body">
-@if(session('done'))
+            @if(session('done'))
                 <div class="alert alert-primary" role="alert" style="height: 50px">
                     <h1 class="text-success">done</h1>
                 </div>
@@ -47,19 +48,21 @@
                             <div class="card-body">
                                 <form action="{{route('settings.about_application')}}" method="post">
                                     @csrf
-                                  <div class="row" >
-                                      <div class="mr-lg-75">
-                                          <h1 class="text-primary">@lang('about application') @lang('Arabic')</h1>
-                                          <textarea id="about_application" class="myTextarea1" name="about_application_ar" >{{$settings->getTranslation('about_application', 'ar') }}</textarea>
-                                          <div class="invalid-feedback"></div>
-                                      </div>
+                                    <div class="row">
+                                        <div class="mr-lg-75">
+                                            <h1 class="text-primary">@lang('about application') @lang('Arabic')</h1>
+                                            <textarea id="about_application" class="myTextarea1"
+                                                      name="about_application_ar">{{$settings->getTranslation('about_application', 'ar') }}</textarea>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
 
-                                      <div class="ml-lg-75">
-                                          <h1 class="text-primary">@lang('about application') @lang('English')</h1>
-                                          <textarea id="policies_privacy" class="myTextarea3" name="about_application_en">{{$settings->getTranslation('about_application', 'en') }}</textarea>
-                                          <div class="invalid-feedback"></div>
-                                      </div>
-                                  </div>
+                                        <div class="ml-lg-75">
+                                            <h1 class="text-primary">@lang('about application') @lang('English')</h1>
+                                            <textarea id="policies_privacy" class="myTextarea3"
+                                                      name="about_application_en">{{$settings->getTranslation('about_application', 'en') }}</textarea>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
                                     <br>
 
                                     <br>
@@ -77,7 +80,9 @@
     </div>
 @endsection
 @section('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.2/tinymce.min.js" integrity="sha512-MbhLUiUv8Qel+cWFyUG0fMC8/g9r+GULWRZ0axljv3hJhU6/0B3NoL6xvnJPTYZzNqCQU3+TzRVxhkE531CLKg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.2/tinymce.min.js"
+            integrity="sha512-MbhLUiUv8Qel+cWFyUG0fMC8/g9r+GULWRZ0axljv3hJhU6/0B3NoL6xvnJPTYZzNqCQU3+TzRVxhkE531CLKg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
         tinymce.init({
             selector: '.myTextarea1',

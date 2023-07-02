@@ -3,8 +3,13 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Admin;
+use App\Models\PaymentGateway;
+use App\Models\Upload;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,27 +18,36 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
- \App\Models\Admin::create([
-             'name' => 'mohamed',
-             'email' => 'admin@admin',
-     'password'=>Hash::make('123456789')
+//        $admin=Admin::create([
+//            'name' => 'mohamed',
+//            'email' => 'mohamed@admin',
+//            'password'=>Hash::make('123456789')
+//        ]);
+//        $role = Role::create(['name' => 'Admin']);
+//
+//        $permissions = Permission::pluck('id','id')->all();
+//
+//        $role->syncPermissions($permissions);
+//
+//        $admin->assignRole([$role->id]);
+        $made= PaymentGateway::create([
+            'name'=>['ar' => "المدى", 'en' => "mada"]
+        ]);
+        $pay= PaymentGateway::create([
+            'name'=>['ar' => "ابل باي", 'en' => "pay"]
+        ]);
+        Upload::create([
+            'filename'=>'mada.png',
+            'imageable_id'=>$made->id,
+            'imageable_type'=>PaymentGateway::class,
+            'type'=>Upload::IMAGE
 
-         ]);
-//         \App\Models\Type::create([
-//             'name' => 'servers',
-//         ]);
-//        \App\Models\Type::create([
-//            'name' => 'product',
-//        ]);
-//        \App\Models\Type::create([
-//            'name' => 'location',
-//        ]);
-//        \App\Models\Type::create([
-//            'name' => 'course',
-//        ]);
-//        \App\Models\Type::create([
-//            'name' => 'sup',
-//        ]);
+        ]);
+        Upload::create([
+            'filename'=>'pay.png',
+            'imageable_id'=>$pay->id,
+            'imageable_type'=>PaymentGateway::class,
+            'type'=>Upload::IMAGE
+        ]);
     }
 }
