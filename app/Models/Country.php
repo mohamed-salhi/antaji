@@ -27,6 +27,11 @@ class Country extends Model
         return $this->morphOne(Upload::class, 'imageable');
     }
 
+    public function cities()
+    {
+        return $this->hasMany(City::class);
+    }
+
     //Attributes
     public function getNameTranslateAttribute()
     {

@@ -18,11 +18,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-//        $admin=Admin::create([
-//            'name' => 'mohamed',
-//            'email' => 'mohamed@admin',
-//            'password'=>Hash::make('123456789')
-//        ]);
+        $admin=Admin::create([
+            'name' => 'Super Admin',
+            'email' => 'super@admin.com',
+            'password'=>Hash::make('123456')
+        ]);
+
 //        $role = Role::create(['name' => 'Admin']);
 //
 //        $permissions = Permission::pluck('id','id')->all();

@@ -521,7 +521,7 @@
                 $.each(fileArray, function (index, fileName) {
                     var object = {
                         id: fileArrayUuids[index],
-                        src: 'http://127.0.0.1:8000/upload/product/images/' + fileName
+                        src: '{{ url('/') }}/upload/product/images/' + fileName
                     };
                     preloaded.push(object)
                 })

@@ -40,6 +40,10 @@ public function content()
     {
         return $this->belongsTo(Location::class, 'content_uuid');
     }
+    public function days()
+    {
+        return $this->belongsTo(BookingDay::class, 'content_uuid');
+    }
 
 //    Attributes
     public function getImageAttribute()

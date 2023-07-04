@@ -42,6 +42,50 @@
                                    placeholder="@lang('commission')">
                         </div>
                     </div>
+{{--                    <div class="col-3">--}}
+{{--                        <div class="form-group">--}}
+{{--                            <label for="title_page">@lang('Home Page Title')</label>--}}
+{{--                            <input id="title_page" name="title_page" type="text" value="{{@$settings->title_page }}"--}}
+{{--                                   class="form-control"--}}
+{{--                                   placeholder="@lang('Home Page Title')">--}}
+{{--                        </div>--}}
+{{--                        --}}
+{{--                    </div>--}}
+                    @foreach (locales() as $key => $value)
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label for="title_page_{{ $key }}">@lang('Home Page Title') @lang($value)</label>
+                                <input type="text" class="form-control"
+                                       placeholder="@lang('Home Page Title') @lang($value)"
+                                       value="{{@$settings->getTranslation('title_page',$key) }}"
+                                       name="title_page_{{ $key }}" id="title_page_{{ $key }}">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                    <div class="col-3">
+                        <label for="icon">@lang('flag')</label>
+                        <div>
+                            <div class="fileinput fileinput-exists"
+                                 data-provides="fileinput">
+                                <div class="fileinput-preview thumbnail"
+                                     data-trigger="fileinput"
+                                     style="width: 200px; height: 150px;">
+                                    <img id="edit_src_image"
+                                         src="{{$settings->image}}"
+                                         alt="https://demo.opencart.com/image/cache/no_image-100x100.png"/>
+                                </div>
+                                <div class="form-group">
+                                                    <span class="btn btn-secondary btn-file">
+                                                        <span class="fileinput-new"> @lang('select_image')</span>
+                                                        <span class="fileinput-exists"> @lang('select_image')</span>
+                                                        <input class="form-control" type="file" name="image">
+                                                    </span>
+                                    <div class="invalid-feedback" style="display: block;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
                 </div>

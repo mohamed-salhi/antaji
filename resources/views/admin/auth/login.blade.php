@@ -3,6 +3,9 @@
 <!-- BEGIN: Head-->
 
 <head>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
+
     <link rel="stylesheet" type="text/css"
           href="{{ asset('dashboard/app-assets/vendors/css/extensions/toastr.min.css') }}">
     <link rel="stylesheet" type="text/css"
@@ -164,62 +167,62 @@
 {{--    <script src="{{ asset('dashboard/app-assets/js/scripts/pages/page-auth-login.js') }}"></script>--}}
     <!-- END: Page JS-->
 
-    <script>
-        $.ajaxSetup({
-            headers: { 'X-CSRF-Token' : $('meta[name=csrf-token]').attr('content') }
-        });
-        $('.auth-login-form').on('submit', function (event) {
-            event.preventDefault();
-            var data = new FormData(this);
-            let url = $(this).attr('action');
-            var method = $(this).attr('method');
-            $.ajax({
-                type: method,
-                cache: false,
-                contentType: false,
-                processData: false,
-                url: url,
-                {{--headers: {--}}
-                {{--    'X-CSRF-Token': {{ csrf_token() }}--}}
-                {{--},--}}
-                data: data,
-                beforeSend: function () {
-                    $('.btn-block').prop('disabled', true);
+{{--    <script>--}}
+{{--        $.ajaxSetup({--}}
+{{--            headers: { 'X-CSRF-Token' : $('meta[name=csrf-token]').attr('content') }--}}
+{{--        });--}}
+{{--        $('.auth-login-form').on('submit', function (event) {--}}
+{{--            event.preventDefault();--}}
+{{--            var data = new FormData(this);--}}
+{{--            let url = $(this).attr('action');--}}
+{{--            var method = $(this).attr('method');--}}
+{{--            $.ajax({--}}
+{{--                type: method,--}}
+{{--                cache: false,--}}
+{{--                contentType: false,--}}
+{{--                processData: false,--}}
+{{--                url: url,--}}
+{{--                --}}{{--headers: {--}}
+{{--                --}}{{--    'X-CSRF-Token': {{ csrf_token() }}--}}
+{{--                --}}{{--},--}}
+{{--                data: data,--}}
+{{--                beforeSend: function () {--}}
+{{--                    $('.btn-block').prop('disabled', true);--}}
 
-                    // Add a loading icon
-                    $('.btn-block').html('Sending…');
-                    },
-                success: function (result) {
-                    $("#err").html('')
-                    window.location.href='{{route('countries.index')}}'
-                    console.log('ttt')
-                },
-                error: function (data) {
-                    $('.btn-block').prop('disabled', false);
-                    $('.btn-block').html("Sign In");
-                        var response = data.responseJSON;
-                        $.each(response.errors, function (key, value) {
-                            console.log(value[0])
-                            $("#err").html('')
-                            $("#err").append(`<span class="help-block text-danger">
-                                                <strong>${value[0]}</strong>
-                                    </span>`)
-                            console.log(data["message"])
+{{--                    // Add a loading icon--}}
+{{--                    $('.btn-block').html('Sending…');--}}
+{{--                    },--}}
+{{--                success: function (result) {--}}
+{{--                    $("#err").html('')--}}
+{{--                    window.location.href='{{route('countries.index')}}'--}}
+{{--                    console.log('ttt')--}}
+{{--                },--}}
+{{--                error: function (data) {--}}
+{{--                    $('.btn-block').prop('disabled', false);--}}
+{{--                    $('.btn-block').html("Sign In");--}}
+{{--                        var response = data.responseJSON;--}}
+{{--                        $.each(response.errors, function (key, value) {--}}
+{{--                            console.log(value[0])--}}
+{{--                            $("#err").html('')--}}
+{{--                            $("#err").append(`<span class="help-block text-danger">--}}
+{{--                                                <strong>${value[0]}</strong>--}}
+{{--                                    </span>`)--}}
+{{--                            console.log(data["message"])--}}
 
-                        });
-                }
-            });
-        });
+{{--                        });--}}
+{{--                }--}}
+{{--            });--}}
+{{--        });--}}
 
-        $(window).on('load', function() {
-            if (feather) {
-                feather.replace({
-                    width: 14,
-                    height: 14
-                });
-            }
-        })
-    </script>
+{{--        $(window).on('load', function() {--}}
+{{--            if (feather) {--}}
+{{--                feather.replace({--}}
+{{--                    width: 14,--}}
+{{--                    height: 14--}}
+{{--                });--}}
+{{--            }--}}
+{{--        })--}}
+{{--    </script>--}}
 </body>
 <!-- END: Body-->
 

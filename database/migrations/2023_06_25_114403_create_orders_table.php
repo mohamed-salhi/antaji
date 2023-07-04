@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->string('order_number');
-            $table->foreignUuid('delivery_addresses_uuid')->nullable()->references('uuid')->on('users')->nullOnDelete();
+            $table->foreignUuid('delivery_addresses_uuid')->nullable()->references('uuid')->on('delivery_addresses')->nullOnDelete();
             $table->string('type')->nullable();//اجار ||بيع
             $table->date('start')->nullable();
             $table->date('end')->nullable();

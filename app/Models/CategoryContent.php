@@ -16,29 +16,49 @@ class CategoryContent extends Model
     public $incrementing = false;
     protected $translatable = ['name'];
     protected $guarded = [];
-    protected $appends = ['name_translate','content_count'];
-    protected $hidden=['name','status','updated_at','created_at','pivot'];
+    protected $appends = ['name_translate', 'content_count', 'content'];
+    protected $hidden = ['name', 'status', 'updated_at', 'created_at', 'pivot'];
 
-    //Relations
-    public function content(){
-        if ($this->type=='product'){
-            return @$this->hasMany(Product::class,'category_contents_uuid');
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'category_contents_uuid');
+    }
+
+    public function servings()
+    {
+        return $this->hasMany(Serving::class, 'category_contents_uuid');
+    }
+
+    public function locations()
+    {
+        return $this->belongsToMany(Location::class, 'category_locations', 'category_contents_uuid', 'location_uuid');
+    }
+
+    public function getContentAttribute()
+    {
+        if ($this->type == 'product') {
+            return $this->products;
         }
-        if ($this->type=='serving'){
-            return @$this->hasMany(Serving::class,'category_contents_uuid');
+        if ($this->type == 'serving') {
+            return $this->servings;
         }
-        if ($this->type=='location'){
-            return $this->belongsToMany(Location::class,'category_locations','category_contents_uuid','location_uuid');
+        if ($this->type == 'location') {
+            return $this->locations;
         }
     }
+
     //Attributes
     public function getNameTranslateAttribute()
     {
         return @$this->name;
     }
+
     public function getContentCountAttribute()
     {
-        return @$this->content()->count();
+        if ($this->content) {
+            return $this->content->count();
+        }
+        return 0;
     }
 
     //Boot

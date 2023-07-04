@@ -46,13 +46,13 @@ class UserController extends Controller
             'lat' => 'nullable',
             'lng' => 'nullable',
             'address' => 'nullable',
-            'specialization_uuid' => 'required|exists:specializations,uuid',
+//            'specialization_uuid' => 'required|exists:specializations,uuid',
         ];
         $this->validate($request, $rules);
         $request->merge([
             'type'=> 'user',
         ]);
-        $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'personal_photo', 'cover_Photo', 'video', 'skills', 'brief', 'lat', 'lng', 'address', 'specialization_uuid'));
+        $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'personal_photo', 'cover_Photo', 'video', 'skills', 'brief', 'lat', 'lng', 'address'));
         if ($request->hasFile('personal_photo')) {
             UploadImage($request->personal_photo, User::PATH_PERSONAL, User::class, $user->uuid, false, null, Upload::IMAGE, 'personal_photo');
         }
@@ -98,7 +98,7 @@ class UserController extends Controller
             'lat' => 'nullable',
             'lng' => 'nullable',
             'address' => 'nullable',
-            'specialization_uuid' => 'required|exists:specializations,uuid',
+//            'specialization_uuid' => 'required|exists:specializations,uuid',
         ];
         $this->validate($request, $rules);
         $user->update($request->only('name', 'email', 'country_uuid', 'city_uuid', 'phone'));
@@ -206,12 +206,12 @@ class UserController extends Controller
                 $currentUrl = url('/');
                 if ($que->status == 1) {
                     $data = '
-<button type="button"  data-url="' . $currentUrl . "/users/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/users/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
                         '">' . __('active') . '</button>
                     ';
                 } else {
                     $data = '
-<button type="button"  data-url="' . $currentUrl . "/users/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/users/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
                         '">' . __('inactive') . '</button>
                     ';
                 }

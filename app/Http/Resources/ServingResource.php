@@ -15,13 +15,17 @@ class ServingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'uuid'=>$this->uuid,
-            'name'=>$this->name,
-            'category_name'=>$this->category_name,
-            'price'=>$this->price,
-            'from'=>$this->from,
-            'created'=>$this->created_at->diffForHumans(),
-            'working_condition'=>$this->working_condition,
+            'uuid' => $this->uuid,
+            'name' => $this->name,
+            'category_name' => $this->category_name,
+            'working_condition' => $this->working_condition,
+            'tag' => 'new',
+            'details' => $this->details,
+            'price' => $this->price,
+            'currency' => __('sr'),
+            'from' => $this->from,
+            'created' => $this->created_at->diffForHumans(),
+
         ];
     }
 }

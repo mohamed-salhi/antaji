@@ -473,11 +473,12 @@ var pageNot=2
                 $('.done').html('saving ...').prop('disabled', true);
             },
             success: function (result) {
+                table.draw()
                 $('.done').html('add').prop('disabled', false);
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
-                table.draw()
+
 
                 $('#full-modal-stem').modal('hide');
                 $('#model-excel').modal('hide');
@@ -549,7 +550,7 @@ var pageNot=2
                     toastr.success('@lang('deleted')', '', {
                         rtl: isRtl
                     });
-                    table.draw()
+
 
                 }).fail(function () {
                     toastr.error('@lang('something_wrong')', '', {
@@ -642,12 +643,13 @@ var pageNot=2
 
             },
             success: function (result) {
+                table.draw()
                 $('#edit_modal').modal('hide');
                 $('.form_edit').trigger("reset");
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
-                table.draw()
+
                 $('.btn btn-primary').prop('disabled', false);
 
 

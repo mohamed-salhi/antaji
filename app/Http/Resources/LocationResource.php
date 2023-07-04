@@ -15,11 +15,12 @@ class LocationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'uuid'=>$this->uuid,
-            'name'=>$this->name,
-            'image'=>$this->image,
+            'uuid' => $this->uuid,
+            'name' => $this->name,
+            'image' => $this->image,
 //            'category_name'=>$this->categories,
-            'price'=>$this->price,
+            'price' => $this->price,
+            'currency' => __('sr')
         ];
     }
 }

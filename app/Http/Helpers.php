@@ -37,22 +37,99 @@ function languages()
         return ['ar' => 'العربية', 'en' => 'النجليزية'];
     }
 }
-function mainResponse($status, $msg, $items, $validator, $code = 200, $pages = null)
-{
+//function mainResponse($status, $msg, $items, $validator, $code = 200, $pages = null)
+//{
+//
+//    $item_with_paginate = $items;
+//    if (gettype($items) == 'array') {
+//
+//
+//        if (count($items)) {
+//
+//            $item_with_paginate = $items[array_key_first($items)];
+//
+//        }
+//    }
+//
+//    if (isset(json_decode(json_encode($item_with_paginate, true), true)['data'])) {
+//        return  $item_with_paginate;
+//        $pagination = json_decode(json_encode($item_with_paginate, true), true);
+//        $new_items = $pagination['data'];
+//        $pages = [
+//            "current_page" => $pagination['current_page'],
+//            "first_page_url" => $pagination['first_page_url'],
+//            "from" => $pagination['from'],
+//            "last_page" => $pagination['last_page'],
+//            "last_page_url" => $pagination['last_page_url'],
+//            "next_page_url" => $pagination['next_page_url'],
+//            "path" => $pagination['path'],
+//            "per_page" => $pagination['per_page'],
+//            "prev_page_url" => $pagination['prev_page_url'],
+//            "to" => $pagination['to'],
+//            "total" => $pagination['total'],
+//        ];
+//    } else {
+//        $pages = [
+//            "current_page" => 0,
+//            "first_page_url" => '',
+//            "from" => 0,
+//            "last_page" => 0,
+//            "last_page_url" => '',
+//            "next_page_url" => null,
+//            "path" => '',
+//            "per_page" => 0,
+//            "prev_page_url" => null,
+//            "to" => 0,
+//            "total" => 0,
+//        ];
+//    }
+//
+//    if (gettype($items) == 'array') {
+//        if (count($items)) {
+//            $new_items = [];
+//            foreach ($items as $key => $item) {
+//                if (isset(json_decode(json_encode($item, true), true)['data'])) {
+//                    $pagination = json_decode(json_encode($item, true), true);
+//                    $new_items[$key] = $pagination['data'];
+//                } else {
+//                    $new_items[$key] = $item;
+//                }
+//
+//                $items = $new_items;
+//            }
+//        }
+//    } else {
+//        if (isset(json_decode(json_encode($item_with_paginate, true), true)['data'])) {
+//            $pagination = json_decode(json_encode($item_with_paginate, true), true);
+//            $items = $pagination['data'];
+//        }
+//    }
+//
+//    //    $items = $new_items;
+//
+//    $aryErrors = [];
+//    foreach ($validator as $key => $value) {
+//        $aryErrors[] = ['field_name' => $key, 'messages' => $value];
+//    }
+//    /*    $aryErrors = array_map(function ($i) {
+//            return $i[0];
+//        }, $validator);*/
+//
+//    $newData = ['status' => $status, 'message' => __($msg), 'data' => $items, 'pages' => $pages, 'errors' => $aryErrors];
+//
+//    return response()->json($newData);
+//}
 
+function mainResponse($status, $msg, $items, $validator = [], $code = 200, $pages = null)
+{
     $item_with_paginate = $items;
     if (gettype($items) == 'array') {
-
-
         if (count($items)) {
-
             $item_with_paginate = $items[array_key_first($items)];
-
         }
     }
 
     if (isset(json_decode(json_encode($item_with_paginate, true), true)['data'])) {
-        return  $item_with_paginate;
         $pagination = json_decode(json_encode($item_with_paginate, true), true);
         $new_items = $pagination['data'];
         $pages = [
@@ -105,7 +182,7 @@ function mainResponse($status, $msg, $items, $validator, $code = 200, $pages = n
         }
     }
 
-    //    $items = $new_items;
+//    $items = $new_items;
 
     $aryErrors = [];
     foreach ($validator as $key => $value) {
@@ -119,6 +196,7 @@ function mainResponse($status, $msg, $items, $validator, $code = 200, $pages = n
 
     return response()->json($newData);
 }
+
 function UploadImage($file, $path = null, $model, $imageable_id, $update = false, $id = null,$type,$name=null)
 {
 

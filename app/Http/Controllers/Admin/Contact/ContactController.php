@@ -79,7 +79,7 @@ class ContactController extends Controller
                 $string = '';
                 $currentUrl = url('/');
                 $string .= '<button class="detail_btn btn btn-sm btn-outline-success btn_detail" data-toggle="modal"
-                    data-target="#detail_modal" data-url="' . $currentUrl . "/contacts/view/" . $que->uuid . '" ' . $data_attr . '>' . __('details') . '</button>';
+                    data-target="#detail_modal" data-url="' . $currentUrl . "/admin/contacts/view/" . $que->uuid . '" ' . $data_attr . '>' . __('details') . '</button>';
 
 //                if ($user->can('help-delete')) {
                     $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
@@ -94,15 +94,15 @@ class ContactController extends Controller
 
                                                                         </button>
                                                                     <div class="dropdown-menu">
-                                                                        <button class="dropdown-item" data-url="' . $currentUrl . "/contacts/importance/" . $que->uuid . "/3" . '">
+                                                                        <button class="dropdown-item" data-url="' . $currentUrl . "/admin/contacts/importance/" . $que->uuid . "/3" . '">
                                                                             <i data-feather="edit-2" class="mr-50"></i>
                                                                             <span>' . __('very important') . '</span>
                                                                         </button>
-                                                                        <button class="dropdown-item" data-url="' . $currentUrl . "/contacts/importance/" . $que->uuid . "/2" . '">
+                                                                        <button class="dropdown-item" data-url="' . $currentUrl . "/admin/contacts/importance/" . $que->uuid . "/2" . '">
                                                                             <i data-feather="edit-2" class="mr-50"></i>
                                                                             <span>' . __('important') . '</span>
                                                                         </button>
-                                                                        <button class="dropdown-item" data-url="' . $currentUrl . "/contacts/importance/" . $que->uuid . "/1" . '">
+                                                                        <button class="dropdown-item" data-url="' . $currentUrl . "/admin/contacts/importance/" . $que->uuid . "/1" . '">
                                                                             <i data-feather="edit-2" class="mr-50"></i>
                                                                             <span>' . __('normal') . '</span>
                                                                         </button>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\setting;
 use App\Http\Controllers\Admin\ResponseTrait;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Models\Upload;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
@@ -14,14 +15,25 @@ class SettingController extends Controller
         return view('admin.settings.index',compact('settings'));
     }
 public function post(Request $request){
-    $rules = [
-        'commission'=>'required'
-    ];
+
+    $rules = [];
+    foreach (locales() as $key => $language) {
+        $rules['title_page_' . $key] = 'required|string|max:255';
+    }
+    $rules['commission']='required';
+
+
     $this->validate($request, $rules);
-    $data = [
-        'commission'=>$request->commission
-    ];
+    $data = [];
+    foreach (locales() as $key => $language) {
+        $data['title_page'][$key] = $request->get('title_page_' . $key);
+    }
+    $data['commission']=$request->commission;
+
     $setting=  Setting::query()->updateOrCreate(['id'=>1],$data);
+    if ($request->hasFile('image')) {
+        UploadImage($request->image, "upload/setting/", Setting::class, $setting->id, true,null,Upload::IMAGE, 'home_page_title');
+    }
     return response()->json([
         'item_edited'
     ]);

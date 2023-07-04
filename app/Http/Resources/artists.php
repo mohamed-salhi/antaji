@@ -19,7 +19,7 @@ class artists extends JsonResource
             'specialization' => $this->specialization_name,
             'name' => $this->name,
             'personal_photo' => $this->image,
-            'cover_Photo' => $this->cover_user
+            'video' => $this->video_user
         ];
     }
 }

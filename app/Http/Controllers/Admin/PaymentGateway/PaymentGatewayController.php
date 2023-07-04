@@ -43,7 +43,7 @@ class PaymentGatewayController extends Controller
             })->addColumn('status', function ($que) {
                 $currentUrl = url('/');
                 return '<div class="checkbox">
-                <input class="activate-row"  url="' . $currentUrl . "/paymentGateways/activate/" . $que->uuid . '" type="checkbox" id="checkbox' . $que->id . '" ' .
+                <input class="activate-row"  url="' . $currentUrl . "/admin/paymentGateways/activate/" . $que->uuid . '" type="checkbox" id="checkbox' . $que->id . '" ' .
                     ($que->status ? 'checked' : '')
                     . '>
                 <label for="checkbox' . $que->uuid . '"><span class="checkbox-icon"></span> </label>

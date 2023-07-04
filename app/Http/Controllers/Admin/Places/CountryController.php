@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\places;
+namespace App\Http\Controllers\Admin\Places;
 
 use App\Http\Controllers\Admin\ResponseTrait;
 use App\Http\Controllers\Controller;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
-class countryController extends Controller
+class CountryController extends Controller
 {
 //    use ResponseTrait;
 //    function __construct()
@@ -154,12 +154,12 @@ class countryController extends Controller
                 $currentUrl = url('/');
                 if ($que->status==1){
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/countries/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/countries/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
                         '">' . __('active') . '</button>
                     ';
                 }else{
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/countries/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/countries/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
                         '">' . __('inactive') . '</button>
                     ';
                 }

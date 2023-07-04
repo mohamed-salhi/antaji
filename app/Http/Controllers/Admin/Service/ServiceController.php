@@ -127,12 +127,12 @@ class ServiceController extends Controller
                 $currentUrl = url('/');
                 if ($que->status==1){
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/services/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/services/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
                         '">' . __('active') . '</button>
                     ';
                 }else{
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/services/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/services/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
                         '">' . __('inactive') . '</button>
                     ';
                 }

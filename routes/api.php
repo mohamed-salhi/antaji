@@ -18,19 +18,19 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/intros', [\App\Http\Controllers\Api\AuthController::class, 'intros']);
+Route::get('/countries', [\App\Http\Controllers\Api\AuthController::class, 'countries']);
+Route::get('terms_conditions', [\App\Http\Controllers\Api\Home\HomeController::class, 'termsConditions']);
+
 Route::middleware(['guest:sanctum'])->prefix('auth')->group(function () {
-    Route::get('/intros', [\App\Http\Controllers\Api\AuthController::class, 'intros']);
-    Route::get('/first', [\App\Http\Controllers\Api\AuthController::class, 'first']);
-    Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
+    Route::post('/send_code', [\App\Http\Controllers\Api\AuthController::class, 'login']);
     Route::post('/verify_code', [\App\Http\Controllers\Api\AuthController::class, 'verifyCode']);
-    Route::post('/again', [\App\Http\Controllers\Api\AuthController::class, 'again']);
     Route::post('/register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::post('logout/{fcm?}/{token?}', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
-    Route::get('/home', [\App\Http\Controllers\Api\Home\HomeController::class, 'home']);
-    Route::get('terms_conditions', [\App\Http\Controllers\Api\Home\HomeController::class, 'termsConditions']);
+    Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
+    Route::get('/home', [\App\Http\Controllers\Api\Home\HomeController::class, 'home'])->withoutMiddleware('auth:sanctum');
     Route::post('update_profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateProfile']);
     Route::get('profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'profile']);
 
@@ -43,8 +43,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'accountSettingsGet']);
     Route::post('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateAccountSetting']);
     Route::get('artists', [\App\Http\Controllers\Api\Home\HomeController::class, 'artists']);
-    Route::get('getSupFromCategory/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getSupFromCategory']);
-    Route::get('getCityFromCounty/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getCityFromCounty']);
+    Route::get('categories', [\App\Http\Controllers\Api\Home\HomeController::class, 'categories']);
+    Route::get('categories/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getSupFromCategory']);
+    Route::get('categories/{uuid}/{sub_category_uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getProductFromCategory']);
     Route::post('add/course', [\App\Http\Controllers\Api\Content\ContentController::class, 'addCourse']);
     Route::post('add/serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'addServing']);
     Route::post('add/location', [\App\Http\Controllers\Api\Content\ContentController::class, 'addLocation']);

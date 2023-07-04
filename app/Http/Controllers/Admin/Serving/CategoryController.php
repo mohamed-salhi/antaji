@@ -81,7 +81,7 @@ class CategoryController extends Controller
                     $query->where('name->'.locale(), 'like', "%{$request->get('name')}%");
                 }
                 if ($request->status){
-                    $query->where('status',$request->status);
+                    ($request->status==1)?$query->where('status',$request->status):$query->where('status',0);
                 }
 
             })
@@ -102,16 +102,17 @@ class CategoryController extends Controller
                 $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
                     '">' . __('delete') . '</button>';
                 return $string;
-            }) ->addColumn('status', function ($que)  {
+            })
+            ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');
                 if ($que->status==1){
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/servings/categories/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/servings/categories/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
                         '">' . __('active') . '</button>
                     ';
                 }else{
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/servings/categories/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/servings/categories/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
                         '">' . __('inactive') . '</button>
                     ';
                 }

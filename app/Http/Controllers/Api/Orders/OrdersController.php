@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Orders;
 
 use App\Http\Controllers\Controller;
+use App\Models\BookingDay;
 use App\Models\Cart;
 use App\Models\Course;
 use App\Models\DeliveryAddresses;
@@ -78,17 +79,16 @@ class OrdersController extends Controller
     {
         $user = Auth::guard('sanctum')->user();
         $cart = Cart::query()->select('uuid', 'content_uuid', 'type')
-
             ->where('user_uuid', $user->uuid)
             ->get();
         $array = [];
         foreach ($cart as $item) {
-            $uuid_user=$item->content_owner_uuid;
+            $uuid_user = $item->content_owner_uuid;
             $array[] = [
                 'name' => $item->content_owner_name,
                 'uuid' => $item->content_owner_uuid,
                 'image' => $item->content_owner_image,
-                'count'=>Cart::query()->where('user_uuid', $user->uuid) ->WhereHas('products', function (Builder $query) use ($uuid_user) {
+                'count' => Cart::query()->where('user_uuid', $user->uuid)->WhereHas('products', function (Builder $query) use ($uuid_user) {
                     $query->where('user_uuid', $uuid_user);
                 })
                     ->orWhereHas('locations', function (Builder $query) use ($uuid_user) {
@@ -138,7 +138,7 @@ class OrdersController extends Controller
     public function updateCart(Request $request, $uuid)
     {
         $cart = Cart::query()->find($uuid);
-        $request;
+
         if ($cart) {
             $startDate = Carbon::parse($request->start);
             $endDate = Carbon::parse($request->end);
@@ -160,8 +160,8 @@ class OrdersController extends Controller
     public function getPagePay()
     {
         $user = Auth::guard('sanctum')->user();
-       $Delivery_Addresses= DeliveryAddresses::query()->where('user_uuid',$user->uuid)->where('default',1)->select('address','uuid','country_uuid','city_uuid')->first();
-       $Payment_Gateway=PaymentGateway::all();
+        $Delivery_Addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->where('default', 1)->select('address', 'uuid', 'country_uuid', 'city_uuid')->first();
+        $Payment_Gateway = PaymentGateway::all();
         return mainResponse(true, 'ok', compact('Payment_Gateway', 'Delivery_Addresses'), []);
 
     }
@@ -215,7 +215,7 @@ class OrdersController extends Controller
             ];
             if ($request->content_type == 'Product') {
                 $data['type'] = 'sale';
-                $balnce = 10 + $content->price * $settings->commission;//10 delivery
+                $balnce = 10 + intval($content->price) * intval($settings->commission);//10 delivery
             } elseif ($request->content_type == 'Serving' && $request->has('stary') && $request->has('end')) {
                 $data_['start'] = $request->start;
                 $data['end'] = $request->end;
@@ -225,7 +225,8 @@ class OrdersController extends Controller
             }
             $order = Order::create($data);
 
-        } elseif ($request->has('user_uuid')) {
+        }
+        elseif ($request->has('user_uuid')) {
             $uuid = $request->user_uuid;
             $cart = Cart::query()
                 ->WhereHas('products', function (Builder $query) use ($uuid) {
@@ -236,12 +237,27 @@ class OrdersController extends Controller
                 })
                 ->where('user_uuid', $user->uuid)
                 ->get();
+            if ($cart->isEmpty()){
+                return mainResponse(false, 'cart not found', [], [], 101);
+            }
 
             //check day
-
-
-
-
+            $err = [];
+            foreach ($cart as $item) {
+                $check = BookingDay::query()
+                    ->where('content_uuid', $item->content_uuid)
+                    ->where(function ($query) use ($item) {
+                        $query->where('date', $item->start)
+                            ->orWhere('date', $item->end);
+                    })
+                    ->exists();
+                if ($check) {
+                    $err[] = 'محجوز في هذا التاريخ' . @$item->location->name ?? @$item->product->name;
+                }
+            }
+            if (!empty($err)) {
+                return mainResponse(false, 'محجوز من قبل', [], $err, 101);
+            }
 
             $order_number = Carbon::now()->timestamp . '' . rand(1000, 9999);
             foreach ($cart as $item) {

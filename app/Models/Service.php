@@ -10,41 +10,51 @@ use Spatie\Translatable\HasTranslations;
 
 class Service extends Model
 {
-    use HasFactory,HasTranslations;
+    use HasFactory, HasTranslations;
+
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends = ['name_translate','icon'];
+    protected $appends = ['name_translate', 'icon'];
     protected $translatable = ['name'];
     protected $guarded = [];
-    protected $hidden = ['name', 'iconService', 'updated_at', 'created_at', 'status'];
+    protected $hidden = ['name', 'iconService', 'updated_at', 'created_at',];
 
-    const ACTIVE=1;
-       //Relations
+    const ACTIVE = 1;
 
-       public function iconService()
-       {
-           return $this->morphOne(Upload::class, 'imageable');
-       }
+    //Relations
+
+    public function iconService()
+    {
+        return $this->morphOne(Upload::class, 'imageable');
+    }
+
 //Attributes
-public function getNameTranslateAttribute()
-{
-    return @$this->name;
-}
-public function getIconAttribute()
-{
-    return url('/') . '/upload/service/' . @$this->iconService->filename;
-}
-   //Boot
+    public function getNameTranslateAttribute()
+    {
+        return @$this->name;
+    }
 
-   public static function boot()
-   {
-       parent::boot();
-       self::creating(function ($item) {
-           $item->uuid = Str::uuid();
-       });
-       static::addGlobalScope('service', function (Builder $builder) {
-           $builder->where('status', 1);//1==active
-       });
+    public function getIconAttribute()
+    {
+        return url('/') . '/upload/service/' . @$this->iconService->filename;
+    }
 
-   }
+    public function getStatusAttribute($value)
+    {
+        return $value == 1;
+    }
+
+    //Boot
+
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($item) {
+            $item->uuid = Str::uuid();
+        });
+//       static::addGlobalScope('service', function (Builder $builder) {
+//           $builder->where('status', 1);//1==active
+//       });
+
+    }
 }

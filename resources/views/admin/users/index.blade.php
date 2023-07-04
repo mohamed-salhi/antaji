@@ -308,20 +308,7 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">@lang('specializations')</label>
-                                    <select name="specialization_uuid" id="" class="select form-control"
-                                            data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('specializations')</option>
-                                        @foreach ($specializations as $itemm)
-                                            <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
+
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -501,19 +488,7 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">@lang('specializations')</label>
-                                    <select name="specialization_uuid" id="edit_specialization_uuid" class="select form-control"
-                                            data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('specializations')</option>
-                                        @foreach ($specializations as $itemm)
-                                            <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
+
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -791,6 +766,7 @@
                 $('.invalid-feedback').text('');
                 event.preventDefault();
                 var button = $(this);
+                console.log(button.data('mobile'))
                 var uuid = button.data('uuid');
                 $('#edit_country_uuid').attr('data-city_uuid', button.data('city_uuid'))
                 $('#edit_country_uuid').val(button.data('country_uuid')).trigger('change');
@@ -803,7 +779,6 @@
                 $('#edit_name').val(button.data('name'))
                 $('#edit_address').val(button.data('address'))
                 $('#video-1').attr('src', button.data('video'));
-                console.log(button.data('cover_Photo'))
                 $('#edit_src_image_personal_photo').attr('src', button.data('personal_photo'));
                 $('#edit_src_image_cover_Photo').attr('src', button.data('cover_user'));
                 $('#edit_brief').val(button.data('brief'))
@@ -831,7 +806,6 @@
         $('select[name="country_uuid"]').on('change', function () {
             var country_uuid = $(this).val();
             var city_uuid = $(this).data('city_uuid');
-            console.log(country_uuid);
             if (country_uuid) {
                 $.ajax({
                     url: "users/country" + "/" + country_uuid,

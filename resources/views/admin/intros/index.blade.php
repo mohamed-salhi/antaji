@@ -18,9 +18,9 @@
                         <h2 class="content-header-title float-left mb-0">@lang('intros')</h2>
                         <div class="breadcrumb-wrapper">
                             <ol class="breadcrumb">
-{{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
-{{--                                </li>--}}
-                                <li class="breadcrumb-item"><a href="{{ route('intros.index') }}">@lang('Countrys')</a>
+                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>
+                                </li>
+                                <li class="breadcrumb-item"><a href="{{ route('intros.index') }}">@lang('intros')</a>
                                 </li>
                             </ol>
                         </div>
