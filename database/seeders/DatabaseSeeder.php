@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Admin;
+use App\Models\Page;
 use App\Models\PaymentGateway;
 use App\Models\Upload;
 use Illuminate\Database\Seeder;
@@ -18,11 +19,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin=Admin::create([
-            'name' => 'Super Admin',
-            'email' => 'super@admin.com',
-            'password'=>Hash::make('123456')
-        ]);
+//        $admin=Admin::create([
+//            'name' => 'Super Admin',
+//            'email' => 'super@admin.com',
+//            'password'=>Hash::make('123456')
+//        ]);
 
 //        $role = Role::create(['name' => 'Admin']);
 //
@@ -31,24 +32,37 @@ class DatabaseSeeder extends Seeder
 //        $role->syncPermissions($permissions);
 //
 //        $admin->assignRole([$role->id]);
-        $made= PaymentGateway::create([
-            'name'=>['ar' => "المدى", 'en' => "mada"]
-        ]);
-        $pay= PaymentGateway::create([
-            'name'=>['ar' => "ابل باي", 'en' => "pay"]
-        ]);
-        Upload::create([
-            'filename'=>'mada.png',
-            'imageable_id'=>$made->id,
-            'imageable_type'=>PaymentGateway::class,
-            'type'=>Upload::IMAGE
+//        $made= PaymentGateway::create([
+//            'name'=>['ar' => "المدى", 'en' => "mada"]
+//        ]);
+//        $pay= PaymentGateway::create([
+//            'name'=>['ar' => "ابل باي", 'en' => "pay"]
+//        ]);
+//        Upload::create([
+//            'filename'=>'mada.png',
+//            'imageable_id'=>$made->id,
+//            'imageable_type'=>PaymentGateway::class,
+//            'type'=>Upload::IMAGE
+//
+//        ]);
+//        Upload::create([
+//            'filename'=>'pay.png',
+//            'imageable_id'=>$pay->id,
+//            'imageable_type'=>PaymentGateway::class,
+//            'type'=>Upload::IMAGE
+//        ]);
 
-        ]);
-        Upload::create([
-            'filename'=>'pay.png',
-            'imageable_id'=>$pay->id,
-            'imageable_type'=>PaymentGateway::class,
-            'type'=>Upload::IMAGE
-        ]);
+//        Page::create([
+//          'title'=>''
+//        ]);
+//        Page::create([
+//            'title'=>''
+//        ]);
+//        Page::create([
+//            'title'=>''
+//        ]);
+//        Page::create([
+//            'title'=>''
+//        ]);
     }
 }

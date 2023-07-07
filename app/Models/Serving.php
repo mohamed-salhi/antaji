@@ -10,8 +10,10 @@ use Illuminate\Support\Str;
 class Serving extends Model
 {
     use HasFactory;
+
     protected $primaryKey = 'uuid';
-    protected $appends=['category_name','user_name','city_name'];
+    protected $appends = ['category_name', 'user_name', 'city_name'];
+    protected $hidden = ['category', 'user'];
     public $incrementing = false;
     protected $guarded = [];
     //boot
@@ -20,28 +22,42 @@ class Serving extends Model
     {
         return $this->belongsTo(User::class, 'user_uuid');
     }
+
     public function category()
     {
         return $this->belongsTo(CategoryContent::class, 'category_contents_uuid');
     }
+
     public function city()
     {
         return $this->belongsTo(City::class, 'city_uuid');
     }
+
     //Attributes
     public function getCityNameAttribute()
     {
         return @$this->city->name;
     }
+
     public function getCategoryNameAttribute()
     {
         return @$this->category->name;
     }
+
     public function getUserNameAttribute()
     {
         return @$this->user->name;
     }
+    public function getLatAttribute($value)
+    {
+        return latLngFormat($value);
+    }
 
+    public function getLngAttribute($value)
+    {
+        return latLngFormat($value);
+    }
+   //boot
     public static function boot()
     {
         parent::boot();

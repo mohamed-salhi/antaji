@@ -14,7 +14,7 @@ class BusinessVideo extends Model
     public $incrementing = false;
     protected $appends=['image','video','artist_name','artist_image'];
     protected $guarded = [];
-    protected $hidden=['imageBusiness','videoBusiness','user_uuid','updated_at','created_at','status','artist_image'];
+    protected $hidden=['imageBusiness','videoBusiness','user_uuid','updated_at','artists','created_at','status','artist_image'];
     const PATH_VIDEO='/upload/business/video/';
     const PATH_IMAGE='/upload/business/image/';
 

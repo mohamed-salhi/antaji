@@ -28,7 +28,8 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'mobile' => 'required|unique:users,mobile|max:12',
+            'full_mobile' => 'required|string|digits_between:8,14',
+            'mobile' => 'required|unique:users,mobile',
             'name' => 'required',
             'email' => 'required|unique:users,email',
             'country_uuid' => 'required|exists:countries,uuid',
@@ -48,6 +49,10 @@ class UserController extends Controller
             'address' => 'nullable',
 //            'specialization_uuid' => 'required|exists:specializations,uuid',
         ];
+        $request->merge([
+            'full_mobile' => str_replace('-', '', ($request->mobile)),
+        ]);
+
         $this->validate($request, $rules);
         $request->merge([
             'type'=> 'user',
@@ -73,9 +78,11 @@ class UserController extends Controller
         $user = User::query()->withoutGlobalScope('user')->findOrFail($request->uuid);
         $rules = [
             'name' => 'required',
+            'full_mobile' => 'required|string|digits_between:8,14',
+
             'mobile' => [
                 'required',
-                'max:12',
+
                 Rule::unique('users', 'mobile')->ignore($user->uuid, 'uuid')
             ],
             'email' => [
@@ -100,6 +107,10 @@ class UserController extends Controller
             'address' => 'nullable',
 //            'specialization_uuid' => 'required|exists:specializations,uuid',
         ];
+        $request->merge([
+            'full_mobile' => str_replace('-', '', ($request->mobile)),
+        ]);
+
         $this->validate($request, $rules);
         $user->update($request->only('name', 'email', 'country_uuid', 'city_uuid', 'phone'));
         if ($request->hasFile('cover_Photo')) {
@@ -134,11 +145,7 @@ class UserController extends Controller
         return response()->json([
             'done'
         ]);
-//        } catch (\Exception $e) {
-//            return response()->json([
-//                'err'
-//            ]);
-//        }
+
     }
 
     public function indexTable(Request $request)

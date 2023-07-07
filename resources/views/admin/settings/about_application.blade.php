@@ -52,14 +52,14 @@
                                         <div class="mr-lg-75">
                                             <h1 class="text-primary">@lang('about application') @lang('Arabic')</h1>
                                             <textarea id="about_application" class="myTextarea1"
-                                                      name="about_application_ar">{{$settings->getTranslation('about_application', 'ar') }}</textarea>
+                                                      name="about_application_ar">{{@$settings->getTranslation('title', 'ar') }}</textarea>
                                             <div class="invalid-feedback"></div>
                                         </div>
 
                                         <div class="ml-lg-75">
                                             <h1 class="text-primary">@lang('about application') @lang('English')</h1>
                                             <textarea id="policies_privacy" class="myTextarea3"
-                                                      name="about_application_en">{{$settings->getTranslation('about_application', 'en') }}</textarea>
+                                                      name="about_application_en">{{@$settings->getTranslation('title', 'en') }}</textarea>
                                             <div class="invalid-feedback"></div>
                                         </div>
                                     </div>

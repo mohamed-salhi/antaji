@@ -321,13 +321,15 @@
                             </select>
                             <div class="invalid-feedback"></div>
                         </div>
-                    <div class="col-12">
+                <div class="add_images">
+                    <div class="col-12 edit_images">
                         <div class="input-field">
                             <label class="active">Photos</label>
                             <div class="input-images-2" style="padding-top: .5rem;"></div>
                         </div>
                         <div class="invalid-feedback"></div>
                     </div>
+                </div>
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
@@ -434,7 +436,9 @@
 
 
         $(document).ready(function () {
+
             $(document).on('click', '.btn_edit', function (event) {
+
                 $('input').removeClass('is-invalid');
                 $('.invalid-feedback').text('');
                 event.preventDefault();
@@ -444,7 +448,7 @@
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
 
-
+console.log(button.data('images_uuid').split(',') + '')
                 $('#edit_name').val(button.data('name'))
                 $('#edit_price').val(button.data('price'))
                 $('#edit_details').val(button.data('details'))

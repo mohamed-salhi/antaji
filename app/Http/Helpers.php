@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Resources\artists;
 use App\Models\Category;
 use App\Models\Image;
 use App\Models\Upload;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -16,10 +20,12 @@ function rtl_assets()
     }
     return '';
 }
+
 function locale()
 {
     return Mcamara\LaravelLocalization\Facades\LaravelLocalization::getCurrentLocale();
 }
+
 function locales()
 {
     $arr = [];
@@ -37,6 +43,7 @@ function languages()
         return ['ar' => 'العربية', 'en' => 'النجليزية'];
     }
 }
+
 //function mainResponse($status, $msg, $items, $validator, $code = 200, $pages = null)
 //{
 //
@@ -197,44 +204,63 @@ function mainResponse($status, $msg, $items, $validator = [], $code = 200, $page
     return response()->json($newData);
 }
 
-function UploadImage($file, $path = null, $model, $imageable_id, $update = false, $id = null,$type,$name=null)
+function paginate($items, $perPage = 5, $page = null, $options = [])
+{
+    $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+    $items = $items instanceof Collection ? $items : Collection::make($items);
+    return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+}
+
+function pageResource($data, $resource)
+{
+    $items = $data->getCollection();
+    $items = $resource::collection($items);
+    $data->setCollection(collect($items));
+    return $data;
+}
+
+function latLngFormat($value)
+{
+    return number_format($value, 6, '.', '');
+}
+
+function UploadImage($file, $path = null, $model, $imageable_id, $update = false, $id = null, $type, $name = null)
 {
 
     $imagename = uniqid() . '.' . $file->getClientOriginalExtension();
     $file->move(public_path($path), $imagename);
     if (!$update) {
-      return  Upload::create([
-            'filename' =>  $imagename,
+        return Upload::create([
+            'filename' => $imagename,
             'imageable_id' => $imageable_id,
             'imageable_type' => $model,
-            'type'=>$type,
-            'name'=>$name
+            'type' => $type,
+            'name' => $name
         ]);
     } else {
         if ($name) {
             $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('name', $name)->first();
-          if ($image){
-              File::delete(public_path($path . $image->filename));
-              $image->update(
-                  [
-                      'filename' => $imagename,
-                      'imageable_id' => $imageable_id,
-                      'imageable_type' => $model,
-                      'type' => $type,
-                      'name' => $name
-                  ]
-              );
-          }else{
-              Upload::create([
-                  'filename' =>  $imagename,
-                  'imageable_id' => $imageable_id,
-                  'imageable_type' => $model,
-                  'type'=>$type,
-                  'name'=>$name
-              ]);
-          }
-        }
-        else {
+            if ($image) {
+                File::delete(public_path($path . $image->filename));
+                $image->update(
+                    [
+                        'filename' => $imagename,
+                        'imageable_id' => $imageable_id,
+                        'imageable_type' => $model,
+                        'type' => $type,
+                        'name' => $name
+                    ]
+                );
+            } else {
+                Upload::create([
+                    'filename' => $imagename,
+                    'imageable_id' => $imageable_id,
+                    'imageable_type' => $model,
+                    'type' => $type,
+                    'name' => $name
+                ]);
+            }
+        } else {
             $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->first();
             if ($id) {
                 $image = Upload::where('uuid', $id)->first();
@@ -263,49 +289,50 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
     }
 
 }
-function sendGCM($message,$id,$type) {
+
+function sendGCM($message, $id, $type)
+{
 
 
     $url = 'https://fcm.googleapis.com/fcm/send';
 
 
-
-    if($type=="android"){
-        $fields = array (
-            'registration_ids' => array (
+    if ($type == "android") {
+        $fields = array(
+            'registration_ids' => array(
                 $id
             ),
-            'data' => array (
+            'data' => array(
                 "message" => $message
             )
         );
-    }else{
-        $fields = array (
-            'registration_ids' => array (
+    } else {
+        $fields = array(
+            'registration_ids' => array(
                 $id
             ),
-            'notification' => array (
+            'notification' => array(
                 "message" => $message
             )
         );
     }
-    $fields = json_encode ( $fields );
+    $fields = json_encode($fields);
 
-    $headers = array (
+    $headers = array(
         'Authorization: key=' . "AAAAaVSd16w:APA91bF4SEMqymDzlNofEPXGmP9Rn8sQdSWPe1lJhgTdYGurHkCUEtiNfgxE_WQ8JcHednEYpCkCOF1LOASf6PHiFcVyitdLUiSurZHQaB5qP0UR-BfscI_OuKqiLKeA3NRx3g5D93ih",
         'Content-Type: application/json'
     );
 
-    $ch = curl_init ();
-    curl_setopt ( $ch, CURLOPT_URL, $url );
-    curl_setopt ( $ch, CURLOPT_POST, true );
-    curl_setopt ( $ch, CURLOPT_HTTPHEADER, $headers );
-    curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt ( $ch, CURLOPT_POSTFIELDS, $fields );
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
 
-    $result = curl_exec ( $ch );
+    $result = curl_exec($ch);
 //    echo $result;
-    curl_close ( $ch );
+    curl_close($ch);
 }
 
 ?>

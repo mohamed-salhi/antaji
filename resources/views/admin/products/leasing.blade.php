@@ -349,12 +349,14 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="input-field">
-                                <label class="active">Photos</label>
-                                <div class="input-images-2" style="padding-top: .5rem;"></div>
+                        <div class="add_images">
+                            <div class="col-12 edit_images">
+                                <div class="input-field">
+                                    <label class="active">Photos</label>
+                                    <div class="input-images-2" style="padding-top: .5rem;"></div>
+                                </div>
+                                <div class="invalid-feedback"></div>
                             </div>
-                            <div class="invalid-feedback"></div>
                         </div>
 
                         <div class="modal-footer">
@@ -512,8 +514,8 @@ console.log()
                 var button = $(this)
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
-                console.log(button.data('images'))
-                console.log(button.data('images_uuid'))
+                console.log(button.data('images_uuid').split(',') + '')
+
                 let fileArray = button.data('images').split(',') + '';
                 if (fileArray.indexOf(',') >= 0) {
                     fileArray = button.data('images').split(',');

@@ -542,15 +542,15 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-6">
+
+                            <div class="col-md-6">
                                 <label class="form-label select-label">@lang('select'),@lang('skills')</label>
                                 <select name="skills[]" id="edit_skills" class="select" multiple>
                                     @foreach ($skills as $item)
                                         <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
                                     @endforeach
                                 </select>
-                            </div>}}
-{{--                            </div>--}}
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="about">@lang('address')
@@ -602,7 +602,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                          </div>
+                            </div>
                             <div class="col-6">
                                 <label for="icon">@lang('cover image')</label>
                                 <div>
@@ -760,7 +760,7 @@
                     "data": 'image',
                     "name": 'image',
                     render: function (data, type, full, meta) {
-                        return `<img src="${data}" style="width:100px;height:100px;"  class="img-fluid img-thumbnail">`;
+                        return `<img src="${data}" style="width:50px;height:50px;" class="avatar avatar-sm me-3">`;
                     },
                     orderable: false,
                     searchable: false

@@ -13,7 +13,7 @@ class Course extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $guarded = [];
-    protected $appends=['image','user_name','video'];
+    protected $appends=['image','user_name','video','course_count','attachments'];
 
     const PATH_COURSE="/upload/course/images/";
     const PATH_COURSE_VIDEO="/upload/course/video/";
@@ -25,7 +25,11 @@ class Course extends Model
     }
     public function videoCourse()
     {
-        return $this->morphOne(Upload::class, 'imageable')->where('type',Upload::VIDEO);
+        return $this->morphOne(Upload::class, 'imageable')->where('type',Upload::VIDEO)->where('name','demonstration video');
+    }
+    public function videosCourse()
+    {
+        return $this->morphMany(Upload::class, 'imageable')->where('type',Upload::VIDEO);
     }
     public function user()
     {
@@ -40,13 +44,27 @@ class Course extends Model
     }
     public function getVideoAttribute()
     {
-        return url('/') .self::PATH_COURSE_VIDEO . @$this->videoCourse->filename;
+        return url('/').self::PATH_COURSE_VIDEO. @$this->videoCourse->filename;
     }
     public function getUserNameAttribute()
     {
         return @$this->user->name;
     }
-
+    public function getCourseCountAttribute()
+    {
+        return @$this->videosCourse()->count();
+    }
+    public function getAttachmentsAttribute()
+    {
+        $attachments=[];
+        foreach ($this->videosCourse as $item) {
+            $attachments[] = [
+                'uuid'=>$item->uuid,
+                'attachment' => url('/') . self::PATH_COURSE_VIDEO. $item->filename,
+            ];
+        }
+        return $attachments;
+    }
 
 
     //boot

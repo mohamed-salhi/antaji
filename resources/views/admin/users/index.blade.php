@@ -283,7 +283,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="mobile">@lang('mobile')</label>
-                                    <input type="number" class="form-control" placeholder="@lang('mobile')"
+                                    <input type="text" class="form-control" placeholder="@lang('mobile')"
                                            name="mobile" id="mobile">
                                     <div class="invalid-feedback"></div>
                                 </div>
@@ -471,7 +471,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="mobile">@lang('mobile')</label>
-                                    <input type="number" class="form-control" placeholder="@lang('mobile')"
+                                    <input type="text" class="form-control" placeholder="@lang('mobile')"
                                            name="mobile" id="edit_mobile">
                                     <div class="invalid-feedback"></div>
                                 </div>
@@ -729,7 +729,7 @@
                     "data": 'image',
                     "name": 'image',
                     render: function (data, type, full, meta) {
-                        return `<img src="${data}" style="width:100px;height:100px;"  class="img-fluid img-thumbnail">`;
+                        return `<img src="${data}" style="width:50px;height:50px;" class="avatar avatar-sm me-3">`;
                     },
                     orderable: false,
                     searchable: false

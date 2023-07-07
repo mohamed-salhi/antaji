@@ -13,19 +13,22 @@ class Ads extends Model
 
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends=['image'];
-    protected $hidden=['imageAds','created_at','updated_at', 'status'];
+    protected $appends = ['image'];
+    protected $hidden = ['imageAds', 'created_at', 'updated_at', 'status'];
     protected $guarded = [];
+
     //Relations
     public function imageAds()
     {
         return $this->morphOne(Upload::class, 'imageable');
     }
+
 //Attributes
     public function getImageAttribute()
     {
         return url('/') . '/upload/ads/' . @$this->imageAds->filename;
     }
+
     //Boot
 
     public static function boot()

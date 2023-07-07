@@ -18,9 +18,10 @@
                         <h2 class="content-header-title float-left mb-0">@lang('categories')</h2>
                         <div class="breadcrumb-wrapper">
                             <ol class="breadcrumb">
-{{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
-{{--                                </li>--}}
-                                <li class="breadcrumb-item"><a href="{{ route('locations.categories.index') }}">@lang('categories')</a>
+                                {{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
+                                {{--                                </li>--}}
+                                <li class="breadcrumb-item"><a
+                                        href="{{ route('locations.categories.index') }}">@lang('categories')</a>
                                 </li>
                             </ol>
                         </div>
@@ -38,28 +39,28 @@
                                 <div class="head-label">
                                     <h4 class="card-title">@lang('categories')</h4>
                                 </div>
-                                    <div class="text-right">
-                                        <div class="form-group">
-                                            <button class="btn btn-outline-primary button_modal" type="button"
-                                                    data-toggle="modal" id=""
-                                                    data-target="#full-modal-stem"><span><i
-                                                        class="fa fa-plus"></i>@lang('add')</span>
-                                            </button>
-                                            <button
+                                <div class="text-right">
+                                    <div class="form-group">
+                                        <button class="btn btn-outline-primary button_modal" type="button"
+                                                data-toggle="modal" id=""
+                                                data-target="#full-modal-stem"><span><i
+                                                    class="fa fa-plus"></i>@lang('add')</span>
+                                        </button>
+                                        <button
 
-                                                class="btn_delete_all btn btn-outline-danger " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('delete')</span>
-                                            </button>
-                                            <button
-                                                data-status="1"   class="btn_status btn btn-outline-success " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('activate')</span>
-                                            </button>
-                                            <button
-                                                data-status="0"  class="btn_status btn btn-outline-warning " type="button">
-                                                <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
-                                            </button>
-                                        </div>
+                                            class="btn_delete_all btn btn-outline-danger " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('delete')</span>
+                                        </button>
+                                        <button
+                                            data-status="1" class="btn_status btn btn-outline-success " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('activate')</span>
+                                        </button>
+                                        <button
+                                            data-status="0" class="btn_status btn btn-outline-warning " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('deactivate')</span>
+                                        </button>
                                     </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <form id="search_form">
@@ -71,7 +72,7 @@
                                                 <select name="s_status" id="s_status" class="search_input form-control">
                                                     <option selected disabled>@lang('select') @lang('status')</option>
                                                     <option value="1"> @lang('active') </option>
-                                                    <option  value="2"> @lang('inactive') </option>
+                                                    <option value="2"> @lang('inactive') </option>
                                                 </select>
                                                 <div class="invalid-feedback"></div>
                                             </div>
@@ -93,10 +94,10 @@
                                             </button>
 
 
-                                        <div class="col-3" style="margin-top: 20px">
+                                            <div class="col-3" style="margin-top: 20px">
 
+                                            </div>
                                         </div>
-                                    </div>
                                 </form>
                             </div>
                             <div class="table-responsive card-datatable" style="padding: 20px">
@@ -108,8 +109,8 @@
                                         <th>@lang('name')</th>
                                         <th>@lang('type')</th>
                                         <th>@lang('services count')</th>
-                                            <th>@lang('status')</th>
-                                            <th style="width: 225px;">@lang('actions')</th>
+                                        <th>@lang('status')</th>
+                                        <th style="width: 225px;">@lang('actions')</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -135,7 +136,8 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('servings.categories.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
+                <form action="{{ route('servings.categories.store') }}" method="POST" id="add-mode-form"
+                      class="add-mode-form"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
@@ -158,9 +160,9 @@
                         <button class="btn btn-primary">@lang('add')</button>
                     </div>
 
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
     </div>
 
     <!-- Modal -->
@@ -274,7 +276,7 @@
                     orderable: false,
                     searchable: true
                 },
-{{--                @endif--}}
+                {{--                @endif--}}
             ]
 
         });

@@ -14,14 +14,24 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $item = [
             'uuid' => $this->uuid,
             'name' => $this->name,
-            'category_name' => $this->category_name,
-            'sup_category_name' => $this->sup_category_name,
             'image' => $this->image,
             'price' => $this->price,
             'currency' => __('sr')
         ];
+
+        if ($request->uuid) {
+            $item['is_favorite'] = $this->is_favorite;
+            $item['attachments'] = $this->attachments;
+            $item['details'] = $this->details;
+            $item['specifications'] = $this->specifications()->select('uuid', 'key', 'value')->get();
+            $item['lat'] = $this->lat;
+            $item['lng'] = $this->lng;
+            $item['owner'] = new OwnerResource($this->user);
+        }
+
+        return $item;
     }
 }

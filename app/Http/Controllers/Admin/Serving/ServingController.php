@@ -20,7 +20,6 @@ class ServingController extends Controller
         $cities=City::query()->select('name','uuid')->get();
         $category_contents = CategoryContent::query()->where('type', 'serving')->select('uuid', 'name')->get();
         $users = User::query()->select('name', 'uuid')->get();
-
         return view('admin.servings.index', compact('category_contents', 'users','cities'));
     }
 

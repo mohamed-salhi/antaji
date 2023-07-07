@@ -307,7 +307,7 @@
                     "data": 'icon',
                     "name": 'icon',
                     render: function (data, type, full, meta) {
-                        return `<img src="${data}" style="width:100px;height:100px;"  class="img-fluid img-thumbnail">`;
+                        return `<img src="${data}" style="width:50px;height:50px;" class="avatar avatar-sm me-3">`;
                     },
                     orderable: false,
                     searchable: false

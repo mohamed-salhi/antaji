@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class LocationResource extends JsonResource
+class ProducEdittResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,9 +16,16 @@ class LocationResource extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
+            'type' => $this->type,
             'name' => $this->name,
-            'image' => $this->image,
+            'category_name' => $this->category_name,
+            'sup_category_name' => $this->sup_category_name,
+            'details' => $this->details,
             'price' => $this->price,
+            'lat' => $this->lat,
+            'lng' => $this->lng,
+            'specifications' => $this->specifications()->select('uuid','key','value')->get(),
+            'images'=>$this->attachments,
             'currency' => __('sr')
         ];
     }

@@ -50,13 +50,13 @@
                                   <div class="row" >
                                       <div class="mr-lg-75">
                                           <h1 class="text-primary">@lang('delete my account') @lang('Arabic')</h1>
-                                          <textarea id="about_application" class="myTextarea1" name="delete_my_account_ar" >{{$settings->getTranslation('delete_my_account', 'ar') }}</textarea>
+                                          <textarea id="about_application" class="myTextarea1" name="delete_my_account_ar" >{{@$settings->getTranslation('title', 'ar') }}</textarea>
                                           <div class="invalid-feedback"></div>
                                       </div>
 
                                       <div class="ml-lg-75">
                                           <h1 class="text-primary">@lang('delete my account') @lang('English')</h1>
-                                          <textarea id="policies_privacy" class="myTextarea3" name="delete_my_account_en">{{$settings->getTranslation('delete_my_account', 'en') }}</textarea>
+                                          <textarea id="policies_privacy" class="myTextarea3" name="delete_my_account_en">{{@$settings->getTranslation('title', 'en') }}</textarea>
                                           <div class="invalid-feedback"></div>
                                       </div>
                                   </div>

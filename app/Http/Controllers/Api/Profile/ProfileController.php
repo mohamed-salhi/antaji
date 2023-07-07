@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\acountSetting;
+use App\Http\Resources\CourseResource;
 use App\Http\Resources\ProductHomeResource;
 use App\Http\Resources\profileArtistResource;
 use App\Http\Resources\profileUserResource;
 use App\Models\Busines;
 use App\Models\Businessimages;
 use App\Models\BusinessVideo;
+use App\Models\Course;
 use App\Models\Product;
 use App\Models\Skill;
 use App\Models\Upload;
@@ -19,18 +21,22 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use function PHPUnit\Framework\isEmpty;
 
 
 class ProfileController extends Controller
 {
-    public function profile()
+    public function profile($uuid=null)
     {
-        $user = Auth::guard('sanctum')->user();
+        if (User::query()->where('uuid',$uuid)->exists()){
+            $user=User::query()->find($uuid);
+        }else{
+            $user = Auth::guard('sanctum')->user();
+        }
         if ($user->type == 'artist') {
             return mainResponse(true, 'ok', new profileArtistResource($user), []);
         }
         return mainResponse(true, 'ok', new profileUserResource($user), []);
-
     }
     public function accountSettingsGet()
     {
@@ -226,34 +232,63 @@ class ProfileController extends Controller
         return mainResponse(true, 'ok', new profileUserResource($user), []);
     }
 
-    public function getBusinessProfile($uuid, $type)
+    public function getBusinessProfile($type,$uuid=null)
     {
+        if (isEmpty($uuid)){
+            $user = Auth::guard('sanctum')->user();
+            $user_uuid=$user->uuid;
+        }else{
+            $user_uuid=$uuid;
+        }
         if ($type == "video") {
-            $business = BusinessVideo::query()->where('user_uuid', $uuid)->get();
+            $business = BusinessVideo::query()->where('user_uuid', $user_uuid)->paginate();
+
         } elseif ($type == "images") {
-            $business = Businessimages::query()->where('user_uuid', $uuid)->first();
+            $business = Businessimages::query()->where('user_uuid', $user_uuid)->first();
         } else {
             return mainResponse(false, 'type must video||images', [], ['type must video||images'], 404);
         }
         return mainResponse(true, 'done', $business, [], 200);
     }
 
-    public function getProductProfile($uuid, $type)
+    public function getProductProfile($type,$uuid=null )
     {
+        if ($uuid==null){
+            $user = Auth::guard('sanctum')->user();
+            $user_uuid=$user->uuid;
+        }else{
+            $user_uuid=$uuid;
+        }
         if ($type == "sale") {
             $products = Product::query()
                 ->where('type', 'sale')
-                ->where('user_uuid', $uuid)
-                ->get();
+                ->where('user_uuid', $user_uuid)
+                ->paginate();
         } elseif ($type == "leasing") {
             $products = Product::query()
                 ->where('type', 'leasing')
-                ->where('user_uuid', $uuid)
-                ->get();
+                ->where('user_uuid', $user_uuid)
+                ->paginate();
         } else {
             return mainResponse(false, 'type must sale||leasing', [], ['type must video||images'], 404);
         }
-        $products = ProductHomeResource::collection($products);
+        pageResource($products,ProductHomeResource::class);
         return mainResponse(true, 'done', $products, [], 200);
+    }
+
+    public function getCourseProfile($uuid=null){
+        if ($uuid==null){
+            $user = Auth::guard('sanctum')->user();
+          $user_uuid=$user->uuid;
+        }else{
+            $user_uuid=$uuid;
+        }
+        $courses=Course::query()->where('user_uuid',$user_uuid)->paginate();
+        $items = $courses->getCollection();
+        $items = CourseResource::collection($items);
+        $courses->setCollection(collect($items));
+        $items = $courses;
+        return mainResponse(true, 'done', compact('items'), [], 200);
+
     }
 }

@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ServingResource extends JsonResource
+class ServingContentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,23 +18,19 @@ class ServingResource extends JsonResource
         $item = [
             'uuid' => $this->uuid,
             'name' => $this->name,
-            'category_name' => $this->category_name,
             'working_condition' => $this->working_condition,
-            'is_new' => $this->created_at->isBefore(Carbon::now()->subDays()),
-            'is_special' => (fmod($this->id, 3) == 0),
+//            'is_new' => $this->created_at->isBefore(Carbon::now()->subDays()),
+//            'is_special' => (fmod($this->id, 3) == 0),
+              'category_name'=>$this->category_name,
             'city_name' => $this->city_name,
-            'details' => $this->details,
             'price' => $this->price,
             'currency' => __('sr'),
             'created' => $this->created_at->diffForHumans(),
-            'from' => $this->from,
+            'status' => $this->status,
 
         ];
 
-        if ($request->uuid) {
-            $item['to'] = $this->to;
-            $item['owner'] = new OwnerResource($this->user);
-        }
+
 
         return $item;
     }

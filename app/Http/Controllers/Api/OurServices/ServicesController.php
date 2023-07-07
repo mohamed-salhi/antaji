@@ -119,4 +119,11 @@ class ServicesController extends Controller
 
         return mainResponse(true, 'done', compact('items'), [], 200);
     }
+    public function service($uuid)
+    {
+        $serving = Serving::query()->findOrFail($uuid);
+        $serving = new ServingResource($serving);
+
+        return mainResponse(true, 'done', $serving, [], 200);
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\NotificationAdminEvent;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CityResource;
+use App\Models\City;
 use App\Models\Country;
 use App\Models\FCM;
 use App\Models\FcmToken;
@@ -29,6 +31,12 @@ class AuthController extends Controller
         }
         $countries = $countries->get();
         return mainResponse(true, 'ok', compact('countries'), []);
+    }
+    public function cities(Request $request)
+    {
+        $cities = City::query()->where('country_uuid', auth('sanctum')->user()->country_uuid)->paginate();
+        $items = pageResource($cities, CityResource::class);
+        return mainResponse(true, 'ok', compact('items'), []);
     }
 
     public function login(Request $request)

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('price');
             $table->string('type');
+            $table->double('lat')->nullable();
+            $table->double('lng')->nullable();
             $table->foreignUuid('user_uuid');
             $table->string('status')->default(1);
             $table->double('view')->default(0);

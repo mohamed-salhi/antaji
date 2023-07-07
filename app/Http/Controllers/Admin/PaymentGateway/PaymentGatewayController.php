@@ -90,6 +90,7 @@ class PaymentGatewayController extends Controller
         }
         curl_close($ch);
         $responseData = json_decode($responseData, true);
+
         if ($responseData['result']['code'] == '000.100.110') {
 
             $payment = Payment::query()->where('transaction_id', $request->id)->first();
@@ -115,12 +116,22 @@ class PaymentGatewayController extends Controller
                     }
                 }
             }
-            $orders = Order::query()
-                ->where('order_number', $payment->order_number)
-                ->withoutGlobalScope('status')
-                ->update([
-                'status' => Order::ACTIVE
-            ]);
+
+            if ($orders[0]->content_type=='course'){
+                 Order::query()
+                    ->where('order_number', $payment->order_number)
+                    ->withoutGlobalScope('status')
+                    ->update([
+                    'status' => Order::BUGING_SUCCEEDED
+                ]);
+            }else{
+               Order::query()
+                    ->where('order_number', $payment->order_number)
+                    ->withoutGlobalScope('status')
+                    ->update([
+                    'status' => Order::PENDING
+                ]);
+            }
             $content_uuid = Order::query()->where('order_number', $payment->order_number)->withoutGlobalScope('status')->pluck('content_uuid');
             Cart::query()
                 ->whereIn('content_uuid', $content_uuid)

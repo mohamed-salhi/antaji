@@ -21,7 +21,7 @@ class User extends Authenticatable
      */
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name'];
+    protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name', 'products_count'];
     protected $fillable = [
         'name',
         'email',
@@ -109,10 +109,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Skill::class, 'skill_user', 'user_uuid', 'skill_uuid');
     }
 
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'user_uuid');
+    }
+
 
     /**
      * Attribute
      */
+
     public function getCountryNameAttribute()
     {
         return @$this->country->name;
@@ -130,12 +136,12 @@ class User extends Authenticatable
 
     public function getCoverUserAttribute()
     {
-        return (@$this->coverImage->filename)? url('/') . self::PATH_COVER . @$this->coverImage->filename:null;
+        return (@$this->coverImage->filename) ? url('/') . self::PATH_COVER . @$this->coverImage->filename : null;
     }
 
     public function getVideoUserAttribute()
     {
-        return (@$this->videoImage->filename)? url('/') . self::PATH_VIDEO . @$this->videoImage->filename:null;
+        return (@$this->videoImage->filename) ? url('/') . self::PATH_VIDEO . @$this->videoImage->filename : null;
     }
 
     public function getImageAttribute()
@@ -146,6 +152,11 @@ class User extends Authenticatable
             return url('/') . '/upload/user/fea062c5fb579ac0dc5ae2c22c6c51fb.jpg';
 
         }
+    }
+
+    public function getProductsCountAttribute()
+    {
+        return $this->products->count();
     }
 
     /**

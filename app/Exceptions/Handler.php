@@ -30,6 +30,13 @@ class Handler extends ExceptionHandler
         });
     }
 
+    public function render($request, Throwable $e)
+    {
+        return $request->wantsJson()
+            ? mainResponse(false, $e->getMessage(), [], [], $e->getCode())
+            : parent::render($request, $e);
+    }
+
     protected function unauthenticated($request, AuthenticationException $exception)
     {
         $guard = Arr::get($exception->guards(), 0);

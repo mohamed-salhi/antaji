@@ -14,13 +14,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
 Route::get('/intros', [\App\Http\Controllers\Api\AuthController::class, 'intros']);
 Route::get('/countries', [\App\Http\Controllers\Api\AuthController::class, 'countries']);
-Route::get('terms_conditions', [\App\Http\Controllers\Api\Home\HomeController::class, 'termsConditions']);
+Route::get('/home', [\App\Http\Controllers\Api\Home\HomeController::class, 'home']);
+Route::get('/get/categories', [\App\Http\Controllers\Api\Content\ContentController::class, 'categories']);
+Route::get('/get/categories_content/{type}', [\App\Http\Controllers\Api\Content\ContentController::class, 'categoriesContent']);
+
+Route::get('categories', [\App\Http\Controllers\Api\Home\HomeController::class, 'categories']);
+Route::get('categories/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getSupFromCategory']);
+Route::get('categories/{uuid}/{sub_category_uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getProductFromCategory']);
+Route::get('pages/{id}', [\App\Http\Controllers\Api\Home\HomeController::class, 'page']);
+Route::get('see_all', [\App\Http\Controllers\Api\Home\HomeController::class, 'seeAll']);
+
+Route::get('map', [\App\Http\Controllers\Api\Home\HomeController::class, 'map']);
+Route::get('search', [\App\Http\Controllers\Api\Home\HomeController::class, 'search']);
+
+
 
 Route::middleware(['guest:sanctum'])->prefix('auth')->group(function () {
     Route::post('/send_code', [\App\Http\Controllers\Api\AuthController::class, 'login']);
@@ -30,22 +40,21 @@ Route::middleware(['guest:sanctum'])->prefix('auth')->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
-    Route::get('/home', [\App\Http\Controllers\Api\Home\HomeController::class, 'home'])->withoutMiddleware('auth:sanctum');
     Route::post('update_profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateProfile']);
-    Route::get('profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'profile']);
 
     Route::post('contact', [\App\Http\Controllers\Api\Contact\ContactController::class, 'contact']);
     Route::post('add_business/video', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessVideo'])->middleware('artists');
     Route::post('add_business/images', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessImages'])->middleware('artists');;
-    Route::get('get_business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusiness'])->middleware('artists');;
+    Route::get('get_business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusiness'])->middleware('artists');
     Route::delete('delete_business_image/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessImage'])->middleware('artists');;
     Route::delete('delete_business_video/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessVideo'])->middleware('artists');;
     Route::get('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'accountSettingsGet']);
     Route::post('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateAccountSetting']);
     Route::get('artists', [\App\Http\Controllers\Api\Home\HomeController::class, 'artists']);
-    Route::get('categories', [\App\Http\Controllers\Api\Home\HomeController::class, 'categories']);
-    Route::get('categories/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getSupFromCategory']);
-    Route::get('categories/{uuid}/{sub_category_uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getProductFromCategory']);
+
+    Route::get('/cities', [\App\Http\Controllers\Api\AuthController::class, 'cities']);
+
+
     Route::post('add/course', [\App\Http\Controllers\Api\Content\ContentController::class, 'addCourse']);
     Route::post('add/serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'addServing']);
     Route::post('add/location', [\App\Http\Controllers\Api\Content\ContentController::class, 'addLocation']);
@@ -54,6 +63,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('update/serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateServing']);
     Route::post('update/location', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateLocation']);
     Route::post('update/product', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateProduct']);
+    Route::get('edit/product/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'editProduct']);
+    Route::get('edit/location/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'editLocation']);
+    Route::get('edit/service/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'editServing']);
+    Route::get('edit/course/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'editCourse']);
+
     Route::delete('delete/course/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteCourse']);
     Route::delete('delete/serving/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteServing']);
     Route::delete('delete/location/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteLocation']);
@@ -63,18 +77,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get/my/Course', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyCourse']);
     Route::get('get/my/Product/{type}', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyProduct']);
 
-    Route::get('getProductFromCategory/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getProductFromCategory']);
-    Route::get('getDetailsProduct/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDetailsProduct']);
+    Route::get('products/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDetailsProduct']);
 
     Route::get('services/sell_buy', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'sellBuy']);
     Route::get('services/leasing', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'leasing']);
     Route::get('services/locations', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'locations']);
     Route::get('services/services', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'services']);
+    Route::get('services/services/{uuid}', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'service']);
+
     Route::get('business/video/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'businessVideo']);
 
-    Route::get('profile/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProfile']);
-    Route::get('profile/{uuid}/products/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
-    Route::get('profile/{uuid}/business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
+//    Route::get('profile/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProfile']);
+    Route::get('profile/{type}/products/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
+    Route::get('profile/{type}/business/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
+    Route::get('profile/course/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getCourseProfile']);
+    Route::get('profile/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'profile']);
 
     Route::post('delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'addDeliveryAddresses']);
     Route::get('delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDeliveryAddresses']);
@@ -90,5 +107,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 //    Route::get('get/paymentGateways', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'paymentGateways']);
     Route::post('content/checkout', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'checkout']);
+    Route::get('orders/{type}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'orders']);
 
 });

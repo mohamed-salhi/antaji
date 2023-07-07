@@ -679,13 +679,24 @@ var pageNot=2
     })
 
     $(document).on('click', '.button_modal', function (event) {
-        $('input').removeClass('is-invalid');
-
+        $('#add_model_form').trigger("reset");
         $('select').removeClass('is-invalid');
-        $('.image-preview').remove();
-        $('.image').append(`<img class="image-preview">`)
+        // $('.image-preview').remove();
+        // $('.image').append(`<img class="image-preview">`)
         $('.invalid-feedback').text('');
     });
+    $('#edit_modal').on('hidden.bs.modal', function() {
+console.log('cloce')
+        $('.edit_images').remove()
+        $('.add_images').append(`<div class="col-12 edit_images">
+                        <div class="input-field">
+                            <label class="active">Photos</label>
+                            <div class="input-images-2" style="padding-top: .5rem;"></div>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                    </div>`)
+    });
+
 
     $(document).on("click", "#btn_update", function (e) {
         var button = $(this)

@@ -348,12 +348,14 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="input-field">
-                                <label class="active">Photos</label>
-                                <div class="input-images-2" style="padding-top: .5rem;"></div>
+                        <div class="add_images">
+                            <div class="col-12 edit_images">
+                                <div class="input-field">
+                                    <label class="active">Photos</label>
+                                    <div class="input-images-2" style="padding-top: .5rem;"></div>
+                                </div>
+                                <div class="invalid-feedback"></div>
                             </div>
-                            <div class="invalid-feedback"></div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"

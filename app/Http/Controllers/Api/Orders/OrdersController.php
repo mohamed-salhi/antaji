@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\Api\Orders;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CourseOrderResource;
+use App\Http\Resources\CourseResource;
+use App\Http\Resources\OrderResource;
+use App\Http\Resources\OrderResourcer;
+use App\Http\Resources\ServingOrderResource;
 use App\Models\BookingDay;
 use App\Models\Cart;
 use App\Models\Course;
@@ -44,7 +49,10 @@ class OrdersController extends Controller
         $endDate = Carbon::parse($request->end);
         $daysDifference = $endDate->diffInDays($startDate);
         if ($request->type == 'product') {
-            $contect = Product::query()->where('uuid', $request->uuid)->where('type', 'leasing')->first();
+            $contect = Product::query()
+                ->where('uuid', $request->uuid)
+                ->where('type', 'leasing')
+                ->first();
             if (!$contect) {
                 return mainResponse(false, 'uuid not found', [], ['uuid not found'], 101);
             }
@@ -65,7 +73,10 @@ class OrdersController extends Controller
             'user_uuid' => $user->uuid,
             'content_uuid' => $contect->uuid,
         ]);
-        if (Cart::query()->where('user_uuid', $user->uuid)->where('content_uuid', $contect->uuid)->exists()) {
+        if (Cart::query()
+            ->where('user_uuid', $user->uuid)
+            ->where('content_uuid', $contect->uuid)
+            ->exists()) {
             return mainResponse(false, 'this content in found', [], ['uuid not found'], 101);
 
         }
@@ -173,8 +184,8 @@ class OrdersController extends Controller
                 Rule::exists(PaymentGateway::class, 'id')->where(function ($q) {
                     $q->where('status', 1);
                 })],
-            'delivery_addresses_uuid' => 'required|exists:delivery_addresses,uuid',
-            'content_type' => 'nullable|in:Product,Serving,Course',
+            'delivery_addresses_uuid' => 'nullable|exists:delivery_addresses,uuid',
+            'content_type' => 'nullable|in:product,serving,course',
             'content_uuid' => 'nullable',
             'user_uuid' => 'nullable|exists:users,uuid',
             'start' => 'nullable|date',
@@ -186,47 +197,50 @@ class OrdersController extends Controller
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
 
-
         $user = Auth::guard('sanctum')->user();
 
 
         if ($request->has('content_type') && $request->has('content_uuid')) {
 
-            if ($request->content_type == "Product") {
-                $content = Product::query()->find($request->content_uuid);
-            } elseif ($request->content_type == "Course") {
-                $content = Course::query()->find($request->content_uuid);
-            } elseif ($request->content_type == "Serving") {
-                $content = Serving::query()->find($request->content_uuid);
+            if ($request->content_type == "product") {
+                $content = Product::query()->findOrFail($request->content_uuid);
+            } elseif ($request->content_type == "course") {
+                $content = Course::query()->findOrFail($request->content_uuid);
+            } elseif ($request->content_type == "serving") {
+                $content = Serving::query()->findOrFail($request->content_uuid);
+//                return $content->price;
             }
-            if (!$content) {
-                return mainResponse(false, 'content not found', [], [], 101);
-            }
+//            if (!$content->name) {
+//                return mainResponse(false, 'content not found', [], [], 101);
+//            }
             $settings = Setting::query()->first();
 
             $data = [
                 'order_number' => Carbon::now()->timestamp . '' . rand(1000, 9999),
-                'delivery' => 10,
                 'commission' => $settings->commission,
                 'user_uuid' => $user->uuid,
                 'content_type' => $request->content_type,
-                'delivery_addresses_uuid' => $request->delivery_addresses_uuid,
+                'delivery_addresses_uuid' => @$request->delivery_addresses_uuid,
                 'content_uuid' => $request->content_uuid,
             ];
-            if ($request->content_type == 'Product') {
+            if ($request->content_type == 'product') {
                 $data['type'] = 'sale';
-                $balnce = 10 + intval($content->price) * intval($settings->commission);//10 delivery
-            } elseif ($request->content_type == 'Serving' && $request->has('stary') && $request->has('end')) {
-                $data_['start'] = $request->start;
+                $data['delivery'] = 10;
+                $balnce = 10 + intval($content->price) * $settings->commission;//10 delivery
+            } elseif ($request->content_type == 'serving' && $request->has('start') && $request->has('end')) {
+                $data['start'] = $request->start;
                 $data['end'] = $request->end;
+                $balnce = intval($content->price) * $settings->commission;
+
+            } elseif ($request->content_type == 'course') {
                 $balnce = $content->price * $settings->commission;
+                unset($data['delivery_addresses_uuid']);
             } else {
-                return mainResponse(false, 'Serving not found', [], [], 404);
+                return mainResponse(false, 'content not found', [], [], 404);
             }
             $order = Order::create($data);
 
-        }
-        elseif ($request->has('user_uuid')) {
+        } elseif ($request->has('user_uuid')) {
             $uuid = $request->user_uuid;
             $cart = Cart::query()
                 ->WhereHas('products', function (Builder $query) use ($uuid) {
@@ -237,10 +251,9 @@ class OrdersController extends Controller
                 })
                 ->where('user_uuid', $user->uuid)
                 ->get();
-            if ($cart->isEmpty()){
+            if ($cart->isEmpty()) {
                 return mainResponse(false, 'cart not found', [], [], 101);
             }
-
             //check day
             $err = [];
             foreach ($cart as $item) {
@@ -305,6 +318,7 @@ class OrdersController extends Controller
             }
             curl_close($ch);
             $data = json_decode($responseData);
+//            return $data;
             $id = $data->id;
 
         } elseif ($request->payment_method_id == PaymentGateway::ABLEPAY) {
@@ -353,4 +367,94 @@ class OrdersController extends Controller
 
         return mainResponse(true, 'ok', compact('status', 'url'), []);
     }
+
+    public function orders($type)
+    {
+        $user = Auth::guard('sanctum')->user();
+        if ($type == 'product') {
+            $orders = Order::query()
+                ->where('user_uuid', $user->uuid)
+                ->where('content_type', 'Product')
+                ->get()
+                ->groupBy(function ($item) {
+                return Carbon::parse($item->created_at)
+                    ->format('Y-m-d');
+            });
+
+        } elseif ($type == 'location') {
+
+
+            $orders = Order::query()->where('user_uuid', $user->uuid)->where('content_type', 'location')->get()->groupBy(function ($item) {
+                return Carbon::parse($item->created_at)->format('Y-m-d');
+            });
+
+        } elseif ($type == 'service') {
+
+
+            $orders = Order::query()
+                ->where('user_uuid', $user->uuid)
+                ->where('content_type', 'serving')
+                ->get()
+                ->groupBy(function ($item) {
+                return Carbon::parse($item->created_at)
+                    ->format('Y-m-d');
+            });
+
+            $orders = paginate($orders);
+            $items = $orders->getCollection();
+            $data = [];
+            foreach ($items as $key => $order) {
+                $data[] = [
+                    'day' => $key,
+                    'items' => ServingOrderResource::collection($order),
+                ];
+            }
+            $orders->setCollection(collect($data));
+            $items = $orders;
+            return mainResponse(true, 'ok', compact('items'), []);
+        } elseif ($type == 'course') {
+
+
+            $orders = Order::query()
+                ->where('user_uuid', $user->uuid)
+                ->where('content_type', 'course')
+                ->get()
+                ->groupBy(function ($item) {
+                    return Carbon::parse($item->created_at)
+                        ->format('Y-m-d');
+                });
+
+            $orders = paginate($orders);
+            $items = $orders->getCollection();
+            $data = [];
+            foreach ($items as $key => $order) {
+                $data[] = [
+                    'day' => $key,
+                    'items' => CourseOrderResource::collection($order),
+                ];
+            }
+            $orders->setCollection(collect($data));
+            $items = $orders;
+            return mainResponse(true, 'ok', compact('items'), []);
+        }else{
+            return mainResponse(false, 'type not found', [], [],403);
+
+        }
+
+        $orders = paginate($orders);
+        $items = $orders->getCollection();
+        $data = [];
+        foreach ($items as $key => $order) {
+            $data[] = [
+                'day' => $key,
+                'items' => OrderResource::collection($order),
+            ];
+        }
+        $orders->setCollection(collect($data));
+        $items = $orders;
+        return mainResponse(true, 'ok', compact('items'), []);
+
+    }
+
+
 }

@@ -191,6 +191,7 @@
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('service owner')</th>
                                         <th>@lang('service name')</th>
+
                                         <th>@lang('price')</th>
                                         <th>@lang('working condition')</th>
                                         <th>@lang('city')</th>

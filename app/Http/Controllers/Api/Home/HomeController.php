@@ -6,17 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\artists;
 use App\Http\Resources\BusinessVideoResource;
 use App\Http\Resources\Categories;
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\CityResource;
 use App\Http\Resources\homePage;
 use App\Http\Resources\LocationResource;
+use App\Http\Resources\MapResource;
 use App\Http\Resources\ProductHomeResource;
+use App\Http\Resources\ProductResource;
 use App\Http\Resources\SubCategoryResource;
 use App\Models\Ads;
 use App\Models\BusinessVideo;
 use App\Models\Category;
+use App\Models\CategoryContent;
+use App\Models\CategoryLocation;
 use App\Models\City;
 use App\Models\DeliveryAddresses;
 use App\Models\Location;
+use App\Models\Page;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\Setting;
@@ -24,7 +30,10 @@ use App\Models\SupCategory;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -36,29 +45,103 @@ class HomeController extends Controller
         $city = City::query()->select('uuid', 'name')->first();
         $city = new CityResource($city);
         $services = Service::select('name', 'uuid', 'status')->get();
+        $data = [];
+
         $categories = Categories::collection(Category::query()->take(6)->get());
+        $data[] = [
+            'title' => __('Browse categories'),
+            'url' => null,
+            'data_type' => 'category',
+            'type' => 'array',
+            'data' => $categories,
+        ];
+
         $product_leasing = ProductHomeResource::collection(Product::query()->where('type', 'leasing')->take(6)->get());
+        $data[] = [
+            'title' => __('Popular products for rent'),
+            'url' => 'popular_products_for_rent',
+            'data_type' => 'product',
+            'type' => 'array',
+            'data' => $product_leasing,
+        ];
+
         $product_new_leasing = ProductHomeResource::collection(Product::query()->where('type', 'leasing')->orderByDesc('created_at')->take(6)->get());
+        $data[] = [
+            'title' => __('Newly listed for rent'),
+            'url' => 'newly_listed_for_rent',
+            'data_type' => 'product',
+            'type' => 'array',
+            'data' => $product_new_leasing,
+        ];
+
         $ad = Ads::query()->first();
+        $data[] = [
+            'title' => __('Ad'),
+            'url' => null,
+            'data_type' => 'ad',
+            'type' => 'object',
+            'data' => $ad,
+        ];
+
         $product_sale = ProductHomeResource::collection(Product::query()->where('type', 'sale')->take(6)->get());
+        $data[] = [
+            'title' => __('Popular products for sale'),
+            'url' => 'popular_products_for_sale',
+            'data_type' => 'product',
+            'type' => 'array',
+            'data' => $product_sale,
+        ];
+
         $product_new_sale = ProductHomeResource::collection(Product::query()->where('type', 'sale')->orderByDesc('created_at')->take(6)->get());
+        $data[] = [
+            'title' => __('Newly listed for sale'),
+            'url' => 'newly_listed_for_sale',
+            'data_type' => 'product',
+            'type' => 'array',
+            'data' => $product_new_sale,
+        ];
+
         $artists = artists::collection(User::query()->where('type', 'artist')->take(6)->get());
+        $data[] = [
+            'title' => __('The most prominent artists'),
+            'url' => 'the_most_prominent_artists',
+            'data_type' => 'artist',
+            'type' => 'array',
+            'data' => $artists,
+        ];
+
         $locations = LocationResource::collection(Location::query()->orderByDesc('created_at')->take(6)->get());
+        $data[] = [
+            'title' => __('Latest filming locations'),
+            'url' => 'latest_filming_locations',
+            'data_type' => 'location',
+            'type' => 'array',
+            'data' => $locations,
+        ];
+
         $business_video = BusinessVideoResource::collection(BusinessVideo::query()->orderByDesc('created_at')->take(6)->get());
-        return mainResponse(true, "done", compact('home_page', 'city', 'services', 'categories', 'product_leasing', 'product_new_leasing', 'ad', 'product_sale', 'product_new_sale', 'artists', 'locations', 'business_video'), [], 200);
+        $data[] = [
+            'title' => __('Product of professionals'),
+            'url' => 'product_of_professionals',
+            'data_type' => 'business_video',
+            'type' => 'array',
+            'data' => $business_video,
+        ];
+
+        return mainResponse(true, "done", compact('home_page', 'city', 'services', 'data'), [], 200);
     }
 
-    public function termsConditions()
+    public function page($id)
     {
-        $setting = Setting::query()->select('terms_conditions')->first();
-        return mainResponse(true, "done", $setting, [], 200);
+        $setting = Page::query()->where('id', $id)->first();
+        return mainResponse(true, "done", $setting, []);
     }
 
     public function artists(Request $request)
     {
         $city = $request->city;
         $orderCreate = ($request->created_at == 'old') ? 'orderByDesc' : 'orderBy';
-        $orderName = ($request->name == 'Desc') ? 'orderByDesc' : 'orderBy';
+        $orderName = ($request->name == 'desc') ? 'orderByDesc' : 'orderBy';
         $artists = User::query()->where('type', 'artist');
         if ($request->has('created_at')) {
             $artists->$orderCreate('created_at');
@@ -69,15 +152,17 @@ class HomeController extends Controller
         if ($request->has('city')) {
             $artists->where('city_uuid', $city);
         }
-        $artists = $artists->get();
-
-        return mainResponse(true, "done", artists::collection($artists), [], 200);
+        $artists = $artists->paginate();
+        $items = pageResource($artists, artists::class);
+        $city = City::query()->select('uuid', 'name')->first();
+        $city = new CityResource($city);
+        return mainResponse(true, "done", compact('items', 'city'), [], 200);
     }
 
-    public function getCityFromCounty($uuid)
-    {
-        return mainResponse(true, "done", City::query()->where('country_uuid', $uuid)->get(), [], 200);
-    }
+//    public function getCityFromCounty($uuid)
+//    {
+//        return mainResponse(true, "done", City::query()->where('country_uuid', $uuid)->get(), [], 200);
+//    }
 
     public function categories()
     {
@@ -124,13 +209,163 @@ class HomeController extends Controller
 
     public function getDetailsProduct($uuid)
     {
-        $product = Product::query()->where('uuid', $uuid)->with('specifications')->with('user:name,uuid')->get();
-        if ($product) {
-            return mainResponse(true, "done", $product, [], 200);
+        $product = Product::query()->findOrFail($uuid);
+        return mainResponse(true, "done", new ProductResource($product), [], 200);
 
-        } else {
-            return mainResponse(false, "product not found", [], ['product not found'], 200);
+    }
+
+
+    public function seeAll(Request $request)
+    {
+        $type = $request->type;
+        $rules = [
+            'type' => 'required|in:popular_products_for_sale,newly_listed_for_sale,newly_listed_for_rent,popular_products_for_rent,latest_filming_locations,the_most_prominent_artists,product_of_professionals',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
+
+        $orderCreate = ($request->created_at == 'old') ? 'orderByDesc' : 'orderBy';
+        $orderName = ($request->name == 'desc') ? 'orderByDesc' : 'orderBy';
+        $orderPrice = ($request->price == 'bottom') ? 'orderByDesc' : 'orderBy';
+        if ($type == 'popular_products_for_sale') {
+            $content = Product::query()
+                ->where('type', 'sale');
+        } elseif ($type == 'newly_listed_for_sale') {
+            $startDate = Carbon::now()->subDays(10)->toDateString();
+            $content = Product::query()
+                ->where('type', 'sale')
+                ->whereDate('created_at', '>=', $startDate);
+        } elseif ($type == 'newly_listed_for_rent') {
+            $startDate = Carbon::now()->subDays(10)->toDateString();
+            $content = Product::query()
+                ->where('type', 'leasing')
+                ->whereDate('created_at', '>=', $startDate);
+        } elseif ($type == 'popular_products_for_rent') {
+            $content = Product::query()
+                ->where('type', 'leasing');
+        } elseif ($type == 'latest_filming_locations') {
+            $startDate = Carbon::now()->subDays(10)->toDateString();
+            $content = Location::query()
+                ->whereDate('created_at', '>=', $startDate);
+        } elseif ($type == 'the_most_prominent_artists') {
+            $artists = User::query()->where('type', 'artist')->paginate();
+            $items = $artists->getCollection();
+            $items = artists::collection($items);
+            $artists->setCollection(collect($items));
+            $items = $artists;
+            return mainResponse(true, "done", compact('items'), [], 200);
+        } elseif ($type == 'product_of_professionals') {
+            $business_video = BusinessVideo::query()->orderByDesc('created_at')->paginate();
+            $items = $business_video->getCollection();
+            $items = BusinessVideoResource::collection($items);
+            $business_video->setCollection(collect($items));
+            $items = $business_video;
+            return mainResponse(true, "done", compact('items'), [], 200);
+        }
+
+
+        if ($request->has('search')) {
+            $content->where('name', 'like', "%{$request->search}%");
+        }
+        if ($request->has('created_at')) {
+            $content->$orderCreate('created_at');
+        }
+        if ($request->has('name')) {
+            $content->$orderName('name');
+        }
+        if ($request->has('price')) {
+            $content->$orderPrice('price');
+        }
+        $content = $content->paginate();
+        $items = pageResource($content, ProductHomeResource::class);
+        return mainResponse(true, "done", compact('items'), [], 200);
+    }
+
+    public function map(Request $request)
+    {
+        $search = $request->search;
+        $category_uuid = $request->category_uuid;
+        $rules = [
+            'search' => 'nullable|string',
+            'category_uuid' => 'nullable|string',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+
+        $category = false;
+        $categoryContent = false;
+        if ($category_uuid) {
+            $category = Category::query()->find($category_uuid);
+            if (!$category) {
+                $categoryContent = CategoryContent::query()->find($category_uuid);
+                if ($categoryContent) {
+                    $categoryContent = true;
+                }
+            } else {
+                $category = true;
+            }
+            if (!$category && !$categoryContent){
+                return mainResponse(false, __('Category uuid is invalid'), [], [], 101);
+            }
+        }
+        $items = new Collection();
+        $items = $items->merge(Category::query()->get());
+        $items = $items->merge(CategoryContent::query()->get());
+        $items = CategoryResource::collection($items);
+        $categories = new Collection();
+        $categories = $categories->merge([['uuid' => null, 'name_translate' => __('all')]]);
+        $categories = $categories->merge($items);
+        $row = DB::raw(
+            "(((acos(sin((" . ($request->lat ?? 0) . "*pi()/180)) * sin((`lat`*pi()/180)) + cos((" . ($request->lat ?? 0) . "*pi()/180)) * cos((`lat`*pi()/180)) *
+             cos(((" . ($request->lng ?? 0) . "- `lng`) * pi()/180)) )) * 180/pi()) * 60 * 1.1515 * 1.609344)
+        as distance");
+        $radius = $request->radius ?? 500000000000;
+        $products = Product::query()
+            ->when($search, function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            })
+            ->when($category, function ($q) use ($category_uuid) {
+                $q->where('category_uuid', $category_uuid);
+            })
+            ->select('products.*', $row)->having("distance", "<", $radius)->orderBy('distance')->take(10)->get();
+        $locations = Location::query()
+            ->when($search, function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            })
+            ->when($categoryContent, function ($q) use ($category_uuid) {
+                $q->whereHas('categories', function ($q) use ($category_uuid) {
+                    $q->where('category_contents_uuid', $category_uuid);
+                });
+            })
+            ->select('locations.*', $row)->having("distance", "<", $radius)->orderBy('distance')->take(10)->get();
+
+        $items = new Collection();
+        $items = $items->merge(MapResource::collection($products));
+        $items = $items->merge(MapResource::collection($locations));
+
+        return mainResponse(true, "done", compact('categories', 'items'), [], 200);
+    }
+    public function search(Request $request){
+        $rules = [
+            'search' => 'required|string',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+        $search=$request->search;
+        $products=Product::query()->where('name','like','%'.$search.'%')->paginate();
+        $locations=Location::query()->where('name','like','%'.$search.'%')->paginate();
+        $items = new Collection();
+        $items = $items->merge(ProductResource::collection($products));
+        $items = $items->merge(ProductResource::collection($locations));
+        $items=  paginate($items);
+        return mainResponse(true, "done", compact('items'), [], 200);
+
     }
 
     public function businessVideo($uuid)
@@ -139,6 +374,7 @@ class HomeController extends Controller
         $update = $businessVide->increment('view');
         return mainResponse(true, "done", $businessVide, [], 200);
     }
+
 
     public function addDeliveryAddresses(Request $request)
     {
@@ -179,7 +415,7 @@ class HomeController extends Controller
     {
         $user = Auth::guard('sanctum')->user();
 
-        $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->get();
+        $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->paginate();
 
         if ($delivery_addresses) {
             return mainResponse(true, "done", $delivery_addresses, [], 200);
