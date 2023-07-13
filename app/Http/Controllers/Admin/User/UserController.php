@@ -57,7 +57,7 @@ class UserController extends Controller
         $request->merge([
             'type'=> 'user',
         ]);
-        $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'personal_photo', 'cover_Photo', 'video', 'skills', 'brief', 'lat', 'lng', 'address'));
+        $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'brief', 'lat', 'lng', 'address'));
         if ($request->hasFile('personal_photo')) {
             UploadImage($request->personal_photo, User::PATH_PERSONAL, User::class, $user->uuid, false, null, Upload::IMAGE, 'personal_photo');
         }
@@ -112,7 +112,7 @@ class UserController extends Controller
         ]);
 
         $this->validate($request, $rules);
-        $user->update($request->only('name', 'email', 'country_uuid', 'city_uuid', 'phone'));
+        $user->update($request->only('name', 'email', 'mobile','country_uuid', 'city_uuid', 'phone' ,'lat', 'lng','address','brief'));
         if ($request->hasFile('cover_Photo')) {
             UploadImage($request->cover_Photo, User::PATH_COVER, User::class, $user->uuid, true, null, Upload::IMAGE, 'cover_photo');
         }

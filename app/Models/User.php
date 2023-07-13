@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -12,7 +13,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +22,7 @@ class User extends Authenticatable
      */
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name', 'products_count'];
+    protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name', 'products_count', 'reviews', 'response', 'specialization_name'];
     protected $fillable = [
         'name',
         'email',
@@ -36,6 +37,8 @@ class User extends Authenticatable
         'lng',
         'address',
     ];
+    const USER = "user";
+    const ARTIST = "artist";
     const PATH_COVER = "/upload/user/cover/";
     const PATH_PERSONAL = "/upload/user/personal/";
     const PATH_VIDEO = "/upload/user/video/";
@@ -76,7 +79,7 @@ class User extends Authenticatable
 
     public function specialization()
     {
-        return $this->belongsTo(Specialization::class, 'specialization_uuid');
+        return @$this->belongsTo(Specialization::class, 'specialization_uuid');
     }
 
     public function city()
@@ -113,7 +116,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Product::class, 'user_uuid');
     }
-
+    public function favorite()
+    {
+        return $this->hasMany(FavoriteUser::class, 'reference_uuid');
+    }
 
     /**
      * Attribute
@@ -154,9 +160,29 @@ class User extends Authenticatable
         }
     }
 
+    public function getLatAttribute($value)
+    {
+        return latLngFormat($value);
+    }
+
+    public function getLngAttribute($value)
+    {
+        return latLngFormat($value);
+    }
+
     public function getProductsCountAttribute()
     {
         return $this->products->count();
+    }
+
+    public function getResponseAttribute()
+    {
+        return '3 ' . __('hours');
+    }
+
+    public function getReviewsAttribute()
+    {
+        return number_format(100, 1, '.', '') . '%';
     }
 
     /**

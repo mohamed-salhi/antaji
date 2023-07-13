@@ -344,7 +344,7 @@
                 }
             },
             ajax: {
-                url: '{{ route('business.video.indexTable', app()->getLocale()) }}',
+                url: '{{ route('business.video.indexTable',$user_uuid)}}',
 
                 data: function (d) {
                     d.status = $('#s_status').val();

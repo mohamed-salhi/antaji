@@ -10,23 +10,22 @@ use Spatie\Translatable\HasTranslations;
 
 class Skill extends Model
 {
-    use HasFactory,HasTranslations;
+    use HasFactory, HasTranslations;
+
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['name'];
     protected $guarded = [];
     protected $appends = ['name_translate'];
-    protected $hidden=[
-        'name',
-'pivot'
-    ];
+    protected $hidden = ['status', 'created_at', 'updated_at','name','pivot'];
 
 
-   //Attributes
+    //Attributes
     public function getNameTranslateAttribute()
     {
         return @$this->name;
     }
+
     //Boot
 
     public static function boot()

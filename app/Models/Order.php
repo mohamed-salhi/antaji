@@ -17,6 +17,7 @@ class Order extends Model
     public $incrementing = false;
     protected $appends=['content'];
     protected $guarded = [];
+    const COURSE = 'course';
     const PENDING = 'pending';
     const INACTIVE = 'inactive';
     const BUGING_SUCCEEDED = 'buying_succeeded';
@@ -64,7 +65,6 @@ class Order extends Model
         Carbon::now()->format('Y');
         self::creating(function ($item) {
             $item->uuid = Str::uuid();
-//            $item->order_number=Carbon::now()->format('Y')+rand(1000, 9999);
         });
 
         static::addGlobalScope('status', function (Builder $builder) {

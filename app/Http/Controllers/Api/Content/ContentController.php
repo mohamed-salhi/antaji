@@ -9,7 +9,10 @@ use App\Http\Resources\CourseEdittResource;
 use App\Http\Resources\CourseResource;
 use App\Http\Resources\LocationEdittResource;
 use App\Http\Resources\LocationResource;
-use App\Http\Resources\ProducEdittResource;
+use App\Http\Resources\MyCourseResource;
+use App\Http\Resources\MyLocationResource;
+use App\Http\Resources\MyProductResource;
+use App\Http\Resources\ProductEditResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ServingContentResource;
 use App\Http\Resources\ServingEditResource;
@@ -44,26 +47,27 @@ class ContentController extends Controller
         $categories = $categories->get();
         return mainResponse(true, 'ok', compact('categories'), []);
     }
+
     public function categoriesContent($type)
     {
 
-        $categories = CategoryContent::query()->where('type',$type)->get();
-        $categories=CategoryResource::collection($categories);
+        $categories = CategoryContent::query()->where('type', $type)->get();
+        $categories = CategoryResource::collection($categories);
         return mainResponse(true, 'ok', compact('categories'), []);
     }
+
     public function addLocation(Request $request)
     {
-
         $rules = [
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
             'category_contents_uuid' => 'required',
-            'category_contents_uuid.*' => 'exists:category_contents,uuid',
+            'category_contents_uuid.*' => 'required|exists:category_contents,uuid',
             'lat' => 'required',
             'lng' => 'required',
-            'images' => 'required',
-            'images.*' => 'mimes:jpeg,jpg,png|max:2048'
+            'images' => 'required|array',
+            'images.*' => 'required|mimes:jpeg,jpg,png|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -100,7 +104,7 @@ class ContentController extends Controller
             'details' => 'required',
             'category_contents_uuid' => ['required',
                 Rule::exists(CategoryContent::class, 'uuid')->where('type', 'serving'),
-            ],            'city_uuid' => 'required|exists:cities,uuid',
+            ], 'city_uuid' => 'required|exists:cities,uuid',
             'from' => 'required|date|after:' . date('Y/m/d'),
             'to' => 'required|date|after:' . $request->from,
             'working_condition' => 'required|in:contract,Fixed_price,hour',
@@ -166,7 +170,12 @@ class ContentController extends Controller
         }
         if ($request->hasFile('videos')) {
             foreach ($request->videos as $item) {
-                UploadImage($item, Course::PATH_COURSE_VIDEO, Course::class, $course->uuid, false, null, Upload::VIDEO);
+                $video = UploadImage($item, Course::PATH_COURSE_VIDEO, Course::class, $course->uuid, false, null, Upload::VIDEO);
+                $getID3 = new \getID3;
+                $video_file = $getID3->analyze('upload/course/video/' . $video->filename);
+                $duration_string = $video_file['playtime_string'];
+                $video->duration = $duration_string;
+                $video->save();
             }
         }
         return mainResponse(true, 'done', $course, [], 101);
@@ -180,14 +189,14 @@ class ContentController extends Controller
             'price' => 'required|int',
             'details' => 'required',
             'category_uuid' => 'required|exists:categories,uuid',
-            'sup_category_uuid' => ['required',
+            'sub_category_uuid' => ['required',
                 Rule::exists(SupCategory::class, 'uuid')->where(function ($query) use ($request) {
                     $query->where('category_uuid', $request->category_uuid);
                 }),
             ],
             'lat' => 'required',
             'lng' => 'required',
-            'type' => 'required|in:sale,leasing',
+            'type' => 'required|in:sale,rent',
             'keys' => 'required',
             'keys.*' => 'string',
             'values' => 'required',
@@ -205,7 +214,7 @@ class ContentController extends Controller
         $request->merge([
             'user_uuid' => $user->uuid
         ]);
-        $product = Product::query()->create($request->only('user_uuid', 'name', 'price', 'details', 'sup_category_uuid', 'category_uuid', 'type', 'lng', 'lat'));
+        $product = Product::query()->create($request->only('user_uuid', 'name', 'price', 'details', 'sub_category_uuid', 'category_uuid', 'type', 'lng', 'lat'));
         for ($i = 0; $i < count($request->keys); $i++) {
             Specification::query()->create([
                 'key' => $request->keys[$i],
@@ -224,10 +233,10 @@ class ContentController extends Controller
 
             }
         }
-        return mainResponse(true, 'done', $product, [], 101);
+        return mainResponse(true, 'done', [], []);
     }
 
-    public function updateServing(Request $request)
+    public function updateServing(Request $request,$uuid)
     {
         $rules = [
             'name' => 'required|string|max:36',
@@ -244,7 +253,7 @@ class ContentController extends Controller
             'lng' => 'required',
 
         ];
-        $serving = Serving::query()->findOrFail($request->uuid);
+        $serving = Serving::query()->findOrFail($uuid);
 
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -255,12 +264,12 @@ class ContentController extends Controller
             'user_uuid' => $user->uuid
         ]);
         $serving->update($request->only('name', 'user_uuid', 'price', 'details', 'category_contents_uuid', 'city_uuid', 'to', 'from', 'working_condition', 'lng', 'lat'));
-        return mainResponse(true, 'done', $serving, [], 101);
+        return mainResponse(true, 'done', [], []);
 
 
     }
 
-    public function updateLocation(Request $request)
+    public function updateLocation(Request $request,$uuid)
     {
         $rules = [
             'name' => 'required|string|max:36',
@@ -278,7 +287,7 @@ class ContentController extends Controller
         $request->merge([
             'user_uuid' => $user->uuid
         ]);
-        $location = Location::query()->findOrFail($request->uuid);
+        $location = Location::query()->findOrFail($uuid);
 
         $location->update($request->only('name', 'details', 'price', 'user_uuid', 'lng', 'lat'));
         $location->categories()->sync($request->category_contents_uuid);
@@ -297,31 +306,42 @@ class ContentController extends Controller
         }
 
 
-        return mainResponse(true, 'done', $location, [], 101);
+        return mainResponse(true, 'done', [], []);
 
     }
 
-    public function updateProduct(Request $request)
+    public function updateProduct(Request $request,$uuid)
     {
 
+        $product = Product::query()->findOrFail($uuid);
         $rules = [
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
             'category_uuid' => 'required|exists:categories,uuid',
-            'sup_category_uuid' => ['required',
+            'sub_category_uuid' => ['required',
                 Rule::exists(SupCategory::class, 'uuid')->where(function ($query) use ($request) {
                     $query->where('category_uuid', $request->category_uuid);
                 }),
             ],
             'lat' => 'required',
             'lng' => 'required',
+            'keys' => 'required|array',
+            'keys.*' => 'required|string|max:255',
+            'values' => 'required|array',
+            'values.*' => 'required|string|max:255',
+            'delete_images' => 'nullable|array',
+            'delete_images.*' => ['required', Rule::exists(Upload::class, 'uuid')->where(function ($q) use ($product) {
+                $q->where('imageable_type', Product::class);
+                $q->where('imageable_id', $product->uuid);
+            })],
+            'images' => 'nullable|array',
+            'images.*' => 'required|mimes:jpeg,jpg,png|max:2048',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
-        $product = Product::findOrFail($request->uuid);
 
         $user = Auth::guard('sanctum')->user();
         $request->merge([
@@ -333,8 +353,8 @@ class ContentController extends Controller
                 UploadImage($item, Product::PATH_PRODUCT, Product::class, $product->uuid, false, null, Upload::IMAGE);
             }
         }
-        if ($request->has('deleteImages')) {
-            foreach ($request->deleteImages as $item) {
+        if ($request->has('delete_images')) {
+            foreach ($request->delete_images as $item) {
                 $image = Upload::query()->where('uuid', $item)->first();
                 File::delete(public_path(Product::PATH_PRODUCT . @$image->filename));
                 if ($image) {
@@ -342,6 +362,9 @@ class ContentController extends Controller
                 }
             }
         }
+
+        Specification::query()->where('product_uuid', $product->uuid)->delete();
+
         for ($i = 0; $i < count($request->keys); $i++) {
             Specification::query()->create([
                 'key' => $request->keys[$i],
@@ -349,15 +372,11 @@ class ContentController extends Controller
                 'product_uuid' => $product->uuid
             ]);
         }
-        for ($i = 0; $i < count($request->deleteSpecification); $i++) {
-            Specification::destroy($i);
-        }
-        return mainResponse(true, 'done', $product, [], 101);
 
-
+        return mainResponse(true, 'done', [], [], 101);
     }
 
-    public function updateCourse(Request $request)
+    public function updateCourse(Request $request,$uuid)
     {
         ;
 
@@ -375,7 +394,7 @@ class ContentController extends Controller
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
-        $course = Course::findOrFail($request->uuid);
+        $course = Course::findOrFail($uuid);
 
         $user = Auth::guard('sanctum')->user();
         $request->merge([
@@ -409,82 +428,90 @@ class ContentController extends Controller
 
     }
 
-    public function editProduct($uuid){
-       $product= Product::query()->find($uuid);
-       if ($product){
-           $product=ProducEdittResource::make($product);
-           return mainResponse(true, 'done', $product, [], 101);
-       }else{
-           return mainResponse(false, 'not found', [], [], 404);
-       }
-    }
-    public function editLocation($uuid){
-        $categories=CategoriesLocation::collection(CategoryContent::query()->where('type','location')->get());
-        $location= Location::query()->find($uuid);
-        if ($location){
-            $location=LocationEdittResource::make($location);
-            return mainResponse(true, 'done', compact('location','categories'), [], 101);
-        }else{
+    public function editProduct($uuid)
+    {
+        $product = Product::query()->find($uuid);
+        if ($product) {
+            $categories = Category::query()
+                ->with('sub')
+                ->get();
+            $categories = CategoryResource::collection($categories);
+            $item = ProductEditResource::make($product);
+            return mainResponse(true, 'done', compact('item', 'categories'), [], 101);
+        } else {
             return mainResponse(false, 'not found', [], [], 404);
         }
     }
-    public function editServing($uuid){
-        $categories=CategoriesLocation::collection(CategoryContent::query()->where('type','serving')->get());
-        $serving= Serving::query()->find($uuid);
-        if ($serving){
-            $serving=ServingEditResource::make($serving);
-            return mainResponse(true, 'done', compact('serving','categories'), [], 101);
-        }else{
+
+    public function editLocation($uuid)
+    {
+        $categories = CategoriesLocation::collection(CategoryContent::query()->where('type', 'location')->get());
+        $location = Location::query()->find($uuid);
+        if ($location) {
+            $location = LocationEdittResource::make($location);
+            return mainResponse(true, 'done', compact('location', 'categories'), [], 101);
+        } else {
             return mainResponse(false, 'not found', [], [], 404);
         }
     }
-    public function editCourse($uuid){
-        $course= Course::query()->find($uuid);
-        if ($course){
-            $course=CourseEdittResource::make($course);
+
+    public function editServing($uuid)
+    {
+        $categories = CategoriesLocation::collection(CategoryContent::query()->where('type', 'serving')->get());
+        $serving = Serving::query()->find($uuid);
+        if ($serving) {
+            $serving = ServingEditResource::make($serving);
+            return mainResponse(true, 'done', compact('serving', 'categories'), [], 101);
+        } else {
+            return mainResponse(false, 'not found', [], [], 404);
+        }
+    }
+
+    public function editCourse($uuid)
+    {
+        $course = Course::query()->find($uuid);
+        if ($course) {
+            $course = CourseEdittResource::make($course);
             return mainResponse(true, 'done', compact('course'), [], 101);
-        }else{
+        } else {
             return mainResponse(false, 'not found', [], [], 404);
         }
     }
-
-
-
 
 
     public function deleteLocation($uuid)
     {
 
-            $location = Location::query()->find($uuid);
-            if (isset($location)) {
-                foreach ($location->imageLocation as $image) {
-                    File::delete(public_path(Location::PATH_LOCATION . $image->filename));
-                    $image->delete();
-                }
-                $location->categories()->detach();
-                $location->delete();
-                return mainResponse(true, 'done', [], [], 200);
-            } else {
-                return mainResponse(false, 'location not found', [], ['location not found'], 404);
+        $location = Location::query()->find($uuid);
+        if (isset($location)) {
+            foreach ($location->imageLocation as $image) {
+                File::delete(public_path(Location::PATH_LOCATION . $image->filename));
+                $image->delete();
             }
+            $location->categories()->detach();
+            $location->delete();
+            return mainResponse(true, 'done', [], [], 200);
+        } else {
+            return mainResponse(false, 'location not found', [], ['location not found'], 404);
+        }
 
     }
 
     public function deleteProduct($uuid)
     {
 
-            $product = Product::query()->find($uuid);
-            if (isset($product)) {
-                foreach ($product->imageProduct as $image) {
-                    File::delete(public_path(Product::PATH_PRODUCT . $image->filename));
-                    $image->delete();
-                }
-                $product->specifications()->delete();
-                $product->delete();
-                return mainResponse(true, 'done', [], [], 200);
-            } else {
-                return mainResponse(false, 'product not found', [], ['product not found'], 404);
+        $product = Product::query()->find($uuid);
+        if (isset($product)) {
+            foreach ($product->imageProduct as $image) {
+                File::delete(public_path(Product::PATH_PRODUCT . $image->filename));
+                $image->delete();
             }
+            $product->specifications()->delete();
+            $product->delete();
+            return mainResponse(true, 'done', [], [], 200);
+        } else {
+            return mainResponse(false, 'product not found', [], ['product not found'], 404);
+        }
 
     }
 
@@ -524,10 +551,11 @@ class ContentController extends Controller
         $user = Auth::guard('sanctum')->user();
         $name = $request->name ?? '';
         $locations = Location::query()->where('user_uuid', $user->uuid)
+            ->with('categories')
             ->when($name, function (Builder $query, string $name) {
                 $query->where('name', 'like', "%{$name}%");
             })->paginate();
-        $items=  pageResource($locations,LocationResource::class);
+        $items = pageResource($locations, MyLocationResource::class);
         return mainResponse(true, 'done', compact('items'), [], 200);
     }
 
@@ -539,9 +567,9 @@ class ContentController extends Controller
             ->when($name, function (Builder $query, string $name) {
                 $query->where('name', 'like', "%{$name}%");
             })->paginate();
-        $items=  pageResource($servings,ServingContentResource::class);
+        $items = pageResource($servings, ServingContentResource::class);
 
-        return mainResponse(true, 'done',  compact('items'), [], 200);
+        return mainResponse(true, 'done', compact('items'), [], 200);
     }
 
     public function getMyCourse(Request $request)
@@ -552,25 +580,25 @@ class ContentController extends Controller
             ->when($name, function (Builder $query, string $name) {
                 $query->where('name', 'like', "%{$name}%");
             })->paginate();
-        $items=  pageResource($courses,CourseResource::class);
+        $items = pageResource($courses, MyCourseResource::class);
 
         return mainResponse(true, 'done', compact('items'), [], 200);
     }
 
     public function getMyProduct(Request $request, $type)
     {
-        if ($type == "leasing" || $type == 'sale') {
+        if ($type == "rent" || $type == 'sale') {
             $user = Auth::guard('sanctum')->user();
             $name = $request->name ?? '';
             $products = Product::query()->where('user_uuid', $user->uuid)->where('type', $type)
                 ->when($name, function (Builder $query, string $name) {
                     $query->where('name', 'like', "%{$name}%");
                 })->paginate();
-            $items=  pageResource($products,ProductResource::class);
+            $items = pageResource($products, MyProductResource::class);
 
             return mainResponse(true, 'done', compact('items'), [], 200);
         } else {
-            return mainResponse(true, 'type not sale || leasing', [], ['type not sale || leasing'], 404);
+            return mainResponse(true, 'type not sale || rent', [], ['type not sale || rent'], 404);
 
         }
     }

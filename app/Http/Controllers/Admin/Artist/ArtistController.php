@@ -22,7 +22,7 @@ class ArtistController extends Controller
         $specializations = Specialization::query()->select(['name', 'uuid'])->get();
         $skills = Skill::query()->select(['name', 'uuid'])->get();
 
-        return view('admin.artists.index', compact('countries', 'specializations','skills'));
+        return view('admin.artists.index', compact('countries', 'specializations', 'skills'));
     }
 
     public function store(Request $request)
@@ -50,9 +50,9 @@ class ArtistController extends Controller
         ];
         $this->validate($request, $rules);
         $request->merge([
-            'type'=> 'artist',
+            'type' => 'artist',
         ]);
-        $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type','brief', 'lat', 'lng', 'address', 'specialization_uuid'));
+        $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'brief', 'lat', 'lng', 'address', 'specialization_uuid'));
         if ($request->has('personal_photo')) {
             UploadImage($request->personal_photo, User::PATH_PERSONAL, User::class, $user->uuid, false, null, Upload::IMAGE, 'personal_photo');
         }
@@ -202,10 +202,20 @@ class ArtistController extends Controller
 //                if ($user->can('user-delete')) {
                 $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
                     '">' . __('delete') . '</button>';
+                $url_videos = route('business.video.index') . '?user_uuid=' . $que->uuid;
+                $url_images = route('business.images.index') . '?user_uuid=' . $que->uuid;
+
+
 //                }
                 $string .= '<button class="detail_btn btn btn-sm btn-outline-success btn_detail" data-toggle="modal"
                     data-target="#detail_modal" ' . $data_attr . '>' . __('details') . '</button>';
 
+
+                $string .= '<a  class="btn-outline-danger" href="' . $url_videos . ' " data-uuid="' . $que->uuid .
+                    '">' . __('Business Gallery Video') . '</button>';
+                $string .= '<a  class="btn-outline-danger" href="'.$url_images.'
+                " data-uuid="' . $que->uuid .
+                    '">'.__('Business photo gallery').'</button>';
                 return $string;
             })->addColumn('status', function ($que) {
                 $currentUrl = url('/');

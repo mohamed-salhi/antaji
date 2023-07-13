@@ -45,14 +45,14 @@ class ServicesController extends Controller
 
     }
 
-    public function leasing(Request $request)
+    public function rent(Request $request)
     {
         $orderCreate = ($request->created_at == 'old') ? 'orderByDesc' : 'orderBy';
         $orderName = ($request->name == 'desc') ? 'orderByDesc' : 'orderBy';
         $orderPrice = ($request->price == 'bottom') ? 'orderByDesc' : 'orderBy';
 
         $products = Product::query()
-            ->where('type', 'leasing');
+            ->where('type', 'rent');
         if ($request->has('search')) {
             $products->where('name', 'like', "%{$request->search}%");
         }

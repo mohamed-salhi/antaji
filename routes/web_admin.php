@@ -121,7 +121,7 @@ Route::group(
 
                 });
             });
-            Route::controller(\App\Http\Controllers\Admin\Product\ProductLeasingController::class)->name('products.leasing.')->prefix('products/leasing')->group(function () {
+            Route::controller(\App\Http\Controllers\Admin\Product\ProductRentController::class)->name('products.rent.')->prefix('products/rent')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/store', 'store')->name('store');
                 Route::post('/update', 'update')->name('update');
@@ -211,13 +211,13 @@ Route::group(
                 Route::post('/video/store', 'storeVideo')->name('video.store');
                 Route::post('/video/update', 'updateVideo')->name('video.update');
                 Route::delete('/video/{id}', 'destroyVideo')->name('video.delete');
-                Route::get('/video/indexTable', 'indexTableVideo')->name('video.indexTable');
+                Route::get('/video/{uuid}/indexTable', 'indexTableVideo')->name('video.indexTable');
                 Route::put('/video/updateStatus/{status}/{id}', 'updateStatusVideo')->name('video.updateStatus');
                 Route::get('/images', 'indexImages')->name('images.index');
                 Route::post('/images/store', 'storeImages')->name('images.store');
                 Route::post('/images/update', 'updateImages')->name('images.update');
                 Route::delete('/images/{id}', 'destroyImages')->name('images.delete');
-                Route::get('/images/indexTable', 'indexTableImages')->name('images.indexTable');
+                Route::get('/images/{uuid}//indexTable', 'indexTableImages')->name('images.indexTable');
                 Route::put('/images/updateStatus/{status}/{id}', 'updateStatusImages')->name('images.updateStatus');
             });
             Route::controller(\App\Http\Controllers\Admin\Serving\ServingController::class)->name('servings.')->prefix('servings')->group(function () {
@@ -227,6 +227,7 @@ Route::group(
                 Route::delete('/{id}', 'destroy')->name('delete');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+
                 Route::controller(\App\Http\Controllers\Admin\Serving\CategoryController::class)->name('categories.')->prefix('/categories')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::post('/store', 'store')->name('store');

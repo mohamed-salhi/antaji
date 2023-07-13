@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class Location extends Model
@@ -13,9 +14,9 @@ class Location extends Model
 
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends = ['user_name', 'image', 'attachments'];
+    protected $appends = ['content_type', 'user_name', 'image', 'attachments', 'is_favorite'];
     protected $guarded = [];
-    protected $hidden=['cart','user','categories'];
+    protected $hidden = ['cart', 'user', 'categories'];
     const PATH_LOCATION = "/upload/location/images/";
 
     //Relations
@@ -39,9 +40,19 @@ class Location extends Model
         return $this->belongsTo(User::class, 'user_uuid');
     }
 
+    public function favorite()
+    {
+        return $this->hasMany(Favorite::class, 'content_uuid');
+    }
+
     public function categories()
     {
         return $this->belongsToMany(CategoryContent::class, 'category_locations', 'location_uuid', 'category_contents_uuid');
+    }
+
+    public function getContentTypeAttribute()
+    {
+        return 'location';
     }
 
     public function getLatAttribute($value)
@@ -79,6 +90,11 @@ class Location extends Model
     public function getUserNameAttribute()
     {
         return @$this->user->name;
+    }
+
+    public function getIsFavoriteAttribute()
+    {
+        return Favorite::query()->where('content_uuid', $this->uuid)->where('user_uuid', Auth::guard('sanctum')->user()->uuid)->exists();
     }
 
     //boot

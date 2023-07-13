@@ -26,10 +26,8 @@ class CourseController extends Controller
            'details' => 'required',
            'image' => 'required|image',
            'user_uuid'=>'required|exists:users,uuid',
-
        ];
        $this->validate($request, $rules);
-
        $course= Course::query()->create($request->only('name','price','details','user_uuid'));
         Content::query()->create([
            'content_uuid'=>$course->uuid,
@@ -44,11 +42,8 @@ class CourseController extends Controller
        return response()->json([
            'item_added'
        ]);   }
-
     public function update(Request $request)
     {
-        ;
-
         $rules = [
             'name' => 'required|string|max:36',
             'price' => 'required|int',
@@ -56,7 +51,6 @@ class CourseController extends Controller
             'image' => 'required|image',
             'user_uuid'=>'required|exists:users,uuid',
         ];
-
         $this->validate($request, $rules);
         $course = Course::findOrFail($request->uuid);
         $course->update($request->only('name','details','price','user_uuid'));
@@ -69,16 +63,11 @@ class CourseController extends Controller
         return response()->json([
             'item_edited'
         ]);
-
     }
-
     public function destroy($uuid)
     {
-
-
             $uuids=explode(',', $uuid);
             $courses=  Course::query()->withoutGlobalScope('status')->whereIn('uuid', $uuids)->get();
-
             foreach ($courses as $item){
                 File::delete(public_path(Course::PATH_COURSE.$item->imageCourse->filename));
                 File::delete(public_path(Course::PATH_COURSE_VIDEO.$item->videoCourse->filename));
@@ -89,9 +78,7 @@ class CourseController extends Controller
             return response()->json([
                 'item_deleted'
             ]);
-
     }
-
     public function indexTable(Request $request)
     {
         $course = Course::query()->withoutGlobalScope('status')->orderBy('created_at');
@@ -106,7 +93,6 @@ class CourseController extends Controller
                 if ($request->name){
                     $query->where('name',$request->name);
                 }
-//
             })
             ->addColumn('checkbox',function ($que){
                 return $que->uuid;
@@ -121,14 +107,10 @@ class CourseController extends Controller
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-image="' . $que->image . '" ';
-
-
                 $url = url('/courses/images/'.$que->uuid);
-
                 $string = '';
                 $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"
                     data-target="#edit_modal" ' . $data_attr . '>' . __('edit') . '</button>';
-
                 $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
                     '">' . __('delete') . '</button>';
 
@@ -136,7 +118,6 @@ class CourseController extends Controller
                     '">' . __('details') . '  </a>';
                 $string .= '<button class="edit_btn btn btn-sm btn-outline-primary video_btn" data-toggle="modal"
                     data-target="#video_modal" data-video="' . $que->video .'">' . __('video') . '</button>';
-
                 return $string;
             }) ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');
@@ -155,7 +136,6 @@ class CourseController extends Controller
             })
             ->rawColumns(['action', 'status'])->toJson();
     }
-
     public function updateStatus($status,$sup)
     {
         $uuids=explode(',', $sup);

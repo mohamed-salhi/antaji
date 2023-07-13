@@ -327,19 +327,19 @@
                 searchable: false
             },
                 {
-                    "render": function (data, type, full, meta) {
-                        return `<h3><h3  class="text-primary" >${data}</h3>
-`;
-                    },
+//                     "render": function (data, type, full, meta) {
+//                         return `<h3><h3  class="text-primary" >${data}</h3>
+// `;
+//                     },
                     data: 'name',
                     name: 'name'
                 },
 
                 {
-                    "render": function (data, type, full, meta) {
-                        return `<h3><h3  class="text-primary" >${data}</h3>
-`;
-                    },
+//                     "render": function (data, type, full, meta) {
+//                         return `<h3><h3  class="text-primary" >${data}</h3>
+// `;
+//                     },
                     data: 'email',
                     name: 'email'
                 },
@@ -348,13 +348,13 @@
                     "render": function (data, type, full, meta) {
                         console.log(data)
                         if (data == 1) {
-                            return `<i class="text-primary">@lang('normal')</i>`
+                            return `<i>@lang('normal')</i>`
 
                         } else if (data == 2) {
-                            return `<i class="text-primary">@lang('important')</i>`
+                            return `<i>@lang('important')</i>`
 
                         } else {
-                            return `<i class="text-primary">@lang('very important')</i>`
+                            return `<i>@lang('very important')</i>`
                         }
 
                     },

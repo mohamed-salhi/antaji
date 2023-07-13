@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProducEdittResource extends JsonResource
+class ProductEditResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,14 +18,16 @@ class ProducEdittResource extends JsonResource
             'uuid' => $this->uuid,
             'type' => $this->type,
             'name' => $this->name,
-            'category_name' => $this->category_name,
-            'sup_category_name' => $this->sup_category_name,
-            'details' => $this->details,
             'price' => $this->price,
+            'category_uuid' => $this->category_uuid,
+            'category_name' => $this->category_name,
+            'sub_category_uuid' => $this->sub_category_uuid,
+            'sub_category_name' => $this->sub_category_name,
+            'details' => $this->details,
             'lat' => $this->lat,
             'lng' => $this->lng,
-            'specifications' => $this->specifications()->select('uuid','key','value')->get(),
-            'images'=>$this->attachments,
+            'specifications' => $this->specifications()->select('uuid', 'key', 'value')->get(),
+            'images' => $this->attachments,
             'currency' => __('sr')
         ];
     }

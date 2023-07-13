@@ -21,7 +21,7 @@
                                 {{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
                                 {{--                                </li>--}}
                                 <li class="breadcrumb-item"><a
-                                        href="{{ route('products.leasing.index') }}">@lang('products')</a>
+                                        href="{{ route('products.rent.index') }}">@lang('products')</a>
                                 </li>
                             </ol>
                         </div>
@@ -183,7 +183,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('products.leasing.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
+                <form action="{{ route('products.rent.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
@@ -281,7 +281,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('products.leasing.update') }}" method="POST" id="form_edit" class=""
+                <form action="{{ route('products.rent.update') }}" method="POST" id="form_edit" class=""
                       enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="uuid" id="uuid" class="form-control"/>
@@ -403,7 +403,7 @@
                 @endif // "oPaginate": {"sPrevious": '<-', "sNext": '->'},
             },
             ajax: {
-                url: '{{ route('products.leasing.indexTable', app()->getLocale()) }}',
+                url: '{{ route('products.rent.indexTable', app()->getLocale()) }}',
                 data: function (d) {
                     d.status = $('#s_status').val();
                     d.sup_category_uuid = $('#s_sup_category_uuid').val();
@@ -482,7 +482,7 @@
                 console.log(category_uuid);
                 if (category_uuid) {
                     $.ajax({
-                        url: "leasing/category" + "/" + category_uuid,
+                        url: "rent/category" + "/" + category_uuid,
                         type: "GET",
                         dataType: "json",
                         success: function (data) {

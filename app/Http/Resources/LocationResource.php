@@ -14,12 +14,24 @@ class LocationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $sub = $this->whenLoaded('categories', function () {
+            return CategoryResource::collection($this->categories);
+        });
+        $item = [
             'uuid' => $this->uuid,
             'name' => $this->name,
             'image' => $this->image,
             'price' => $this->price,
             'currency' => __('sr')
         ];
+        if ($request->uuid) {
+            $item['is_favorite'] = $this->is_favorite;
+            $item['attachments'] = $this->attachments;
+            $item['details'] = $this->details;
+            $item['lat'] = $this->lat;
+            $item['lng'] = $this->lng;
+            $item['owner'] = new OwnerResource($this->user);
+        }
+        return $item;
     }
 }

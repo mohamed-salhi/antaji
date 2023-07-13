@@ -19,7 +19,7 @@
                         <div class="breadcrumb-wrapper">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a
-                                        href="{{ route('products.leasing.index') }}">@lang('projects')</a>
+                                        href="{{ route('products.rent.index') }}">@lang('projects')</a>
                                 </li>
                             </ol>
                         </div>
@@ -93,7 +93,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('products.leasing.images.store') }}" method="POST" id="add_model_form" class="add-mode-form"
+                <form action="{{ route('products.rent.images.store') }}" method="POST" id="add_model_form" class="add-mode-form"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
@@ -128,7 +128,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('products.leasing.images.update') }}" method="POST" id="form_edit" class=""
+                <form action="{{ route('products.rent.images.update') }}" method="POST" id="form_edit" class=""
                       enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="uuid" id="uuid" class="form-control"/>
@@ -189,7 +189,7 @@
                 @endif // "oPaginate": {"sPrevious": '<-', "sNext": '->'},
             },
             ajax: {
-                url: '{{ route('products.leasing.images.imageIndexTable',$uuid) }}',
+                url: '{{ route('products.rent.images.imageIndexTable',$uuid) }}',
                 data: function (d) {
 
                 }

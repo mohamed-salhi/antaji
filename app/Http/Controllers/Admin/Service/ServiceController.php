@@ -63,26 +63,26 @@ class ServiceController extends Controller
 
     }
 
-    public function destroy($uuid)
-    {
-        try {
-            $uuids=explode(',', $uuid);
-            $service=  Service::whereIn('uuid', $uuids)->withoutGlobalScope('service')->get();
-
-            foreach ($service as $item){
-                File::delete(public_path('upload/service/'.$item->iconService->filename));
-                $item->iconService()->delete();
-                $item->delete();
-            }
-            return response()->json([
-                'item_deleted'
-            ]);
-        }catch (\Exception $e){
-            return response()->json([
-                'err'
-            ]);
-        }
-    }
+//    public function destroy($uuid)
+//    {
+//        try {
+//            $uuids=explode(',', $uuid);
+//            $service=  Service::whereIn('uuid', $uuids)->withoutGlobalScope('service')->get();
+//
+//            foreach ($service as $item){
+//                File::delete(public_path('upload/service/'.$item->iconService->filename));
+//                $item->iconService()->delete();
+//                $item->delete();
+//            }
+//            return response()->json([
+//                'item_deleted'
+//            ]);
+//        }catch (\Exception $e){
+//            return response()->json([
+//                'err'
+//            ]);
+//        }
+//    }
 
     public function indexTable(Request $request)
     {
@@ -119,8 +119,8 @@ class ServiceController extends Controller
                     data-target="#edit_modal" ' . $data_attr . '>' . __('edit') . '</button>';
 //                }
 //                if ($user->can('competitions-delete')){
-                    $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
-                        '">' . __('delete') . '</button>';
+//                    $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
+//                        '">' . __('delete') . '</button>';
 //                }
                 return $string;
             })->addColumn('status', function ($que)  {

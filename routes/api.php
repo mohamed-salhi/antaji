@@ -27,10 +27,25 @@ Route::get('categories/{uuid}/{sub_category_uuid}', [\App\Http\Controllers\Api\H
 Route::get('pages/{id}', [\App\Http\Controllers\Api\Home\HomeController::class, 'page']);
 Route::get('see_all', [\App\Http\Controllers\Api\Home\HomeController::class, 'seeAll']);
 
+Route::get('courses/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDetailsCourse']);
+
 Route::get('map', [\App\Http\Controllers\Api\Home\HomeController::class, 'map']);
 Route::get('search', [\App\Http\Controllers\Api\Home\HomeController::class, 'search']);
+Route::get('search/history', [\App\Http\Controllers\Api\Home\HomeController::class, 'historySearch']);
+Route::delete('search/history/delete/{uuid?}', [\App\Http\Controllers\Api\Home\HomeController::class, 'deleteHistorySearch']);
+
+Route::get('artists', [\App\Http\Controllers\Api\Home\HomeController::class, 'artists']);
+Route::get('users/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'artist']);
+Route::get('users/{uuid}/business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
+Route::get('users/{uuid}/products/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
+Route::get('users/{uuid}/courses', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getCourseProfile']);
 
 
+Route::get('products/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDetailsProduct']);
+Route::get('locations/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDetailsLocation']);
+
+//Route::get('profile/{type}/products/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
+//Route::get('profile/course/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getCourseProfile']);
 
 Route::middleware(['guest:sanctum'])->prefix('auth')->group(function () {
     Route::post('/send_code', [\App\Http\Controllers\Api\AuthController::class, 'login']);
@@ -43,44 +58,54 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('update_profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateProfile']);
 
     Route::post('contact', [\App\Http\Controllers\Api\Contact\ContactController::class, 'contact']);
+
+
     Route::post('add_business/video', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessVideo'])->middleware('artists');
     Route::post('add_business/images', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessImages'])->middleware('artists');;
     Route::get('get_business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusiness'])->middleware('artists');
     Route::delete('delete_business_image/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessImage'])->middleware('artists');;
     Route::delete('delete_business_video/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessVideo'])->middleware('artists');;
+
+
     Route::get('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'accountSettingsGet']);
     Route::post('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateAccountSetting']);
-    Route::get('artists', [\App\Http\Controllers\Api\Home\HomeController::class, 'artists']);
 
     Route::get('/cities', [\App\Http\Controllers\Api\AuthController::class, 'cities']);
 
+    Route::post('/user/favorite', [\App\Http\Controllers\Api\Home\HomeController::class, 'favoriteUserPost']);
+    Route::post('/content/favorite', [\App\Http\Controllers\Api\Home\HomeController::class, 'favoriteContentPost']);
 
-    Route::post('add/course', [\App\Http\Controllers\Api\Content\ContentController::class, 'addCourse']);
-    Route::post('add/serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'addServing']);
-    Route::post('add/location', [\App\Http\Controllers\Api\Content\ContentController::class, 'addLocation']);
-    Route::post('add/product', [\App\Http\Controllers\Api\Content\ContentController::class, 'addProduct']);
-    Route::post('update/course', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateCourse']);
-    Route::post('update/serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateServing']);
-    Route::post('update/location', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateLocation']);
-    Route::post('update/product', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateProduct']);
-    Route::get('edit/product/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'editProduct']);
-    Route::get('edit/location/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'editLocation']);
-    Route::get('edit/service/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'editServing']);
-    Route::get('edit/course/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'editCourse']);
+    Route::get('/favorite', [\App\Http\Controllers\Api\Home\HomeController::class, 'favoriteGet']);
 
-    Route::delete('delete/course/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteCourse']);
-    Route::delete('delete/serving/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteServing']);
-    Route::delete('delete/location/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteLocation']);
-    Route::delete('delete/product/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteProduct']);
-    Route::get('get/my/Location', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyLocation']);
-    Route::get('get/my/Serving', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyServing']);
-    Route::get('get/my/Course', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyCourse']);
-    Route::get('get/my/Product/{type}', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyProduct']);
+    Route::get('my_subscriptions/courses', [\App\Http\Controllers\Api\Home\HomeController::class, 'mySubscriptionsCourses']);
 
-    Route::get('products/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDetailsProduct']);
+    Route::get('contents/products/{type}', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyProduct']);
+    Route::post('contents/products/add', [\App\Http\Controllers\Api\Content\ContentController::class, 'addProduct']);
+    Route::get('contents/products/{uuid}/edit', [\App\Http\Controllers\Api\Content\ContentController::class, 'editProduct']);
+    Route::post('contents/products/{uuid}/update', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateProduct']);
+    Route::delete('contents/products/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteProduct']);
+
+    Route::get('contents/locations', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyLocation']);
+    Route::post('contents/locations/add', [\App\Http\Controllers\Api\Content\ContentController::class, 'addLocation']);
+    Route::get('contents/locations/{uuid}/edit', [\App\Http\Controllers\Api\Content\ContentController::class, 'editLocation']);
+    Route::post('contents/locations/{uuid}/update', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateLocation']);
+    Route::delete('contents/locations/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteLocation']);
+
+    Route::get('contents/services', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyServing']);
+    Route::post('contents/services/add', [\App\Http\Controllers\Api\Content\ContentController::class, 'addServing']);
+    Route::get('contents/services/{uuid}/edit', [\App\Http\Controllers\Api\Content\ContentController::class, 'editServing']);
+    Route::post('contents/services/{uuid}/update', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateServing']);
+    Route::delete('contents/services/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteServing']);
+
+    Route::get('contents/courses', [\App\Http\Controllers\Api\Content\ContentController::class, 'getMyCourse']);
+    Route::post('contents/courses/add', [\App\Http\Controllers\Api\Content\ContentController::class, 'addCourse']);
+    Route::get('contents/courses/{uuid}/edit', [\App\Http\Controllers\Api\Content\ContentController::class, 'editCourse']);
+    Route::post('contents/courses/{uuid}/update', [\App\Http\Controllers\Api\Content\ContentController::class, 'updateCourse']);
+    Route::delete('contents/courses/{uuid}', [\App\Http\Controllers\Api\Content\ContentController::class, 'deleteCourse']);
+
 
     Route::get('services/sell_buy', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'sellBuy']);
-    Route::get('services/leasing', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'leasing']);
+    Route::get('services/leasing', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'rent']);
     Route::get('services/locations', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'locations']);
     Route::get('services/services', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'services']);
     Route::get('services/services/{uuid}', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'service']);
@@ -88,25 +113,33 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('business/video/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'businessVideo']);
 
 //    Route::get('profile/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProfile']);
-    Route::get('profile/{type}/products/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
-    Route::get('profile/{type}/business/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
-    Route::get('profile/course/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getCourseProfile']);
-    Route::get('profile/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'profile']);
+//    Route::get('profile/{type}/products/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
+//    Route::get('profile/{type}/business/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
+//    Route::get('profile/course/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getCourseProfile']);
+//    Route::get('profile/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'profile']);
+    Route::get('edit/profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'editProfile']);
+    Route::get('delete/profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteUser']);
 
-    Route::post('delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'addDeliveryAddresses']);
     Route::get('delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDeliveryAddresses']);
-    Route::post('update/delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'updateDeliveryAddresses']);
-    Route::delete('delete/delivery_addresses/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'deleteDeliveryAddresses']);
+    Route::post('delivery_addresses/add', [\App\Http\Controllers\Api\Home\HomeController::class, 'addDeliveryAddresses']);
+    Route::get('delivery_addresses/{uuid}/edit', [\App\Http\Controllers\Api\Home\HomeController::class, 'editDeliveryAddresses']);
+    Route::post('delivery_addresses/{uuid}/update', [\App\Http\Controllers\Api\Home\HomeController::class, 'updateDeliveryAddresses']);
+    Route::delete('delivery_addresses/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'deleteDeliveryAddresses']);
 
     Route::post('add/cart', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'addCart']);
     Route::get('delete/cart/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'deteteCart']);
+
     Route::post('update/cart/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'updateCart']);
+    Route::get('edit/cart/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'editCart']);
 
     Route::get('get/cart/{uuid?}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getCart']);
     Route::get('get/payment', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getPagePay']);
 
 //    Route::get('get/paymentGateways', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'paymentGateways']);
     Route::post('content/checkout', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'checkout']);
-    Route::get('orders/{type}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'orders']);
+    Route::get('orders/buyer/{type}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'ordersBuyer']);
+    Route::get('orders/owner/{type}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'ordersOwner']);
+
+    Route::post('add/reviews', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'AddReviews']);
 
 });

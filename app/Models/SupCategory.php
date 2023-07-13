@@ -31,7 +31,7 @@ class SupCategory extends Model
     }
     public function products()
     {
-        return $this->hasMany(Product::class, 'sup_category_uuid');
+        return $this->hasMany(Product::class, 'sub_category_uuid');
     }
     public function category()
     {

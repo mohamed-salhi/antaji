@@ -15,19 +15,19 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
-class ProductLeasingController extends Controller
+class ProductRentController extends Controller
 {
     public function index(){
         $categories=Category::query()->select('uuid','name')->get();
         $users=User::query()->select('uuid','name')->get();
-        return view('admin.products.leasing',compact('categories','users'));
+        return view('admin.products.rent',compact('categories','users'));
     }
     public function store(Request $request)
     {
 
         $rules = [
             'images' => 'required',
-            'images.*' => 'mimes:jpeg,jpg,png|max:2048',
+            'images.*' => 'required|mimes:jpeg,jpg,png|max:2048',
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
@@ -38,7 +38,7 @@ class ProductLeasingController extends Controller
 
         $this->validate($request, $rules);
         $request->merge([
-           'type'=>'leasing'
+           'type'=>'rent'
         ]);
         $product= Product::query()->create($request->only('sale','user_uuid','name','price','details','sup_category_uuid','category_uuid','type'));
         Content::query()->create([
@@ -117,7 +117,7 @@ class ProductLeasingController extends Controller
 
     public function indexTable(Request $request)
     {
-        $product = Product::query()->withoutGlobalScope('status')->where('type','leasing')->orderByDesc('created_at');
+        $product = Product::query()->withoutGlobalScope('status')->where('type','rent')->orderByDesc('created_at');
         return Datatables::of($product)
             ->filter(function ($query) use ($request) {
                 if ($request->status){
@@ -157,7 +157,7 @@ class ProductLeasingController extends Controller
                 $data_attr .= 'data-images_uuid="' . implode(',', $que->imageProduct->pluck('uuid')->toArray()) .'" ';
                 $data_attr .= 'data-images="' . implode(',', $que->imageProduct->pluck('filename')->toArray()) .'" ';
 
-                $url = url('/products/leasing/images/'.$que->uuid);
+                $url = url('/products/rent/images/'.$que->uuid);
 
                 $string = '';
                 $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"
@@ -174,12 +174,12 @@ class ProductLeasingController extends Controller
                 $currentUrl = url('/');
                 if ($que->status==1){
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/admin/products/leasing/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/products/rent/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
                         '">' . __('active') . '</button>
                     ';
                 }else{
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/admin/products/leasing/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/admin/products/rent/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
                         '">' . __('inactive') . '</button>
                     ';
                 }
@@ -217,7 +217,7 @@ class ProductLeasingController extends Controller
                 $data_attr .= 'data-imageable_id="' . $que->imageable_id . '" ';
                 $data_attr .= 'data-image="' .url('/').Product::PATH_PRODUCT.$que->filename . '" ';
                 $string = '';
-                $url = url('/products/leasing/images/'.$que->imageable_id);
+                $url = url('/products/rent/images/'.$que->imageable_id);
                 $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"
                     data-target="#edit_modal" ' . $data_attr . '>' . __('edit') . '</button>';
                 $string .= ' <button type="button" data-url="'.$url.'"  class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .

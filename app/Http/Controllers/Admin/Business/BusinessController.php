@@ -13,9 +13,10 @@ use Yajra\DataTables\Facades\DataTables;
 
 class BusinessController extends Controller
 {
-    public function indexVideo(){
+    public function indexVideo(Request $request){
+        $user_uuid=$request->user_uuid;
         $users=User::query()->select('name','uuid')->where('type','artist')->get();
-        return view('admin.business.video',compact('users'));
+        return view('admin.business.video',compact('users','user_uuid'));
     }
     public function storeVideo(Request $request)
     {
@@ -82,9 +83,9 @@ class BusinessController extends Controller
             ]);
 
     }
-    public function indexTableVideo(Request $request)
+    public function indexTableVideo(Request $request,$user_uuid)
     {
-        $Business_Video = BusinessVideo::query()->withoutGlobalScope('status')->orderByDesc('created_at');
+        $Business_Video = BusinessVideo::query()->withoutGlobalScope('status')->where('user_uuid',$user_uuid)->orderByDesc('created_at');
         return Datatables::of($Business_Video)
             ->filter(function ($query) use ($request) {
                 if ($request->status){
@@ -161,10 +162,11 @@ class BusinessController extends Controller
     }
 
 
-    public function indexImages(){
+    public function indexImages(Request $request){
+        $user_uuid=$request->user_uuid;
         $users=User::query()->select('name','uuid')->where('type','artist')->get();
        $path=Businessimages::PATH;
-        return view('admin.business.images',compact('users','path'));
+        return view('admin.business.images',compact('users','path','user_uuid'));
     }
     public function storeImages(Request $request)
     {
@@ -185,7 +187,7 @@ class BusinessController extends Controller
             'item_added'
         ]);
     }
-    public function updateImages(Request $request)
+    public function updateImages(Request $request,)
     {
 //        $rules['images'] = 'required';
 //        $rules['images.*'] = 'images';
@@ -226,9 +228,9 @@ class BusinessController extends Controller
         ]);
 
     }
-    public function indexTableImages(Request $request)
+    public function indexTableImages(Request $request,$user_uuid)
     {
-        $business = Businessimages::query()->withoutGlobalScope('status')->orderByDesc('created_at');
+        $business = Businessimages::query()->withoutGlobalScope('status')->where('user_uuid',$user_uuid)->orderByDesc('created_at');
         return Datatables::of($business)
             ->filter(function ($query) use ($request) {
                 if ($request->status){

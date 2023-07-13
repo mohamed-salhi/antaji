@@ -18,6 +18,7 @@ class ProductResource extends JsonResource
             'uuid' => $this->uuid,
             'name' => $this->name,
             'image' => $this->image,
+            'content_type' => $this->content_type,
             'price' => $this->price,
             'currency' => __('sr')
         ];

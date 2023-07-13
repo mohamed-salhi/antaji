@@ -179,6 +179,13 @@
                                                        placeholder="@lang('name')">
                                             </div>
                                         </div>
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_email">@lang('email')</label>
+                                                <input id="s_email" type="text" class="search_input form-control"
+                                                       placeholder="@lang('email')">
+                                            </div>
+                                        </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="s_country_uuid">@lang('country')</label>

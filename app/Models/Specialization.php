@@ -16,6 +16,7 @@ class Specialization extends Model
     protected $translatable = ['name'];
     protected $guarded = [];
     protected $appends = ['name_translate'];
+    protected $hidden=['status','created_at','updated_at','name'];
 
 
     //Attributes

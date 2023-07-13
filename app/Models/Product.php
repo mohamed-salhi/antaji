@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -13,11 +14,14 @@ class Product extends Model
 
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends = ['attachments', 'category_name', 'user_name', 'sup_category_name', 'image', 'is_favorite'];
-    protected $hidden = ['imageProduct', 'category','cart', 'user','supCategory', 'status', 'updated_at', 'created_at'];
+    protected $appends = ['content_type', 'attachments', 'category_name', 'user_name', 'sub_category_name', 'image', 'is_favorite'];
+    protected $hidden = ['imageProduct', 'category', 'cart', 'user', 'supCategory', 'status', 'updated_at', 'created_at'];
 
     protected $guarded = [];
     const PATH_PRODUCT = "/upload/product/images/";
+
+    const SALE = 'sale';
+    const RENT = 'rent';
 
     //Relations
     public function user()
@@ -35,9 +39,14 @@ class Product extends Model
         return $this->hasMany(Cart::class, 'content_uuid');
     }
 
+    public function favorite()
+    {
+        return $this->hasMany(Favorite::class, 'content_uuid');
+    }
+
     public function supCategory()
     {
-        return $this->belongsTo(SupCategory::class, 'sup_category_uuid');
+        return $this->belongsTo(SupCategory::class, 'sub_category_uuid');
     }
 
     public function specifications()
@@ -56,10 +65,16 @@ class Product extends Model
     }
 
     //Attributes
+    public function getContentTypeAttribute()
+    {
+        return 'product';
+    }
+
     public function getIsFavoriteAttribute()
     {
-        return false;
+        return Favorite::query()->where('content_uuid', $this->uuid)->where('user_uuid', Auth::guard('sanctum')->user()->uuid)->exists();
     }
+
     public function getLatAttribute($value)
     {
         return latLngFormat($value);
@@ -75,7 +90,7 @@ class Product extends Model
         return @$this->category->name;
     }
 
-    public function getSupCategoryNameAttribute()
+    public function getSubCategoryNameAttribute()
     {
         return @$this->supCategory->name;
     }

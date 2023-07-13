@@ -126,10 +126,10 @@
                                 class="menu-title text-truncate">@lang('categories')</span>
                         </a>
                     </li>
-                    <li class="nav-item {{ request()->routeIs('products.leasing.index') ? 'active' : '' }} ">
-                        <a class="d-flex align-items-center" href="{{ route('products.leasing.index') }}">
+                    <li class="nav-item {{ request()->routeIs('products.rent.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('products.rent.index') }}">
                             <i data-feather="file-text"></i><span
-                                class="menu-title text-truncate">@lang('leasing products')</span>
+                                class="menu-title text-truncate">@lang('rent products')</span>
                         </a>
                     </li>
                     <li class="nav-item {{ request()->routeIs('products.sales.index') ? 'active' : '' }} ">
@@ -168,18 +168,18 @@
                                 class="menu-title text-truncate">@lang('artists')</span>
                         </a>
                     </li>
-                    <li class="nav-item {{ request()->routeIs('business.video.index') ? 'active' : '' }} ">
-                        <a class="d-flex align-items-center" href="{{ route('business.video.index') }}">
-                            <i data-feather="file-text"></i><span
-                                class="menu-title text-truncate">@lang('Business Gallery Video')</span>
-                        </a>
-                    </li>
-                    <li class="nav-item {{ request()->routeIs('business.images.index') ? 'active' : '' }} ">
-                        <a class="d-flex align-items-center" href="{{ route('business.images.index') }}">
-                            <i data-feather="file-text"></i><span
-                                class="menu-title text-truncate">@lang('Business photo gallery')</span>
-                        </a>
-                    </li>
+{{--                    <li class="nav-item {{ request()->routeIs('business.video.index') ? 'active' : '' }} ">--}}
+{{--                        <a class="d-flex align-items-center" href="{{ route('business.video.index') }}">--}}
+{{--                            <i data-feather="file-text"></i><span--}}
+{{--                                class="menu-title text-truncate">@lang('Business Gallery Video')</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    <li class="nav-item {{ request()->routeIs('business.images.index') ? 'active' : '' }} ">--}}
+{{--                        <a class="d-flex align-items-center" href="{{ route('business.images.index') }}">--}}
+{{--                            <i data-feather="file-text"></i><span--}}
+{{--                                class="menu-title text-truncate">@lang('Business photo gallery')</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
                     <li class="nav-item {{ request()->routeIs('skills.index') ? 'active' : '' }} ">
                         <a class="d-flex align-items-center" href="{{ route('skills.index') }}">
                             <i data-feather="file-text"></i><span

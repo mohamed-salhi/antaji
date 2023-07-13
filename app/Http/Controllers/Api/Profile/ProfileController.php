@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\acountSetting;
+use App\Http\Resources\BusinessVideoProfileResource;
+use App\Http\Resources\BusinessVideoResource;
 use App\Http\Resources\CourseResource;
 use App\Http\Resources\ProductHomeResource;
 use App\Http\Resources\profileArtistResource;
+use App\Http\Resources\profileEditResource;
 use App\Http\Resources\profileUserResource;
 use App\Models\Busines;
 use App\Models\Businessimages;
@@ -14,6 +17,7 @@ use App\Models\BusinessVideo;
 use App\Models\Course;
 use App\Models\Product;
 use App\Models\Skill;
+use App\Models\Specialization;
 use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -26,22 +30,23 @@ use function PHPUnit\Framework\isEmpty;
 
 class ProfileController extends Controller
 {
-    public function profile($uuid=null)
-    {
-        if (User::query()->where('uuid',$uuid)->exists()){
-            $user=User::query()->find($uuid);
-        }else{
-            $user = Auth::guard('sanctum')->user();
-        }
-        if ($user->type == 'artist') {
-            return mainResponse(true, 'ok', new profileArtistResource($user), []);
-        }
-        return mainResponse(true, 'ok', new profileUserResource($user), []);
-    }
+//    public function profile(Request $request, $uuid=null)
+//    {
+//
+//        if (User::query()->where('uuid',$uuid)->exists()){
+//            $user=User::query()->find($uuid);
+//        }else{
+//            $user = Auth::guard('sanctum')->user();
+//        }
+//        if ($user->type == 'artist') {
+//            return mainResponse(true, 'ok', new profileArtistResource($user), []);
+//        }
+//        return mainResponse(true, 'ok', new profileUserResource($user), []);
+//    }
     public function accountSettingsGet()
     {
         $user = Auth::guard('sanctum')->user();
-        return mainResponse(true, "done", acountSetting::collection($user->select('uuid', 'name', 'email', 'mobile', 'country_uuid', 'city_uuid')->get()), [], 201);
+        return mainResponse(true, "done", new acountSetting($user), [], 201);
     }
 
     public function updateAccountSetting(Request $request)
@@ -102,7 +107,7 @@ class ProfileController extends Controller
         if ($user->type == 'artist') {
             $user->update($request->only('brief', 'lat', 'lng', 'specialization_uuid', 'address'));
             $user->skills()->sync($request->skills);
-        }else{
+        } else {
             $user->update($request->only('brief', 'lat', 'lng', 'address'));
         }
         UploadImage($request->personal_photo, "upload/user/personal", User::class, $user->uuid, true, null, Upload::IMAGE, 'personal_photo');
@@ -120,8 +125,6 @@ class ProfileController extends Controller
         $rules['video'] = 'required';
         $rules['title'] = 'required|string|max:100';
         $rules['image'] = 'required|image';
-
-
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
@@ -136,7 +139,6 @@ class ProfileController extends Controller
             UploadImage($request->image, BusinessVideo::PATH_IMAGE, BusinessVideo::class, $busines->uuid, false, null, Upload::IMAGE);
         }
         if ($request->hasFile('video')) {
-
             $video = UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $busines->uuid, false, null, Upload::VIDEO);
             $getID3 = new \getID3;
             $video_file = $getID3->analyze('upload/business/video/' . $video->filename);
@@ -144,11 +146,7 @@ class ProfileController extends Controller
             $busines->time = $duration_string;
             $busines->save();
         }
-
-
         return mainResponse(true, 'done', $busines, [], 101);
-
-
     }
 
     public function addBusinessImages(Request $request)
@@ -213,7 +211,8 @@ class ProfileController extends Controller
         $user = Auth::guard('sanctum')->user();
         $business = "";
         if ($type == "video") {
-            $business = BusinessVideo::query()->where('user_uuid', $user->uuid)->get();
+            $business = BusinessVideo::query()->where('user_uuid', $user->uuid)->paginate();
+            pageResource($business, BusinessVideoProfileResource::class);
         } elseif ($type == "images") {
             $business = Businessimages::query()->where('user_uuid', $user->uuid)->first();
         } else {
@@ -223,72 +222,75 @@ class ProfileController extends Controller
 
     }
 
-    public function getProfile($uuid)
+    public function editProfile()
     {
-        $user = User::query()->find($uuid);
+        $user = Auth::guard('sanctum')->user();
+        $user = new profileEditResource($user);
         if ($user->type == 'artist') {
-            return mainResponse(true, 'ok', new profileArtistResource($user), []);
+            $specializations = Specialization::all();
+            $skills = Skill::all();
+            return mainResponse(true, 'ok', compact('user', 'specializations', 'skills'), []);
         }
-        return mainResponse(true, 'ok', new profileUserResource($user), []);
+        return mainResponse(true, 'ok', compact('user'), []);
     }
 
-    public function getBusinessProfile($type,$uuid=null)
+    public function getBusinessProfile($user_uuid, $type)
     {
-        if (isEmpty($uuid)){
-            $user = Auth::guard('sanctum')->user();
-            $user_uuid=$user->uuid;
-        }else{
-            $user_uuid=$uuid;
-        }
-        if ($type == "video") {
-            $business = BusinessVideo::query()->where('user_uuid', $user_uuid)->paginate();
+
+        $items = [];
+        if ($type == "videos") {
+            $items = BusinessVideo::query()->where('user_uuid', $user_uuid)->paginate();
 
         } elseif ($type == "images") {
-            $business = Businessimages::query()->where('user_uuid', $user_uuid)->first();
+            $items = Businessimages::query()->where('user_uuid', $user_uuid)->first()->images;
+            $items = paginate($items);
         } else {
-            return mainResponse(false, 'type must video||images', [], ['type must video||images'], 404);
+            return mainResponse(false, 'type must videos||images', [], ['type must videos||images'], 404);
         }
-        return mainResponse(true, 'done', $business, [], 200);
+        return mainResponse(true, 'done', compact('items'), [], 200);
     }
 
-    public function getProductProfile($type,$uuid=null )
+    public function getProductProfile($user_uuid, $type)
     {
-        if ($uuid==null){
-            $user = Auth::guard('sanctum')->user();
-            $user_uuid=$user->uuid;
-        }else{
-            $user_uuid=$uuid;
-        }
-        if ($type == "sale") {
+        if ($type == Product::SALE) {
             $products = Product::query()
-                ->where('type', 'sale')
+                ->where('type', Product::SALE)
                 ->where('user_uuid', $user_uuid)
                 ->paginate();
-        } elseif ($type == "leasing") {
+        } elseif ($type == Product::RENT) {
             $products = Product::query()
-                ->where('type', 'leasing')
+                ->where('type', Product::RENT)
                 ->where('user_uuid', $user_uuid)
                 ->paginate();
         } else {
             return mainResponse(false, 'type must sale||leasing', [], ['type must video||images'], 404);
         }
-        pageResource($products,ProductHomeResource::class);
-        return mainResponse(true, 'done', $products, [], 200);
+        $items = pageResource($products, ProductHomeResource::class);
+        return mainResponse(true, 'done', compact('items'), [], 200);
     }
 
-    public function getCourseProfile($uuid=null){
-        if ($uuid==null){
-            $user = Auth::guard('sanctum')->user();
-          $user_uuid=$user->uuid;
-        }else{
-            $user_uuid=$uuid;
-        }
-        $courses=Course::query()->where('user_uuid',$user_uuid)->paginate();
+    public function getCourseProfile($user_uuid)
+    {
+        $courses = Course::query()->where('user_uuid', $user_uuid)->paginate();
         $items = $courses->getCollection();
         $items = CourseResource::collection($items);
         $courses->setCollection(collect($items));
         $items = $courses;
         return mainResponse(true, 'done', compact('items'), [], 200);
+
+    }
+
+    public function deleteUser()
+    {
+        $user = Auth::guard('sanctum')->user();
+        $user->update([
+            'mobile' => $user->mobile . '_delete' . rand(1000, 9999),
+            'email' => $user->email . '_delete' . rand(1000, 9999)
+        ]);
+        $user->fcm_tokens()->delete();
+        $user->tokens()->delete();
+        $user->delete();
+        return mainResponse(true, 'done', [], [], 200);
 
     }
 }

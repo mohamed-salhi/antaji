@@ -15,11 +15,13 @@ class CourseResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'uuid'=>$this->uuid,
-            'name'=>$this->name,
-            'price'=>$this->price,
-            'cover'=>$this->image,
-            'count'=>$this->course_count
+            'uuid' => $this->uuid,
+            'name' => $this->name,
+            'is_purchased' => $this->is_purchased,
+            'price' => $this->price,
+            'currency' => __('sr'),
+            'cover' => $this->image,
+            'count' => $this->course_count
         ];
     }
 }

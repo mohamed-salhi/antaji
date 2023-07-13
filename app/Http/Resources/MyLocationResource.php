@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class LocationEdittResource extends JsonResource
+class MyLocationResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,16 +14,18 @@ class LocationEdittResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+//        $sub = $this->whenLoaded('categories', function () {
+//            return CategoryResource::collection($this->categories);
+//        });
+        return[
             'uuid' => $this->uuid,
             'name' => $this->name,
-            'details' => $this->details,
+            'image' => $this->image,
+            'categories_name' =>CategoryResource::collection($this->categories) ,
             'price' => $this->price,
-            'categories'=>CategoriesLocation::collection($this->categories()->select('uuid','name','type')->get()),
-            'lat' => $this->lat,
-            'lng' => $this->lng,
-            'images'=>$this->attachments,
             'currency' => __('sr')
         ];
+
+
     }
 }

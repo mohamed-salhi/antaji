@@ -17,6 +17,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Models\Product;
+use App\Models\Reviews;
 use App\Models\Serving;
 use App\Models\Setting;
 use App\Models\User;
@@ -51,7 +52,7 @@ class OrdersController extends Controller
         if ($request->type == 'product') {
             $contect = Product::query()
                 ->where('uuid', $request->uuid)
-                ->where('type', 'leasing')
+                ->where('type', 'rent')
                 ->first();
             if (!$contect) {
                 return mainResponse(false, 'uuid not found', [], ['uuid not found'], 101);
@@ -99,10 +100,11 @@ class OrdersController extends Controller
                 'name' => $item->content_owner_name,
                 'uuid' => $item->content_owner_uuid,
                 'image' => $item->content_owner_image,
-                'count' => Cart::query()->where('user_uuid', $user->uuid)->WhereHas('products', function (Builder $query) use ($uuid_user) {
-                    $query->where('user_uuid', $uuid_user);
-                })
-                    ->orWhereHas('locations', function (Builder $query) use ($uuid_user) {
+                'count' => Cart::query()
+                    ->where('user_uuid', $user->uuid)
+                    ->WhereHas('products', function (Builder $query) use ($uuid_user) {
+                        $query->where('user_uuid', $uuid_user);
+                    })->orWhereHas('locations', function (Builder $query) use ($uuid_user) {
                         $query->where('user_uuid', $uuid_user);
                     })->count()
             ];
@@ -146,8 +148,38 @@ class OrdersController extends Controller
         return mainResponse(true, 'done', [], [], 200);
     }
 
+
+    public function editCart($uuid)
+    {
+        $cart = Cart::query()->findOrFail($uuid);
+        $startDate = Carbon::parse($cart->start);
+        $endDate = Carbon::parse($cart->end);
+        $daysDifference = $endDate->diffInDays($startDate);
+        $settings = Setting::query()->first();
+
+        $item = [
+            'start' => $cart->start,
+            'end' => $cart->end,
+            'multi_day_discounts' => 3 * $daysDifference * -1,
+            'price_with_day' => $cart->content->price * $daysDifference,
+            'commission' => $cart->content->price * $settings->commission
+        ];
+        return mainResponse(true, 'ok', compact('item'), []);
+
+    }
+
     public function updateCart(Request $request, $uuid)
     {
+        $rules = [
+            'start' => 'required|date|after:' . date('Y/m/d'),
+            'end' => 'required|date|after:' . $request->start,
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+
         $cart = Cart::query()->find($uuid);
 
         if ($cart) {
@@ -168,12 +200,121 @@ class OrdersController extends Controller
         }
     }
 
-    public function getPagePay()
+    public function getPagePay(Request $request)
     {
+        $user_uuid = $request->user_uuid;
+        $content_uuid = $request->content_uuid;
+
         $user = Auth::guard('sanctum')->user();
-        $Delivery_Addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->where('default', 1)->select('address', 'uuid', 'country_uuid', 'city_uuid')->first();
-        $Payment_Gateway = PaymentGateway::all();
-        return mainResponse(true, 'ok', compact('Payment_Gateway', 'Delivery_Addresses'), []);
+        $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->where('default', 1)->select('address', 'uuid', 'country_uuid', 'city_uuid')->first();
+        $payment_gateway = PaymentGateway::all();
+
+        if ($request->has('user_uuid')) {
+            if (!User::query()->where('uuid', $user_uuid)->exists()) {
+                return mainResponse(false, 'user not found', [], [], 101);
+            }
+            $cart = Cart::query()
+                ->WhereHas('products', function (Builder $query) use ($user_uuid) {
+                    $query->where('user_uuid', $user_uuid);
+                })
+                ->orWhereHas('locations', function (Builder $query) use ($user_uuid) {
+                    $query->where('user_uuid', $user_uuid);
+                })
+                ->where('user_uuid', $user->uuid)
+                ->get();
+            $commission = $cart->sum('commission');
+            $price_with_day = $cart->sum('price_with_day');
+            $multi_day_discounts = $cart->sum('multi_day_discounts');
+            $balnce = $commission + $price_with_day + $multi_day_discounts;
+            $user = User::query()->findOrFail($request->user_uuid);
+            $user = [
+                'image' => $user->image,
+                'count' => $cart->count(),
+                'name' => $user->name,
+            ];
+            $invoice = [
+                'commission' => $commission,
+                'price_with_day' => $price_with_day,
+                'multi_day_discounts' => $multi_day_discounts,
+                'balnce' => $balnce
+
+            ];
+        } elseif ($request->has('content_uuid') && $request->has('content_type')) {
+            $settings = Setting::query()->first();
+
+            if ($request->content_type == "product") {
+                $content = Product::query()->findOrFail($request->content_uuid);
+                $invoice = [
+                    'commission' => $settings->commission,
+                    'delivery' => 10,
+                    'price' => $content->price,
+                    'all' => $settings->commission + 10 + $content->price
+                ];
+                $product = [
+                    'name' => $content->name,
+                    'image' => $content->image,
+                    'category_name' => $content->category_name,
+
+                    'price' => $content->price,
+                ];
+                return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'invoice', 'product'), []);
+
+            } elseif ($request->content_type == "course") {
+                $content = Course::query()->findOrFail($request->content_uuid);
+                $invoice = [
+                    'commission' => $settings->commission,
+                    'price' => $content->price,
+                    'all' => $settings->commission + 10 + $content->price
+                ];
+                $user = [
+                    'name' => $content->user->name,
+                    'image' => $content->user->image,
+                ];
+                $course = [
+                    'name' => $content->name,
+                    'image' => $content->image,
+                    'price' => $content->price,
+                ];
+                return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'invoice', 'user', 'course'), []);
+
+            } elseif ($request->content_type == "service") {
+
+                $content = Serving::query()->findOrFail($request->content_uuid);
+
+                $startDate = Carbon::parse($content->from);
+                $endDate = Carbon::parse($content->to);
+                $daysDifference = $endDate->diffInDays($startDate);
+                $invoice = [
+                    'commission' => $settings->commission,
+                    'price' => $content->price,
+                    'all' => $settings->commission + 10 + $content->price
+                ];
+                $user = [
+                    'name' => $content->user_name,
+                    'image' => $content->user->image,
+//                    'specialization_name'=>$content->user->specialization_name,
+
+                ];
+                $service = [
+                    'name' => $content->name,
+                    'start' => $content->from,
+                    'end' => $content->to,
+                    'price' => $content->price,
+                    'count' => $daysDifference
+                ];
+                return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'invoice', 'user', 'service'), []);
+
+            } else {
+                return mainResponse(false, 'type must product,service,course', [], [], 101);
+
+            }
+
+        } else {
+            return mainResponse(false, 'type not found', [], [], 101);
+
+        }
+
+        return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'invoice', 'user'), []);
 
     }
 
@@ -188,8 +329,8 @@ class OrdersController extends Controller
             'content_type' => 'nullable|in:product,serving,course',
             'content_uuid' => 'nullable',
             'user_uuid' => 'nullable|exists:users,uuid',
-            'start' => 'nullable|date',
-            'end' => 'nullable|date',
+            'start' => 'nullable|date|after:' . date('Y/m/d'),
+            'end' => 'nullable|date|after:' . $request->start,
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -295,7 +436,6 @@ class OrdersController extends Controller
             return mainResponse(false, 'content not found', [], [], 101);
         }
 
-
         if ($request->payment_method_id == PaymentGateway::MADA) {
             $amount = $balnce;
             $url = "https://eu-test.oppwa.com/v1/checkouts";
@@ -368,7 +508,7 @@ class OrdersController extends Controller
         return mainResponse(true, 'ok', compact('status', 'url'), []);
     }
 
-    public function orders($type)
+    public function ordersBuyer($type)
     {
         $user = Auth::guard('sanctum')->user();
         if ($type == 'product') {
@@ -377,10 +517,9 @@ class OrdersController extends Controller
                 ->where('content_type', 'Product')
                 ->get()
                 ->groupBy(function ($item) {
-                return Carbon::parse($item->created_at)
-                    ->format('Y-m-d');
-            });
-
+                    return Carbon::parse($item->created_at)
+                        ->format('Y-m-d');
+                });
         } elseif ($type == 'location') {
 
 
@@ -396,11 +535,11 @@ class OrdersController extends Controller
                 ->where('content_type', 'serving')
                 ->get()
                 ->groupBy(function ($item) {
-                return Carbon::parse($item->created_at)
-                    ->format('Y-m-d');
-            });
+                    return Carbon::parse($item->created_at)
+                        ->format('Y-m-d');
+                });
 
-            $orders = paginate($orders);
+            $orders = paginateOrder($orders);
             $items = $orders->getCollection();
             $data = [];
             foreach ($items as $key => $order) {
@@ -423,8 +562,7 @@ class OrdersController extends Controller
                     return Carbon::parse($item->created_at)
                         ->format('Y-m-d');
                 });
-
-            $orders = paginate($orders);
+            $orders = paginateOrder($orders);
             $items = $orders->getCollection();
             $data = [];
             foreach ($items as $key => $order) {
@@ -436,12 +574,12 @@ class OrdersController extends Controller
             $orders->setCollection(collect($data));
             $items = $orders;
             return mainResponse(true, 'ok', compact('items'), []);
-        }else{
-            return mainResponse(false, 'type not found', [], [],403);
+        } else {
+            return mainResponse(false, 'type not found', [], [], 403);
 
         }
 
-        $orders = paginate($orders);
+        $orders = paginateOrder($orders);
         $items = $orders->getCollection();
         $data = [];
         foreach ($items as $key => $order) {
@@ -455,6 +593,141 @@ class OrdersController extends Controller
         return mainResponse(true, 'ok', compact('items'), []);
 
     }
+
+    public function ordersOwner(Request $request, $type)
+    {
+        $request->merge([
+           'owner'=>true
+        ]);
+        $user = Auth::guard('sanctum')->user();
+        $uuid_user=$user->uuid;
+        if ($type == 'product') {
+            $orders = Order::query()
+                ->WhereHas('product', function (Builder $query) use ($uuid_user) {
+                    $query->where('user_uuid', $uuid_user);
+                })
+                ->get()
+                ->groupBy(function ($item) {
+                    return Carbon::parse($item->created_at)
+                        ->format('Y-m-d');
+                });
+        }
+        elseif ($type == 'location') {
+
+
+            $orders = Order::query()
+                ->WhereHas('location', function (Builder $query) use ($uuid_user) {
+                    $query->where('user_uuid', $uuid_user);
+                })
+                ->get()->groupBy(function ($item) {
+                return Carbon::parse($item->created_at)->format('Y-m-d');
+            });
+
+        }
+        elseif ($type == 'service') {
+
+
+            $orders = Order::query()
+                ->WhereHas('serving', function (Builder $query) use ($uuid_user) {
+                    $query->where('user_uuid', $uuid_user);
+                })
+                ->get()
+                ->groupBy(function ($item) {
+                    return Carbon::parse($item->created_at)
+                        ->format('Y-m-d');
+                });
+
+            $orders = paginateOrder($orders);
+            $items = $orders->getCollection();
+            $data = [];
+            foreach ($items as $key => $order) {
+                $data[] = [
+                    'day' => $key,
+                    'items' => ServingOrderResource::collection($order),
+                ];
+            }
+            $orders->setCollection(collect($data));
+            $items = $orders;
+            return mainResponse(true, 'ok', compact('items'), []);
+        }
+        elseif ($type == 'course') {
+
+
+            $orders = Order::query()
+                ->WhereHas('course', function (Builder $query) use ($uuid_user) {
+                    $query->where('user_uuid', $uuid_user);
+                })
+                ->get()
+                ->groupBy(function ($item) {
+                    return Carbon::parse($item->created_at)
+                        ->format('Y-m-d');
+                });
+            $orders = paginateOrder($orders);
+            $items = $orders->getCollection();
+            $data = [];
+            foreach ($items as $key => $order) {
+                $data[] = [
+                    'day' => $key,
+                    'items' => CourseOrderResource::collection($order),
+                ];
+            }
+            $orders->setCollection(collect($data));
+            $items = $orders;
+            return mainResponse(true, 'ok', compact('items'), []);
+        } else {
+            return mainResponse(false, 'type not found', [], [], 403);
+
+        }
+
+        $orders = paginateOrder($orders);
+        $items = $orders->getCollection();
+        $data = [];
+        foreach ($items as $key => $order) {
+            $data[] = [
+                'day' => $key,
+                'items' => OrderResource::collection($order),
+            ];
+        }
+        $orders->setCollection(collect($data));
+        $items = $orders;
+        return mainResponse(true, 'ok', compact('items'), []);
+
+    }
+
+    public function AddReviews(Request $request){
+
+        $rules = [
+            'title' => 'required|string',
+            'content_uuid' => 'required',
+            'content_type' => 'required|in:product,serving,course,location',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+        if ($request->content_type == "product") {
+            $content = Product::query()->findOrFail($request->content_uuid);
+        } elseif ($request->content_type == "course") {
+            $content = Course::query()->findOrFail($request->content_uuid);
+        } elseif ($request->content_type == "serving") {
+            $content = Serving::query()->findOrFail($request->content_uuid);
+        }elseif ($request->content_type == "location"){
+            $content = Location::query()->findOrFail($request->content_uuid);
+        }else{
+            return mainResponse(false, 'content not found', [], [], 101);
+        }
+        $user = Auth::guard('sanctum')->user();
+        $item=Reviews::query()->create([
+            'title' => $request->title,
+            'content_uuid' => $request->content_uuid,
+            'user_uuid' => $user->uuid,
+            'reference_uuid' => $content->user_uuid,
+        ]);
+        return mainResponse(true, 'ok', [], []);
+
+    }
+
+
 
 
 }

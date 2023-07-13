@@ -2,12 +2,11 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Reviews;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class profileUserResource extends JsonResource
+class profileEditResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +15,9 @@ class profileUserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $item= [
             'uuid' => $this->uuid,
-            'type' => $this->type,
-            'is_verified' => false,
-            'is_favorite' => false,
+            'address' => $this->address,
             'name' => $this->name,
             'lat' => $this->lat,
             'lng' => $this->lng,
@@ -28,10 +25,14 @@ class profileUserResource extends JsonResource
             'video' => $this->video_user,
             'personal_photo' => $this->image,
             'cover_Photo' => $this->cover_user,
-            'created_at' => Carbon::parse($this->created_at)->format('F,Y'),
-            'reviews_count' => $this->reviews,
-            'response' => $this->response,
-            'reviews' => Reviews::query()->where('reference_uuid', $this->uuid)->take(5)->get()
         ];
+        if ($this->type=='artist'){
+            $item['specialization']=$this->specialization_uuid;
+            $item['skills']=$this->skills()->select('name','uuid')->get();
+;
+
+        }
+
+        return $item;
     }
 }

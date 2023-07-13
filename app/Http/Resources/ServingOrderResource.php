@@ -23,7 +23,6 @@ class ServingOrderResource extends JsonResource
 //            'is_special' => (fmod($this->id, 3) == 0),
             'city_name' => $this->serving->city_name,
             'category_name'=>$this->serving->category_name,
-
             'price' => $this->serving->price,
             'currency' => __('sr'),
             'created' => $this->serving->created_at->diffForHumans(),

@@ -10,57 +10,76 @@ use Illuminate\Support\Str;
 class Course extends Model
 {
     use HasFactory;
+
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $guarded = [];
-    protected $appends=['image','user_name','video','course_count','attachments'];
+    protected $appends = ['image', 'user_name', 'video', 'course_count', 'attachments', 'is_purchased'];
+    protected $hidden = ['user', 'videosCourse', 'imageCourse', 'videosCourse'];
 
-    const PATH_COURSE="/upload/course/images/";
-    const PATH_COURSE_VIDEO="/upload/course/video/";
+    const PATH_COURSE = "/upload/course/images/";
+    const PATH_COURSE_VIDEO = "/upload/course/video/";
 
     //Relations
     public function imageCourse()
     {
-        return $this->morphOne(Upload::class, 'imageable')->where('type',Upload::IMAGE);
+        return $this->morphOne(Upload::class, 'imageable')->where('type', Upload::IMAGE);
     }
+
     public function videoCourse()
     {
-        return $this->morphOne(Upload::class, 'imageable')->where('type',Upload::VIDEO)->where('name','demonstration video');
+        return $this->morphOne(Upload::class, 'imageable')->where('type', Upload::VIDEO)->where('name', 'demonstration video');
     }
+
     public function videosCourse()
     {
-        return $this->morphMany(Upload::class, 'imageable')->where('type',Upload::VIDEO);
+        return $this->morphMany(Upload::class, 'imageable')->where('type', Upload::VIDEO);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_uuid');
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'content_uuid')->where('content_type', Order::COURSE);
+    }
 
     //Attributes
     public function getImageAttribute()
     {
-        return url('/') .self::PATH_COURSE . @$this->imageCourse->filename;
+        return url('/') . self::PATH_COURSE . @$this->imageCourse->filename;
     }
+
     public function getVideoAttribute()
     {
-        return url('/').self::PATH_COURSE_VIDEO. @$this->videoCourse->filename;
+        return url('/') . self::PATH_COURSE_VIDEO . @$this->videoCourse->filename;
     }
+
     public function getUserNameAttribute()
     {
         return @$this->user->name;
     }
+
     public function getCourseCountAttribute()
     {
         return @$this->videosCourse()->count();
     }
+
+    public function getIsPurchasedAttribute()
+    {
+        return $this->orders()->where('user_uuid', auth('sanctum')->id())->exists();
+    }
+
     public function getAttachmentsAttribute()
     {
-        $attachments=[];
+        $attachments = [];
         foreach ($this->videosCourse as $item) {
             $attachments[] = [
-                'uuid'=>$item->uuid,
-                'attachment' => url('/') . self::PATH_COURSE_VIDEO. $item->filename,
+                'uuid' => $item->uuid,
+                'attachment' => url('/') . self::PATH_COURSE_VIDEO . $item->filename,
+                'duration' => '6:45',
             ];
         }
         return $attachments;
@@ -78,4 +97,5 @@ class Course extends Model
             $builder->where('status', 1);//1==active
         });
 
-    }}
+    }
+}
