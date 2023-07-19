@@ -22,7 +22,7 @@ class User extends Authenticatable
      */
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name', 'products_count', 'reviews', 'response', 'specialization_name'];
+        protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name', 'products_count', 'reviews', 'response', 'specialization_name', 'commission'];
     protected $fillable = [
         'name',
         'email',
@@ -36,6 +36,7 @@ class User extends Authenticatable
         'lat',
         'lng',
         'address',
+        'package_uuid'
     ];
     const USER = "user";
     const ARTIST = "artist";
@@ -76,7 +77,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Country::class, 'country_uuid');
     }
-
+    public function package()
+    {
+        return $this->belongsTo(Package::class, 'package_uuid');
+    }
     public function specialization()
     {
         return @$this->belongsTo(Specialization::class, 'specialization_uuid');
@@ -183,6 +187,11 @@ class User extends Authenticatable
     public function getReviewsAttribute()
     {
         return number_format(100, 1, '.', '') . '%';
+    }
+
+    public function getCommissionAttribute()
+    {
+        return $this->package->percentage_of_sale / 100;
     }
 
     /**

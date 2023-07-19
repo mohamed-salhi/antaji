@@ -28,10 +28,12 @@
     <!-- END: Vendor CSS-->
 
     <!-- BEGIN: Theme CSS-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/app-assets/css' . rtl_assets() . '/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="{{ asset('dashboard/app-assets/css' . rtl_assets() . '/bootstrap.css') }}">
     <link rel="stylesheet" type="text/css"
           href="{{ asset('dashboard/app-assets/css' . rtl_assets() . '/bootstrap-extended.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/app-assets/css' . rtl_assets() . '/colors.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="{{ asset('dashboard/app-assets/css' . rtl_assets() . '/colors.css') }}">
     <link rel="stylesheet" type="text/css"
           href="{{ asset('dashboard/app-assets/css' . rtl_assets() . '/components.css') }}">
     <link rel="stylesheet" type="text/css"
@@ -85,8 +87,9 @@
                     <div class="card mb-0">
                         <div class="card-body">
                             <a href="javascript:void(0);" class="brand-logo">
-                                  <span class="brand-logo"><img alt="logo" src="{{ asset('dashboard/app-assets/images/logo/Antaji.png') }}"
-                                                                style="width: 70px;" />
+                                  <span class="brand-logo"><img alt="logo"
+                                                                src="{{ asset('dashboard/app-assets/images/logo/Antaji.png') }}"
+                                                                style="width: 70px;"/>
                         </span>
                                 <h2 class="brand-text text-primary ml-1 mt-3">Antaji</h2>
                             </a>
@@ -95,8 +98,8 @@
 
                             </div>
                             {{--                                @endif--}}
-                            <form action="{{route('paymentGateways.pay',$payment->uuid)}}" class="paymentWidgets" data-brands="VISA MASTER AMEX MADA"></form>
-
+                            <form action="{{route('paymentGateways.pay',$payment->uuid)}}" class="paymentWidgets"
+                                  data-brands="VISA MASTER AMEX MADA"></form>
 
 
                         </div>
@@ -135,7 +138,7 @@
 
 <script>
 
-    $(window).on('load', function() {
+    $(window).on('load', function () {
         if (feather) {
             feather.replace({
                 width: 14,

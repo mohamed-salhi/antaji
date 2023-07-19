@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('delivery_addresses', function (Blueprint $table) {
             $table->uuid()->primary();
+            $table->string('title');
             $table->string('address');
             $table->double('lat');
             $table->double('lng');

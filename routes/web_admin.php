@@ -93,10 +93,14 @@ Route::group(
                 Route::get('/', 'index')->name('index');
                 Route::post('/store', 'store')->name('store');
                 Route::post('/update', 'update')->name('update');
-                Route::delete('/{id}', 'destroy')->name('delete');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
-
+                Route::get('/videos/{uuid}', 'videoIndex')->name('videos.index');
+                Route::post('/videos/store', 'videoStore')->name('videos.store');
+                Route::post('/videos/update', 'videoUpdate')->name('videos.update');
+                Route::delete('/videos/{uuid}/{image}', 'videoDestroy')->name('videos.delete');
+                Route::get('/videos/indexTable/{uuid}', 'videoIndexTable')->name('videos.imageIndexTable');
+                Route::delete('/{uuid}', 'destroy')->name('delete');
             });
             Route::controller(\App\Http\Controllers\Admin\Location\LocationController::class)->name('locations.')->prefix('locations')->group(function () {
                 Route::get('/', 'index')->name('index');
@@ -166,6 +170,33 @@ Route::group(
                 Route::get('/', [\App\Http\Controllers\Admin\Setting\SettingController::class, 'index'])->name('index');
 
             });
+            Route::controller(\App\Http\Controllers\Admin\Discount\DiscountController::class)->name('discount.')->prefix('discount')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+
+            });
+            Route::controller(\App\Http\Controllers\Admin\Package\PackageController::class)->name('packages.')->prefix('packages')->group(function () {
+                Route::get('/', 'index')->name('index');
+//                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+//                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+            });
+            Route::controller(\App\Http\Controllers\Admin\Discount\MultiDayDiscountController::class)->name('multidaydiscount.')->prefix('multidaydiscount')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/update', 'update')->name('update');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+
+            });
             Route::controller(\App\Http\Controllers\Admin\Contact\ContactController::class)->prefix('contacts')->name('contacts.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::delete('/{uuid}', 'destroy')->name('delete');
@@ -179,12 +210,12 @@ Route::group(
                 Route::post('/update', 'update')->name('update');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
                 Route::put('/updateStatus/{status}/{id}', 'updateStatus')->name('updateStatus');
-                Route::get('/sup/{uuid}', 'supIndex')->name('sup');
-                Route::post('/sup/{uuid}/store', 'supStore')->name('sup.store');
-                Route::post('/sup/{uuid}/update', 'supUpdate')->name('sup.update');
-                Route::get('/sup/{uuid}/indexTable', 'supIndexTable')->name('sup.indexTable');
-                Route::put('/sup/{category}/updateStatus/{status}/{sup}', 'supUpdateStatus')->name('sup.updateStatus');
-                Route::delete('/sup/{uuid}/{delete}', 'supDestroy')->name('sup.delete');
+                Route::get('/sub/{uuid}', 'subIndex')->name('sub');
+                Route::post('/sub/{uuid}/store', 'subStore')->name('sub.store');
+                Route::post('/sub/{uuid}/update', 'subUpdate')->name('sub.update');
+                Route::get('/sub/{uuid}/indexTable', 'subIndexTable')->name('sub.indexTable');
+                Route::put('/sub/{category}/updateStatus/{status}/{sub}', 'subUpdateStatus')->name('sub.updateStatus');
+                Route::delete('/sub/{uuid}/{delete}', 'subDestroy')->name('sub.delete');
                 Route::delete('/{id}', 'destroy')->name('delete');
             });
             Route::controller(\App\Http\Controllers\Admin\User\UserController::class)->prefix('users')->name('users.')->group(function () {

@@ -1,6 +1,6 @@
 @extends('admin.part.app')
 @section('title')
-    @lang('sup category')
+    @lang('sub category')
 @endsection
 @section('styles')
     <style>
@@ -15,7 +15,7 @@
             <div class="content-header-left col-md-9 col-12 mb-2">
                 <div class="row breadcrumbs-top">
                     <div class="col-12">
-                        <h2 class="content-header-title float-left mb-0">@lang('sup category')</h2>
+                        <h2 class="content-header-title float-left mb-0">@lang('sub category')</h2>
                         <div class="breadcrumb-wrapper">
                             <ol class="breadcrumb">
                                 {{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
@@ -37,7 +37,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="head-label">
-                                    <h4 class="card-title">@lang('sup category')</h4>
+                                    <h4 class="card-title">@lang('sub category')</h4>
                                 </div>
                                 {{--                                @can('place-create')--}}
                                 <div class="text-right">
@@ -110,7 +110,7 @@
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('name')</th>
-                                        <th>@lang('sup category')</th>
+                                        <th>@lang('sub category')</th>
                                         <th>@lang('count') @lang('products')</th>
                                         <th>@lang('image')</th>
 
@@ -141,7 +141,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('categories.sup.store',$uuid) }}" method="POST" id="add-mode-form" class="add-mode-form"
+                <form action="{{ route('categories.sub.store',$uuid) }}" method="POST" id="add-mode-form" class="add-mode-form"
                       enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="category_uuid" value="{{$uuid}}" class="form-control"/>
@@ -213,7 +213,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('categories.sup.update',$uuid) }}" method="POST" id="form_edit" class=""
+                <form action="{{ route('categories.sub.update',$uuid) }}" method="POST" id="form_edit" class=""
                       enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="uuid" id="uuid" class="form-control"/>
@@ -300,7 +300,7 @@
                 @endif // "oPaginate": {"sPrevious": '<-', "sNext": '->'},
             },
             ajax: {
-                url: '{{ route('categories.sup.indexTable',$uuid) }}',
+                url: '{{ route('categories.sub.indexTable',$uuid) }}',
 
                 data: function (d) {
                     d.status = $('#s_status').val();

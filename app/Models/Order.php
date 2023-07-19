@@ -15,10 +15,12 @@ class Order extends Model
 
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $appends=['content'];
+    protected $appends=['content','days_count'];
     protected $guarded = [];
     const COURSE = 'course';
     const PENDING = 'pending';
+    const PENDING1 = 'pending1';
+    const COMPLETE = 'complete';
     const INACTIVE = 'inactive';
     const BUGING_SUCCEEDED = 'buying_succeeded';
     //Relations
@@ -27,7 +29,10 @@ class Order extends Model
     {
         return $this->belongsTo(Product::class, 'content_uuid');
     }
-
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_uuid');
+    }
     public function serving()
     {
         return $this->belongsTo(Serving::class, 'content_uuid');
@@ -41,8 +46,22 @@ class Order extends Model
     {
         return $this->belongsTo(Course::class, 'content_uuid');
     }
+    public function deliveryAddresses()
+    {
+        return @$this->belongsTo(DeliveryAddresses::class, 'delivery_addresses_uuid');
+    }
+    public function paymentMethod()
+    {
+        return @$this->belongsTo(PaymentGateway::class, 'payment_method_id');
+    }
     //Attributes
-
+    public function getDaysCountAttribute()
+    {
+        $startDate = Carbon::parse($this->start);
+        $endDate = Carbon::parse($this->end);
+        $daysDifference = $endDate->diffInDays($startDate);
+        return $daysDifference;
+    }
     public function getContentAttribute()
     {
         if ($this->content_type == 'product') {

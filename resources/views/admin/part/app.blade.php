@@ -686,7 +686,8 @@ var pageNot=2
         $('.invalid-feedback').text('');
     });
     $('#edit_modal').on('hidden.bs.modal', function() {
-console.log('cloce')
+        $('#form_edit').trigger("reset");
+
         $('.edit_images').remove()
         $('.add_images').append(`<div class="col-12 edit_images">
                         <div class="input-field">

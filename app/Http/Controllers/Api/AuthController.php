@@ -11,6 +11,8 @@ use App\Models\FCM;
 use App\Models\FcmToken;
 use App\Models\Intro;
 use App\Models\NotificationAdmin;
+use App\Models\Package;
+use App\Models\PackageUser;
 use App\Models\User;
 use App\Models\Setting;
 use App\Models\Verification;
@@ -130,7 +132,10 @@ class AuthController extends Controller
         }
 
         $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type'));
-
+//        PackageUser::query()->create([
+//            'package_uuid' => Package::BASIC,
+//            'user_uuid' => $user->uuid,
+//        ]);
         if ($user) {
             $code = rand(1000, 9999);
             $code = '1111';

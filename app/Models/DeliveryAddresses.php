@@ -39,6 +39,17 @@ class DeliveryAddresses extends Model
         return @$this->country->name;
     }
 
+
+    public function getLatAttribute($value)
+    {
+        return latLngFormat($value);
+    }
+
+    public function getLngAttribute($value)
+    {
+        return latLngFormat($value);
+    }
+
     //Boot
     public static function boot()
     {

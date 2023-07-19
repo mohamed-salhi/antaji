@@ -39,7 +39,10 @@ class Location extends Model
     {
         return $this->belongsTo(User::class, 'user_uuid');
     }
-
+    public function multiDayDiscount()
+    {
+        return $this->belongsTo(MultiDayDiscount::class, 'multi_day_discount_uuid');
+    }
     public function favorite()
     {
         return $this->hasMany(Favorite::class, 'content_uuid');

@@ -19,6 +19,7 @@ class MyCourseResource extends JsonResource
             'name' => $this->name,
             'cover' => $this->image,
             'price'=>$this->price,
+            'currency' => __('sr'),
         ];
     }
 }

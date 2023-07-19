@@ -15,23 +15,17 @@ class ServingContentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $item = [
+
+        return [
             'uuid' => $this->uuid,
             'name' => $this->name,
             'working_condition' => $this->working_condition,
-//            'is_new' => $this->created_at->isBefore(Carbon::now()->subDays()),
-//            'is_special' => (fmod($this->id, 3) == 0),
-              'category_name'=>$this->category_name,
+            'category_name' => $this->category_name,
             'city_name' => $this->city_name,
             'price' => $this->price,
             'currency' => __('sr'),
+            'from' => $this->from,
             'created' => $this->created_at->diffForHumans(),
-            'status' => $this->status,
-
         ];
-
-
-
-        return $item;
     }
 }

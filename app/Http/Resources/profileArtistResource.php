@@ -2,10 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Favorite;
+use App\Models\FavoriteUser;
+use App\Models\Package;
 use App\Models\Reviews;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class profileArtistResource extends JsonResource
 {
@@ -19,8 +23,8 @@ class profileArtistResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'type' => $this->type,
-            'is_verified' => false,
-            'is_favorite' => false,
+            'is_verified' => $this->package->type==Package::VIP,
+            'is_favorite' => FavoriteUser::query()->where('reference_uuid', $this->uuid)->where('user_uuid', Auth::guard('sanctum')->id())->exists(),
             'name' => $this->name,
             'skills' => ($this->type == 'artist') ? $this->skills()->select('name')->get() : null,
             'lat' => $this->lat,

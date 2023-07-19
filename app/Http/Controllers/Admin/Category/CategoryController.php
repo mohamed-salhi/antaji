@@ -145,18 +145,18 @@ class CategoryController extends Controller
                 }
                 return $data;
             })
-            ->addColumn('sup-category', function ($que) {
+            ->addColumn('sub-category', function ($que) {
                 $currentUrl = url('/');
-                return '   <a class="btn btn-gradient-success " href="'.route('categories.sup',$que->uuid).'" type="button"                                                                                         ><span><i
+                return '   <a class="btn btn-gradient-success " href="'.route('categories.sub',$que->uuid).'" type="button"                                                                                         ><span><i
                                                     class="fa fa-plus"></i>'.__('show').'</span>
                                         </button>';
             })
-            ->rawColumns(['action', 'status','sup-category'])->toJson();
+            ->rawColumns(['action', 'status','sub-category'])->toJson();
     }
 
-    public function UpdateStatus($status,$sup)
+    public function UpdateStatus($status,$sub)
     {
-        $uuids=explode(',', $sup);
+        $uuids=explode(',', $sub);
 
         $activate =  Category::query()->withoutGlobalScope('category')
             ->whereIn('uuid',$uuids)
@@ -168,14 +168,14 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function supIndex($uuid){
-        return view('admin.categories.sup',compact('uuid'));
+    public function subIndex($uuid){
+        return view('admin.categories.sub',compact('uuid'));
     }
-    public function supIndexTable(Request $request ,$uuid)
+    public function subIndexTable(Request $request ,$uuid)
     {
-        $sup= SupCategory::query()->withoutGlobalScope('sup')->where('category_uuid',$uuid)->orderBy('created_at');
+        $sub= SupCategory::query()->withoutGlobalScope('sub')->where('category_uuid',$uuid)->orderBy('created_at');
 
-        return Datatables::of($sup)
+        return Datatables::of($sub)
             ->filter(function ($query) use ($request) {
                 if ($request->get('name')) {
                     $locale = app()->getLocale();
@@ -210,12 +210,12 @@ class CategoryController extends Controller
                 $currentUrl = url('/');
                 if ($que->status==1){
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/categories/sup/'.$que->category_uuid.'/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/categories/sub/'.$que->category_uuid.'/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
                         '">' . __('active') . '</button>
                     ';
                 }else{
                     $data='
-<button type="button"  data-url="' . $currentUrl . "/categories/sup/'.$que->category_uuid.'/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+<button type="button"  data-url="' . $currentUrl . "/categories/sub/'.$que->category_uuid.'/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
                         '">' . __('inactive') . '</button>
                     ';
                 }
@@ -225,7 +225,7 @@ class CategoryController extends Controller
     }
 
 
-    public function supStore(Request $request)
+    public function subStore(Request $request)
     {
 
         $rules = [];
@@ -239,15 +239,15 @@ class CategoryController extends Controller
             $data['name'][$key] = $request->get('name_' . $key);
         }
         $data['category_uuid']=$request->category_uuid;
-        $sup= SupCategory::create($data);
+        $sub= SupCategory::create($data);
         if ($request->has('image')) {
-            UploadImage($request->image, SupCategory::PATH_IMAGE, SupCategory::class, $sup->uuid, true, null, Upload::IMAGE);
+            UploadImage($request->image, SupCategory::PATH_IMAGE, SupCategory::class, $sub->uuid, true, null, Upload::IMAGE);
         }
         return response()->json([
             'item_addedd'
         ]);
     }
-    public function supUpdate(Request $request)
+    public function subUpdate(Request $request)
     {
 
         $rules = [];
@@ -261,21 +261,21 @@ class CategoryController extends Controller
         foreach (locales() as $key => $language) {
             $data['name'][$key] = $request->get('name_' . $key);
         }
-        $sup = SupCategory::query()->withoutGlobalScope('category')->findOrFail($request->uuid);
-        $sup->update($data);
+        $sub = SupCategory::query()->withoutGlobalScope('category')->findOrFail($request->uuid);
+        $sub->update($data);
         if ($request->has('image')) {
-            UploadImage($request->image, SupCategory::PATH_IMAGE, SupCategory::class, $sup->uuid, true, null, Upload::IMAGE);
+            UploadImage($request->image, SupCategory::PATH_IMAGE, SupCategory::class, $sub->uuid, true, null, Upload::IMAGE);
         }
         return response()->json([
             'item_edited'
         ]);
 
     }
-    public function supUpdateStatus($uuid,$status,$sup)
+    public function subUpdateStatus($uuid,$status,$sub)
     {
-        $uuids=explode(',', $sup);
+        $uuids=explode(',', $sub);
 
-        $activate =  SupCategory::query()->withoutGlobalScope('sup')
+        $activate =  SupCategory::query()->withoutGlobalScope('sub')
             ->whereIn('uuid',$uuids)
             ->update([
            'status'=>$status
@@ -284,14 +284,14 @@ class CategoryController extends Controller
             'item_edited'
         ]);
     }
-    public function supDestroy($uuid,$delete)
+    public function subDestroy($uuid,$delete)
     {
 
         try {
             $uuids=explode(',', $delete);
-            $Sup=  SupCategory::whereIn('uuid', $uuids)->get();
+            $sub=  SupCategory::whereIn('uuid', $uuids)->get();
 
-            foreach ($Sup as $item){
+            foreach ($sub as $item){
                 File::delete(public_path(SupCategory::PATH_IMAGE.$item->imageCategory->filename));
                 $item->imageCategory()->delete();
                 $item->delete();

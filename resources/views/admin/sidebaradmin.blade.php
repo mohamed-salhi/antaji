@@ -168,18 +168,7 @@
                                 class="menu-title text-truncate">@lang('artists')</span>
                         </a>
                     </li>
-{{--                    <li class="nav-item {{ request()->routeIs('business.video.index') ? 'active' : '' }} ">--}}
-{{--                        <a class="d-flex align-items-center" href="{{ route('business.video.index') }}">--}}
-{{--                            <i data-feather="file-text"></i><span--}}
-{{--                                class="menu-title text-truncate">@lang('Business Gallery Video')</span>--}}
-{{--                        </a>--}}
-{{--                    </li>--}}
-{{--                    <li class="nav-item {{ request()->routeIs('business.images.index') ? 'active' : '' }} ">--}}
-{{--                        <a class="d-flex align-items-center" href="{{ route('business.images.index') }}">--}}
-{{--                            <i data-feather="file-text"></i><span--}}
-{{--                                class="menu-title text-truncate">@lang('Business photo gallery')</span>--}}
-{{--                        </a>--}}
-{{--                    </li>--}}
+
                     <li class="nav-item {{ request()->routeIs('skills.index') ? 'active' : '' }} ">
                         <a class="d-flex align-items-center" href="{{ route('skills.index') }}">
                             <i data-feather="file-text"></i><span
@@ -197,6 +186,7 @@
                 </ul>
 
             </li>
+
             <li class="nav-item has-sub  " style="">
                 <a class="d-flex align-items-center" href="#">
                     <i class="fa fa-money-bill-alt" style="font-size:24px;"></i>
@@ -211,15 +201,27 @@
                     </li>
 
                 </ul>
-{{--                <ul class="menu-content">--}}
-{{--                    <li class="nav-item {{ request()->routeIs('payments.index') ? 'active' : '' }} ">--}}
-{{--                        <a class="d-flex align-items-center" href="{{ route('payments.index') }}">--}}
-{{--                            <i data-feather="file-text"></i><span--}}
-{{--                                class="menu-title text-truncate">@lang('payment process')</span>--}}
-{{--                        </a>--}}
-{{--                    </li>--}}
+            </li>
+            <li class="nav-item has-sub  " style="">
+                <a class="d-flex align-items-center" href="#">
+                    <i class="fa fa-money-bill-alt" style="font-size:24px;"></i>
+                    <span class="menu-title text-truncate"
+                          data-i18n="Charts">@lang('discount')</span></a>
+                <ul class="menu-content">
+                    <li class="nav-item {{ request()->routeIs('discount.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('discount.index') }}">
+                            <i data-feather="file-text"></i><span
+                                class="menu-title text-truncate">@lang('Promo Codes')</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ request()->routeIs('multidaydiscount.index') ? 'active' : '' }} ">
+                        <a class="d-flex align-items-center" href="{{ route('multidaydiscount.index') }}">
+                            <i data-feather="file-text"></i><span
+                                class="menu-title text-truncate">@lang('multi day discount')</span>
+                        </a>
+                    </li>
 
-{{--                </ul>--}}
+                </ul>
             </li>
             <li class="nav-item has-sub  " style="">
                 @php $count= \App\Models\Contact::query()->where('view',1)->count() @endphp
@@ -241,6 +243,12 @@
 
                 </ul>
 
+            </li>
+            <li class="nav-item {{ request()->routeIs('packages.index') ? 'active' : '' }} ">
+                <a class="d-flex align-items-center" href="{{ route('packages.index') }}">
+                    <i data-feather="file-text"></i><span
+                        class="menu-title text-truncate">@lang('packages')</span>
+                </a>
             </li>
             <li class="nav-item has-sub  " style="">
                 <a class="d-flex align-items-center" href="#">

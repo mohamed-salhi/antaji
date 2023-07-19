@@ -26,6 +26,7 @@ class ProductEditResource extends JsonResource
             'details' => $this->details,
             'lat' => $this->lat,
             'lng' => $this->lng,
+            'address' => $this->address,
             'specifications' => $this->specifications()->select('uuid', 'key', 'value')->get(),
             'images' => $this->attachments,
             'currency' => __('sr')

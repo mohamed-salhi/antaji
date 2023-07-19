@@ -276,11 +276,12 @@
             buttons: [
                 {
                     extend: 'excel',
-                    text: 'Excel',
+                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
                     exportOptions: {
-                        columns: [1,2],
+                        columns: [1,3,4,],
                         modifier: {
-                            page: 'all'
+                            search: 'applied',
+                            order: 'applied'
                         }
                     }
                 }

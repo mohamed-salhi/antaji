@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Home;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AddressResource;
 use App\Http\Resources\artists;
 use App\Http\Resources\BusinessVideoResource;
 use App\Http\Resources\Categories;
@@ -599,8 +600,8 @@ class HomeController extends Controller
 
     public function addDeliveryAddresses(Request $request)
     {
-//        return $request;
         $rules = [
+            'title' => 'required|string',
             'address' => 'required|string',
             'lng' => 'required',
             'lat' => 'required',
@@ -611,7 +612,6 @@ class HomeController extends Controller
                 }),
             ],
             'default' => 'nullable|boolean',
-
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -626,36 +626,43 @@ class HomeController extends Controller
                 'default' => false
             ]);
         }
-        $delivery_addresses = DeliveryAddresses::query()->create($request->only('address', 'lng', 'lat', 'country_uuid', 'city_uuid', 'user_uuid', 'default'));
-
-        return mainResponse(true, "done", $delivery_addresses, [], 200);
-
+        $delivery_addresses = DeliveryAddresses::query()->create($request->only('title','address', 'lng', 'lat', 'country_uuid', 'city_uuid', 'user_uuid', 'default'));
+        return mainResponse(true, "done", [], [], 200);
     }
 
     public function getDeliveryAddresses()
     {
         $user = Auth::guard('sanctum')->user();
-
         $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->paginate();
-
         if ($delivery_addresses) {
-            return mainResponse(true, "done", $delivery_addresses, [], 200);
-
+            $items = pageResource($delivery_addresses, AddressResource::class);
+            return mainResponse(true, "done", compact('items'), [], 200);
         }
         return mainResponse(false, "err", [], ['حصل خطا ما'], 500);
-
     }
 
     public function deleteDeliveryAddresses($uuid)
     {
         DeliveryAddresses::destroy($uuid);
+        if (DeliveryAddresses::query()
+            ->where('user_uuid', auth('sanctum')->id())
+            ->where('default', 1)
+            ->doesntExist()) {
+
+            $deliveryAddress = DeliveryAddresses::query()
+                ->where('user_uuid', auth('sanctum')->id())
+                ->where('user_uuid', auth('sanctum')->id())
+                ->orderByDesc('created_at')->first();
+            $deliveryAddress?->update(['default' => 1]);
+        }
         return mainResponse(true, "done", [], [], 200);
     }
 
-    public function updateDeliveryAddresses(Request $request,$uuid)
+    public function updateDeliveryAddresses(Request $request, $uuid)
     {
         $rules = [
             'address' => 'required|string',
+            'title' => 'required|string',
             'lng' => 'required',
             'lat' => 'required',
             'country_uuid' => 'required|exists:countries,uuid',
@@ -677,33 +684,38 @@ class HomeController extends Controller
         ]);
         $delivery_addresses = DeliveryAddresses::query()->find($uuid);
         if ($delivery_addresses) {
-            $user = Auth::guard('sanctum')->user();
-
-            if ($request->has('default')) {
+            if ($request->default == 1) {
                 DeliveryAddresses::query()->where('user_uuid', $request->user_uuid)->update([
                     'default' => false
                 ]);
+            } else {
+                if (DeliveryAddresses::query()
+                    ->where('user_uuid', auth('sanctum')->id())
+                    ->where('default', 1)
+                    ->doesntExist()) {
+                    $deliveryAddress = DeliveryAddresses::query()
+                        ->where('user_uuid', auth('sanctum')->id())
+                        ->where('user_uuid', auth('sanctum')->id())
+                        ->orderByDesc('created_at')->first();
+                    $deliveryAddress?->update(['default' => 1]);
+                }
             }
-            $delivery_addresses->update($request->only('address', 'lng', 'lat', 'country_uuid', 'city_uuid', 'user_uuid', 'default'));
-            return mainResponse(true, "done", $delivery_addresses, [], 200);
-
+            $delivery_addresses->update($request->only('title','address', 'lng', 'lat', 'country_uuid', 'city_uuid', 'user_uuid', 'default'));
+            return mainResponse(true, "done", [], [], 200);
         } else {
             return mainResponse(false, 'delivery_addresses not found', [], ['delivery_addresses not found'], 101);
-
         }
-
-
     }
-
     public function editDeliveryAddresses($uuid)
     {
-        $counrties = Country::query()->select('name','uuid')
+        $item = DeliveryAddresses::query()->findOrFail($uuid);
+        $item = new AddressResource($item);
+        $countries = Country::query()->select('name', 'uuid')
             ->with('cities')
             ->get()
-        ->makeHidden(['image']);
-        $delivery_addresses= DeliveryAddresses::query()->findOrFail($uuid);
+            ->makeHidden(['image']);
 
-        return mainResponse(true, "done",compact('counrties','delivery_addresses') , [], 200);
+        return mainResponse(true, "done", compact('item', 'countries'), [], 200);
     }
 
 

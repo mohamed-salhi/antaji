@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('order_number');
             $table->string('transaction_id')->nullable();
             $table->string('payment_method_id');
+            $table->string('package_uuid')->nullable();
+
             $table->timestamps();
         });
     }

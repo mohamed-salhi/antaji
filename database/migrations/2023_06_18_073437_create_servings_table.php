@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('status')->default(1);
             $table->double('lat')->nullable();
             $table->double('lng')->nullable();
+            $table->string('address')->nullable();
             $table->foreignUuid('category_contents_uuid');
             $table->foreignUuid('user_uuid');
             $table->double('view')->default(0);

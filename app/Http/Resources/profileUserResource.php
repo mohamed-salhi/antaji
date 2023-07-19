@@ -2,10 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Models\FavoriteUser;
+use App\Models\Package;
 use App\Models\Reviews;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class profileUserResource extends JsonResource
 {
@@ -19,8 +22,8 @@ class profileUserResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'type' => $this->type,
-            'is_verified' => false,
-            'is_favorite' => false,
+            'is_verified' => $this->package->type==Package::VIP,
+            'is_favorite' => FavoriteUser::query()->where('reference_uuid', $this->uuid)->where('user_uuid', Auth::guard('sanctum')->id()),
             'name' => $this->name,
             'lat' => $this->lat,
             'lng' => $this->lng,

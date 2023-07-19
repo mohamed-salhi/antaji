@@ -15,7 +15,7 @@ class Product extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $appends = ['content_type', 'attachments', 'category_name', 'user_name', 'sub_category_name', 'image', 'is_favorite'];
-    protected $hidden = ['imageProduct', 'category', 'cart', 'user', 'supCategory', 'status', 'updated_at', 'created_at'];
+    protected $hidden = ['imageProduct', 'category', 'cart', 'user', 'subCategory', 'status', 'updated_at', 'created_at'];
 
     protected $guarded = [];
     const PATH_PRODUCT = "/upload/product/images/";
@@ -28,7 +28,10 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'user_uuid');
     }
-
+    public function multiDayDiscount()
+    {
+        return $this->belongsTo(MultiDayDiscount::class, 'multi_day_discount_uuid');
+    }
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_uuid');
@@ -44,7 +47,7 @@ class Product extends Model
         return $this->hasMany(Favorite::class, 'content_uuid');
     }
 
-    public function supCategory()
+    public function subCategory()
     {
         return $this->belongsTo(SupCategory::class, 'sub_category_uuid');
     }
@@ -92,7 +95,7 @@ class Product extends Model
 
     public function getSubCategoryNameAttribute()
     {
-        return @$this->supCategory->name;
+        return @$this->subCategory->name;
     }
 
     public function getUserNameAttribute()

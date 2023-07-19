@@ -227,7 +227,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('save changes')</button>
+                            <button class="btn btn-primary done">@lang('save changes')</button>
                         </div>
                     </div>
                 </form>
@@ -248,6 +248,8 @@
             processing: true,
             serverSide: true,
             responsive: true,
+            lengthMenu: [[25, 100, -1], [25, 100, "All"]],
+
             "bFilter": false,
             "oLanguage": {
                 @if (app()->isLocale('ar'))
@@ -275,15 +277,15 @@
                 }
             },
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
+            pageLength: 25,
             buttons: [
                 {
                     extend: 'excel',
-                    text: 'Excel',
+                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
                     exportOptions: {
-                        columns: [1],
                         modifier: {
-                            page: 'all',
-                            search: 'none'
+                            search: 'applied',
+                            order: 'applied'
                         }
                     }
                 }

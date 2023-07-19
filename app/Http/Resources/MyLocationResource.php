@@ -21,7 +21,7 @@ class MyLocationResource extends JsonResource
             'uuid' => $this->uuid,
             'name' => $this->name,
             'image' => $this->image,
-            'categories_name' =>CategoryResource::collection($this->categories) ,
+            'categories_name' => implode(', ', $this->categories->pluck('name')->toArray()) ,
             'price' => $this->price,
             'currency' => __('sr')
         ];

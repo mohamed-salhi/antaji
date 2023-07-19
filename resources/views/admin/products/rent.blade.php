@@ -109,8 +109,8 @@
                                         </div>
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="s_sup_category_uuid">@lang('sub categories')</label>
-                                                <select name="sup_category_uuid" id="s_sup_category_uuid"
+                                                <label for="s_sub_category_uuid">@lang('sub categories')</label>
+                                                <select name="sub_category_uuid" id="s_sub_category_uuid"
                                                         class="search_input form-control">
                                                     <option selected
                                                             disabled>@lang('select')  @lang('sub categories')</option>
@@ -155,7 +155,7 @@
                                         <th>@lang('product name')</th>
                                         <th>@lang('price')</th>
                                         <th>@lang('category')</th>
-                                        <th>@lang('sup category')</th>
+                                        <th>@lang('sub category')</th>
                                         <th>@lang('status')</th>
                                         <th style="width: 225px;">@lang('actions')</th>
                                     </tr>
@@ -230,10 +230,10 @@
                         </div>
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="">@lang('sup category')</label>
-                                <select name="sup_category_uuid" id="sup_category_uuid" class="select form-control"
+                                <label for="">@lang('sub category')</label>
+                                <select name="sub_category_uuid" id="sub_category_uuid" class="select form-control"
                                         data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                    <option selected disabled>Select @lang('sup category')</option>
+                                    <option selected disabled>Select @lang('sub category')</option>
 
                                 </select>
                                 <div class="invalid-feedback"></div>
@@ -340,10 +340,10 @@
                         </div>
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="">@lang('sup category')</label>
-                                <select name="sup_category_uuid" id="edit_sup_category_uuid" class="select form-control"
+                                <label for="">@lang('sub category')</label>
+                                <select name="sub_category_uuid" id="edit_sub_category_uuid" class="select form-control"
                                         data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                    <option selected disabled>Select @lang('sup category')</option>
+                                    <option selected disabled>Select @lang('sub category')</option>
 
                                 </select>
                                 <div class="invalid-feedback"></div>
@@ -406,7 +406,7 @@
                 url: '{{ route('products.rent.indexTable', app()->getLocale()) }}',
                 data: function (d) {
                     d.status = $('#s_status').val();
-                    d.sup_category_uuid = $('#s_sup_category_uuid').val();
+                    d.sub_category_uuid = $('#s_sub_category_uuid').val();
                     d.category_uuid = $('#s_category_uuid').val();
                     d.user_name = $('#s_user_name').val();
                     d.price = $('#s_price').val();
@@ -418,12 +418,12 @@
             buttons: [
                 {
                     extend: 'excel',
-                    text: 'Excel',
+                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
                     exportOptions: {
-                        // columns: [1],
+                        columns: [1,2,3,4,5,6],
                         modifier: {
-                            page: 'all',
-                            search: 'none'
+                            search: 'applied',
+                            order: 'applied'
                         }
                     }
                 }
@@ -457,8 +457,8 @@
                     searchable: false,
                 },
                 {
-                    data: 'sup_category_name',
-                    name: 'sup_category_name',
+                    data: 'sub_category_name',
+                    name: 'sub_category_name',
                     orderable: false,
                     searchable: false,
                 }, {
@@ -487,16 +487,16 @@
                         dataType: "json",
                         success: function (data) {
                             console.log('ccc')
-                            $('select[name="sup_category_uuid"]').empty();
-                            $('select[name="sup_category_uuid"]').append(`
-                                 <option selected  disabled>Select @lang('sup category')</option>
+                            $('select[name="sub_category_uuid"]').empty();
+                            $('select[name="sub_category_uuid"]').append(`
+                                 <option selected  disabled>Select @lang('sub category')</option>
                                  `)
                             $.each(data, function (key, value) {
-                                $('select[name="sup_category_uuid"]').append('<option value="' +
+                                $('select[name="sub_category_uuid"]').append('<option value="' +
                                     key + '">' + value + '</option>');
                             });
                             if (sub_category_uuid != null) {
-                                $('#edit_sup_category_uuid').val(sub_category_uuid).trigger('change')
+                                $('#edit_sub_category_uuid').val(sub_category_uuid).trigger('change')
                             }
                         },
                     });
@@ -547,7 +547,7 @@ console.log()
                 $('#edit_price').val(button.data('price'))
                 $('#edit_details').val(button.data('details'))
                 $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
-                $('#edit_category_uuid').attr('data-sub_category_uuid', button.data('sup_category_uuid'))
+                $('#edit_category_uuid').attr('data-sub_category_uuid', button.data('sub_category_uuid'))
                 $('#edit_category_uuid').val(button.data('category_uuid')).trigger('change');
             });
         });

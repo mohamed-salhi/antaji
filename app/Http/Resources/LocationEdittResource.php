@@ -22,6 +22,8 @@ class LocationEdittResource extends JsonResource
             'categories'=>CategoriesLocation::collection($this->categories()->select('uuid','name','type')->get()),
             'lat' => $this->lat,
             'lng' => $this->lng,
+            'address' => $this->address,
+
             'images'=>$this->attachments,
             'currency' => __('sr')
         ];

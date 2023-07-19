@@ -214,7 +214,7 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
 
 }
 
-function sendGCM($message, $id, $type)
+function sendFCM($message, $id, $type)
 {
 
 

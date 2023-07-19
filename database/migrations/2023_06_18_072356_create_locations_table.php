@@ -19,6 +19,7 @@ return new class extends Migration
             $table->double('view')->default(0);
             $table->double('lat')->nullable();
             $table->double('lng')->nullable();
+            $table->string('address')->nullable();
             $table->string('price');
             $table->foreignUuid('category_contents_uuid');
             $table->text('details');

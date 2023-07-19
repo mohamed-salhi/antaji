@@ -23,17 +23,17 @@ class Course extends Model
     //Relations
     public function imageCourse()
     {
-        return $this->morphOne(Upload::class, 'imageable')->where('type', Upload::IMAGE);
+        return @$this->morphOne(Upload::class, 'imageable')->where('type', Upload::IMAGE);
     }
 
     public function videoCourse()
     {
-        return $this->morphOne(Upload::class, 'imageable')->where('type', Upload::VIDEO)->where('name', 'demonstration video');
+        return @$this->morphOne(Upload::class, 'imageable')->where('type', Upload::VIDEO)->where('name', 'demonstration video');
     }
 
     public function videosCourse()
     {
-        return $this->morphMany(Upload::class, 'imageable')->where('type', Upload::VIDEO);
+        return @$this->morphMany(Upload::class, 'imageable')->where('type', Upload::VIDEO)->whereNull('name');
     }
 
     public function user()

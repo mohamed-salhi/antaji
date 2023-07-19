@@ -6,7 +6,10 @@ namespace App\Http\Controllers\Admin\PaymentGateway;
 use App\Http\Controllers\Controller;
 use App\Models\BookingDay;
 use App\Models\Cart;
+use App\Models\FcmToken;
+use App\Models\NotificationUser;
 use App\Models\Order;
+use App\Models\PackageUser;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Models\User;
@@ -94,13 +97,52 @@ class PaymentGatewayController extends Controller
         if ($responseData['result']['code'] == '000.100.110') {
 
             $payment = Payment::query()->where('transaction_id', $request->id)->first();
+            if ($payment->package_uuid) {
+                User::query()->where('uuid',$payment->user_uuid)->update([
+                    'package_uuid' => $payment->package_uuid
+                ]);
+//                PackageUser::query()->where('user_uuid',$payment->user_uuid)->update([
+//                    'status' => false
+//                ]);
+//                PackageUser::query()->create([
+//                    'package_uuid' => $payment->package_uuid,
+//                    'user_uuid' => $payment->user_uuid,
+//                ]);
+                $payment->update([
+                    'status' => Payment::COMPLETE
 
+                ]);
+                return 'Payment Done';
+            }
 
             $orders = Order::query()
                 ->where('order_number', $payment->order_number)
                 ->withoutGlobalScope('status')
                 ->get();
             foreach ($orders as $item) {
+                $ios_tokens = FcmToken::query()
+                    ->where("user_uuid", $item->content->user_uuid)
+                    ->where('fcm_device', 'ios')
+                    ->pluck('fcm_token')->toArray();
+                $android_tokens = FcmToken::query()
+                    ->where("user_uuid", $item->content->user_uuid)
+                    ->where('fcm_device', 'android')
+                    ->pluck('fcm_token')->toArray();
+                $msg = [$item->content->name . __('There is a new order')];
+                NotificationUser::query()->create([
+                    'receiver_uuid' => $item->content->user_uuid,
+                    'sender_uuid' => $item->user_uuid,
+                    'content' => ['en' => $item->content->name . 'There is a new order', 'ar' => $item->content->name . 'هناك طلب جديد'],
+                    'type' => ('There_is_a_new_order')
+                ]);
+                if ($ios_tokens) {
+                    sendFCM($msg, $ios_tokens, "ios");
+                }
+                if ($android_tokens) {
+                    sendFCM($msg, $android_tokens, "android");
+                }
+
+
                 if (isset($item->start) && isset($item->end)) {
                     $startDate = Carbon::parse($item->start);
                     $endDate = Carbon::parse($item->end);
@@ -117,20 +159,20 @@ class PaymentGatewayController extends Controller
                 }
             }
 
-            if ($orders[0]->content_type=='course'){
-                 Order::query()
+            if ($orders[0]->content_type == 'course') {
+                Order::query()
                     ->where('order_number', $payment->order_number)
                     ->withoutGlobalScope('status')
                     ->update([
-                    'status' => Order::BUGING_SUCCEEDED
-                ]);
-            }else{
-               Order::query()
+                        'status' => Order::BUGING_SUCCEEDED
+                    ]);
+            } else {
+                Order::query()
                     ->where('order_number', $payment->order_number)
                     ->withoutGlobalScope('status')
                     ->update([
-                    'status' => Order::PENDING
-                ]);
+                        'status' => Order::PENDING
+                    ]);
             }
             $content_uuid = Order::query()->where('order_number', $payment->order_number)->withoutGlobalScope('status')->pluck('content_uuid');
             Cart::query()

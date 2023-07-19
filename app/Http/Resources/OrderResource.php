@@ -17,18 +17,19 @@ class OrderResource extends JsonResource
         $daysDifference = @$endDate->diffInDays(@$startDate);
         $item= [
             'uuid'=>$this->uuid,
-            'name'=>$this->content->name,
+            'name'=>@$this->content->name,
             'price'=>@$this->content->price,
-
             'image'=>@$this->content->image,
-            'count'=>@$daysDifference
-        ];
 
+        ];
+if ($daysDifference){
+    $item['count']= $daysDifference;
+
+}
         if ($request->has('owner')){
             $item['status']=($this->status==Order::PENDING)?__('new'):$this->status;
         }else{
             $item['status']=$this->status;
-
         }
 
         return $item;

@@ -32,7 +32,7 @@ class ProductRentController extends Controller
             'price' => 'required|int',
             'details' => 'required',
             'category_uuid' => 'required|exists:categories,uuid',
-            'sup_category_uuid' => 'required|exists:sup_categories,uuid',
+            'sub_category_uuid' => 'required|exists:sub_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
         ];
 
@@ -40,7 +40,7 @@ class ProductRentController extends Controller
         $request->merge([
            'type'=>'rent'
         ]);
-        $product= Product::query()->create($request->only('sale','user_uuid','name','price','details','sup_category_uuid','category_uuid','type'));
+        $product= Product::query()->create($request->only('sale','user_uuid','name','price','details','sub_category_uuid','category_uuid','type'));
         Content::query()->create([
             'content_uuid'=>$product->uuid,
             'user_uuid'=>$request->user_uuid,
@@ -64,7 +64,7 @@ class ProductRentController extends Controller
             'price' => 'required|int',
             'details' => 'required',
             'category_uuid' => 'required|exists:categories,uuid',
-            'sup_category_uuid' => 'required|exists:sup_categories,uuid',
+            'sub_category_uuid' => 'required|exists:sub_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
         ];
 
@@ -137,8 +137,8 @@ class ProductRentController extends Controller
                 if ($request->category_uuid) {
                     $query->where('category_uuid', $request->category_uuid);
                 }
-                if ($request->sup_category_uuid) {
-                    $query->where('sup_category_uuid', $request->sup_category_uuid);
+                if ($request->sub_category_uuid) {
+                    $query->where('sub_category_uuid', $request->sub_category_uuid);
                 }
 //
             })
@@ -153,7 +153,7 @@ class ProductRentController extends Controller
                 $data_attr .= 'data-details="' . $que->details . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-category_uuid="' . $que->category_uuid . '" ';
-                $data_attr .= 'data-sup_category_uuid="' . $que->sup_category_uuid . '" ';
+                $data_attr .= 'data-sub_category_uuid="' . $que->sub_category_uuid . '" ';
                 $data_attr .= 'data-images_uuid="' . implode(',', $que->imageProduct->pluck('uuid')->toArray()) .'" ';
                 $data_attr .= 'data-images="' . implode(',', $que->imageProduct->pluck('filename')->toArray()) .'" ';
 
@@ -188,9 +188,9 @@ class ProductRentController extends Controller
             ->rawColumns(['action', 'status'])->toJson();
     }
 
-    public function updateStatus($status,$sup)
+    public function updateStatus($status,$sub)
     {
-        $uuids=explode(',', $sup);
+        $uuids=explode(',', $sub);
 
         $product =  Product::query()->withoutGlobalScope('status')
             ->whereIn('uuid',$uuids)

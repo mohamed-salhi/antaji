@@ -544,7 +544,7 @@
     "sub title": "العنوان الفرعي",
     "skills": "المهارات",
     "specializations": "التخصصات",
-    "sup category": "الفئة الفرعية",
+    "sub category": "الفئة الفرعية",
     "sub categories": "الفئات الفرعية",
     "location owner": "مالك الموقع",
     "location name": "اسم الموقع",
@@ -569,7 +569,6 @@
     "Artist name": "اسم الفنان",
     "location count": "عدد المواقع",
     "services count": "عدد الخدمات",
-    "Fixed price": "سعر ثابت",
     "contract": "عقد",
     "hour": "ساعة",
     "count": "عدد",
@@ -584,5 +583,24 @@
     "The most prominent artists": "أبرز الفنانين",
     "Latest filming locations": "أحدث مواقع التصوير",
     "Product of professionals": "نتاج المحترفين",
-    "rent products": "المنتجات التاجبر"
+    "rent products": "المنتجات التاجبر",
+    "Promo Codes": "كابونات الخصم",
+    "number of usage": "عدد الاستخدام",
+    "number of usage for user": "عدد الاستخدام للمستخدم",
+    "percent": "نسبه مئويه",
+    "fixed price": "سعر ثابت",
+    "discount type": "نوع الخصم",
+    "Where do you use it?": "اين تستخدم؟",
+    "Excel Export": "طباعة بالاكسل",
+    "multi day discount": "خصومات متعددة الايام",
+    "packages": "الباقات",
+    "percentage of sale": "النسبة من البيع",
+    "number of products in each section": "عدد المنتجات في كل قسم",
+    "quality": "الجودة",
+    "Complimentary": "مجاني",
+    "Multi-day discounts": "خصومات متعددة الايام",
+    "package price": "سعر الباقة",
+    "has expired": "انتهت صلاحيته"
+
+
 }

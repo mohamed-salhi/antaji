@@ -24,6 +24,7 @@ class ProductResource extends JsonResource
         ];
 
         if ($request->uuid) {
+            $item['type'] = $this->type;
             $item['is_favorite'] = $this->is_favorite;
             $item['attachments'] = $this->attachments;
             $item['details'] = $this->details;

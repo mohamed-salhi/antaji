@@ -110,8 +110,8 @@
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('name')</th>
-                                        <th>@lang('sup category')</th>
-                                        <th>@lang('count') @lang('sup category')</th>
+                                        <th>@lang('sub category')</th>
+                                        <th>@lang('count') @lang('sub category')</th>
                                         <th>@lang('count') @lang('products')</th>
                                         <th>@lang('image')</th>
                                         <th>@lang('status')</th>
@@ -331,8 +331,8 @@
                     searchable: false
                 },
                 {
-                    data: 'sup-category',
-                    name: 'sup-category',
+                    data: 'sub-category',
+                    name: 'sub-category',
                     orderable: false,
                     searchable: false
                 },
