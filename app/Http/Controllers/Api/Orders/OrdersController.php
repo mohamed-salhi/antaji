@@ -11,6 +11,7 @@ use App\Http\Resources\OrderResource;
 use App\Http\Resources\OrderResourcer;
 use App\Http\Resources\ProductHomeResource;
 use App\Http\Resources\ServingOrderResource;
+use App\Http\Resources\ServingTrakingResource;
 use App\Http\Resources\UserOrderResource;
 use App\Models\BookingDay;
 use App\Models\Cart;
@@ -140,6 +141,7 @@ class OrdersController extends Controller
 
         $request->merge([
             'multi_day_discounts' => $content->price * (@$content->multiDayDiscount->rate / 100) * -1,
+            'delivery_uuid' => @$content->delivery->delivery,
             'commission' => $content->price * doubleval($user->commission),
             'price' => $content->price,
             'user_uuid' => $user->uuid,
@@ -153,11 +155,10 @@ class OrdersController extends Controller
             return mainResponse(false, 'this content in found', [], ['uuid not found'], 101);
 
         }
-        Cart::query()->create($request->only('user_uuid', 'multi_day_discounts', 'price', 'commission', 'end', 'start', 'type', 'content_uuid'));
+        Cart::query()->create($request->only('user_uuid', 'multi_day_discounts', 'delivery_uuid', 'price', 'commission', 'end', 'start', 'type', 'content_uuid'));
         return mainResponse(true, 'done', [], [], 200);
 
     }
-
 
     public function getCart(Request $request, $uuid = null)
     {
@@ -222,9 +223,17 @@ class OrdersController extends Controller
             if ($count >= $discount->number_of_usage_for_user) {
                 return mainResponse(false, __('has expired'), [], []);
             }
+            if (DiscountUser::query()
+                ->where('user_uuid', $user->uuid)
+                ->where('discount_uuid', $discount->uuid)
+                ->where('owner_user_uuid', $user_uuid)
+                ->exists()) {
+                return mainResponse(false, __('is already'), [], []);
+            }
             DiscountUser::query()->create([
                 'user_uuid' => $user->uuid,
                 'discount_uuid' => $discount->uuid,
+                'owner_user_uuid' => $user_uuid,
             ]);
             Cart::query()
                 ->where(function (Builder $q) use ($user_uuid) {
@@ -255,7 +264,7 @@ class OrdersController extends Controller
 
         $bill[] = [
             'title' => __('Multi-day discounts'),
-            'amount' =>$multi_day_discounts * -1
+            'amount' => $multi_day_discounts * -1
         ];
         $discount = Cart::query()
             ->where(function (Builder $q) use ($user_uuid) {
@@ -278,10 +287,11 @@ class OrdersController extends Controller
             } else {
                 $discount_amount = $sub_total * ($discount->discount / 100);
             }
-
+            $uuid = DiscountUser::query()->where('user_uuid', $user->uuid)->where('discount_uuid', $discount->uuid)->value('uuid');
             $bill[] = [
                 'title' => __('discounts'),
-                'amount' => strval($discount_amount * -1)
+                'amount' => strval($discount_amount * -1),
+                'uuid' => $uuid
             ];
             $sub_total -= $discount_amount;
         }
@@ -309,7 +319,6 @@ class OrdersController extends Controller
 
     }
 
-
     public function deteteCart($uuid)
     {
         Cart::query()
@@ -318,7 +327,6 @@ class OrdersController extends Controller
             ->delete();
         return mainResponse(true, 'done', [], [], 200);
     }
-
 
     public function editCart($uuid)
     {
@@ -336,7 +344,7 @@ class OrdersController extends Controller
             'amount' => number_format($cart->price * $cart->days_count),
         ];
         $multi_day_discounts += $cart->multi_day_discounts;
-        $sub_total += number_format($cart->price * $cart->days_count, 0, '.', '');
+        $sub_total .= number_format($cart->price * $cart->days_count, 0, '.', '');
 
 
         $bill[] = [
@@ -352,7 +360,7 @@ class OrdersController extends Controller
 
         $bill[] = [
             'title' => __('total'),
-            'amount' => strval($sub_total  - $multi_day_discounts)
+            'amount' => strval($sub_total - $multi_day_discounts)
         ];
         $currency = __('sr');
 
@@ -394,6 +402,38 @@ class OrdersController extends Controller
         }
     }
 
+    public function pledge($user_uuid)
+    {
+        $user = Auth::guard('sanctum')->user();
+        $between = [
+            UserOrderResource::make($user),
+            UserOrderResource::make(User::query()->findOrFail($user_uuid))
+        ];
+        $cart = Cart::query()
+            ->where(function (Builder $q) use ($user_uuid) {
+                $q->whereHas('products', function (Builder $query) use ($user_uuid) {
+                    $query->where('user_uuid', $user_uuid);
+                })->orWhereHas('locations', function (Builder $query) use ($user_uuid) {
+                    $query->where('user_uuid', $user_uuid);
+                });
+            })
+            ->where('user_uuid', $user->uuid)
+            ->get();
+        $rentalDates = [];
+
+        foreach ($cart as $item) {
+            $rentalDates[] = [
+                'count' => $item->days_count,
+                'start' => $item->start,
+                'end' => $item->end,
+            ];
+        }
+
+        return mainResponse(true, 'ok', compact('between', 'rentalDates'), []);
+
+
+    }
+
     public function getPagePayRent(Request $request)
     {
         $user_uuid = $request->user_uuid;
@@ -401,7 +441,7 @@ class OrdersController extends Controller
 
         $user = Auth::guard('sanctum')->user();
         $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->where('default', 1)->select('address', 'uuid', 'country_uuid', 'city_uuid')->first();
-        $payment_gateway = PaymentGateway::all();
+        $payment_methods = PaymentGateway::all();
 
         if ($request->has('user_uuid')) {
             if (User::query()->where('uuid', $user_uuid)->doesntExist()) {
@@ -421,15 +461,11 @@ class OrdersController extends Controller
                 return mainResponse(false, 'cart empty', [], [], 101);
             }
 
-//            $commission = $cart->sum('commission');
-//            $price_with_day = $cart->sum('price_with_day');
-//            $multi_day_discounts = $cart->sum('multi_day_discounts');
-//            $balnce = $commission + $price_with_day + $multi_day_discounts;
-            $user = User::query()->findOrFail($user_uuid);
-            $user = [
-                'image' => $user->image,
+            $user_owner = User::query()->findOrFail($user_uuid);
+            $user_owner = [
+                'image' => $user_owner->image,
                 'count' => $cart->count(),
-                'name' => $user->name,
+                'name' => $user_owner->name,
             ];
 
             $bill = [];
@@ -446,11 +482,11 @@ class OrdersController extends Controller
                 'title' => __('products') . ',' . __('locations'),
                 'amount' => number_format($sub_total),
             ];
-
             $bill[] = [
                 'title' => __('Multi-day discounts'),
                 'amount' => number_format($multi_day_discounts * -1, 0, '.', '')
             ];
+
             $discount = Cart::query()
                 ->where(function (Builder $q) use ($user_uuid) {
                     $q->whereHas('products', function (Builder $query) use ($user_uuid) {
@@ -459,7 +495,7 @@ class OrdersController extends Controller
                         $query->where('user_uuid', $user_uuid);
                     });
                 })
-                ->where('user_uuid', $user->uuid)
+                ->where('user_uuid', \auth('sanctum')->id())
                 ->whereNotNull('discount_uuid')
                 ->first();
 
@@ -477,6 +513,7 @@ class OrdersController extends Controller
                 $sub_total -= $discount_amount;
             }
 
+
             $commission = number_format($sub_total * $user->commission);
             $bill[] = [
                 'title' => __('commission'),
@@ -490,82 +527,13 @@ class OrdersController extends Controller
 
             $currency = __('sr');
 
-        } elseif ($request->has('content_uuid') && $request->has('content_type')) {
-            $settings = Setting::query()->first();
-
-            if ($request->content_type == "product") {
-                $content = Product::query()->findOrFail($request->content_uuid);
-                $invoice = [
-                    'commission' => $settings->commission,
-                    'delivery' => 10,
-                    'price' => $content->price,
-                    'all' => $settings->commission + 10 + $content->price
-                ];
-                $product = [
-                    'name' => $content->name,
-                    'image' => $content->image,
-                    'category_name' => $content->category_name,
-
-                    'price' => $content->price,
-                ];
-                return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'invoice', 'product'), []);
-
-            } elseif ($request->content_type == "course") {
-                $content = Course::query()->findOrFail($request->content_uuid);
-                $invoice = [
-                    'commission' => $settings->commission,
-                    'price' => $content->price,
-                    'all' => $settings->commission + 10 + $content->price
-                ];
-                $user = [
-                    'name' => $content->user->name,
-                    'image' => $content->user->image,
-                ];
-                $course = [
-                    'name' => $content->name,
-                    'image' => $content->image,
-                    'price' => $content->price,
-                ];
-                return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'invoice', 'user', 'course'), []);
-
-            } elseif ($request->content_type == "service") {
-
-                $content = Serving::query()->findOrFail($request->content_uuid);
-
-                $startDate = Carbon::parse($content->from);
-                $endDate = Carbon::parse($content->to);
-                $daysDifference = $endDate->diffInDays($startDate);
-                $invoice = [
-                    'commission' => $settings->commission,
-                    'price' => $content->price,
-                    'all' => $settings->commission + 10 + $content->price
-                ];
-                $user = [
-                    'name' => $content->user_name,
-                    'image' => $content->user->image,
-//                    'specialization_name'=>$content->user->specialization_name,
-
-                ];
-                $service = [
-                    'name' => $content->name,
-                    'start' => $content->from,
-                    'end' => $content->to,
-                    'price' => $content->price,
-                    'count' => $daysDifference
-                ];
-                return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'invoice', 'user', 'service'), []);
-
-            } else {
-                return mainResponse(false, 'type must product,service,course', [], [], 101);
-
-            }
+            return mainResponse(true, 'ok', compact('payment_methods', 'delivery_addresses', 'bill', 'user_owner', 'currency'), []);
 
         } else {
-            return mainResponse(false, 'type not found', [], [], 101);
+            return mainResponse(false, 'user not found', [], [], 101);
 
         }
 
-        return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'bill', 'user', 'currency'), []);
 
     }
 
@@ -574,12 +542,13 @@ class OrdersController extends Controller
         $content_uuid = $request->content_uuid;
 
         $user = Auth::guard('sanctum')->user();
-        $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->where('default', 1)->select('address', 'uuid', 'country_uuid', 'city_uuid')->first();
-        $payment_gateway = PaymentGateway::all();
+        $payment_methods = PaymentGateway::all();
         if ($request->has('content_uuid') && $request->has('content_type')) {
             $bill = [];
 
             if ($request->content_type == "product") {
+                $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->where('default', 1)->select('address', 'uuid', 'country_uuid', 'city_uuid')->first();
+
                 $content = Product::query()->findOrFail($content_uuid);
                 $bill[] = [
                     'title' => __('products'),
@@ -601,7 +570,7 @@ class OrdersController extends Controller
                 ];
                 $sub_total = $content->price;
 
-                $user = [
+                $user_owner = [
                     'name' => $content->user->name,
                     'image' => $content->user->image,
                 ];
@@ -610,15 +579,14 @@ class OrdersController extends Controller
                     'image' => $content->image,
                     'price' => $content->price,
                 ];
-            }
-              elseif ($request->content_type == "service") {
+            } elseif ($request->content_type == "service") {
 
                 $content = Serving::query()->findOrFail($request->content_uuid);
-                  $bill[] = [
-                      'title' => __('service'),
-                      'amount' => number_format($content->price, 0, '.', '')
-                  ];
-                  $sub_total = $content->price;
+                $bill[] = [
+                    'title' => __('service'),
+                    'amount' => number_format($content->price, 0, '.', '')
+                ];
+                $sub_total = $content->price;
                 $startDate = Carbon::parse($content->from);
                 $endDate = Carbon::parse($content->to);
                 $daysDifference = $endDate->diffInDays($startDate);
@@ -627,11 +595,11 @@ class OrdersController extends Controller
 //                    'price' => $content->price,
 //                    'all' => $settings->commission + 10 + $content->price
 //                ];
-                $user = [
+                $user_owner = [
                     'name' => $content->user_name,
                     'image' => $content->user->image,
                 ];
-                  $item = [
+                $item = [
                     'name' => $content->name,
                     'start' => $content->from,
                     'end' => $content->to,
@@ -645,7 +613,10 @@ class OrdersController extends Controller
             $discount = 0;
             if ($request->code) {
                 $discount = Discount::query()
-                    ->where('code', $request->code)->first();
+                    ->where('code', $request->code)
+                    ->whereDate('date_from', '<', date('y-m-d'))
+                    ->whereDate('date_to', '>', date('y-m-d'))
+                    ->first();
                 if (!$discount) {
                     return mainResponse(false, __('Code not found'), [], []);
                 }
@@ -663,6 +634,7 @@ class OrdersController extends Controller
                 DiscountUser::query()->create([
                     'user_uuid' => $user->uuid,
                     'discount_uuid' => $discount->uuid,
+                    'owner_user_uuid' => $content->user->uuid,
                 ]);
             }
             if ($discount) {
@@ -690,16 +662,35 @@ class OrdersController extends Controller
                 'amount' => number_format($sub_total + intval($commission))
             ];
             if ($request->content_type == "product") {
-                return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'item', 'bill'), []);
+                return mainResponse(true, 'ok', compact('payment_methods', 'delivery_addresses', 'item', 'bill'), []);
 
             } else {
-                return mainResponse(true, 'ok', compact('payment_gateway', 'delivery_addresses', 'user', 'item', 'bill'), []);
+                return mainResponse(true, 'ok', compact('payment_methods', 'user_owner', 'item', 'bill'), []);
 
             }
         } else {
             return mainResponse(false, 'type not found', [], [], 101);
         }
 
+
+    }
+
+    public function deleteDiscount($uuid, $user_uuid)
+    {
+        Cart::query()
+            ->where(function (Builder $q) use ($user_uuid) {
+                $q->whereHas('products', function (Builder $query) use ($user_uuid) {
+                    $query->where('user_uuid', $user_uuid);
+                })->orWhereHas('locations', function (Builder $query) use ($user_uuid) {
+                    $query->where('user_uuid', $user_uuid);
+                });
+            })
+            ->where('user_uuid', \auth('sanctum')->id())
+            ->update([
+                'discount_uuid' => null
+            ]);
+        DiscountUser::query()->where('user_uuid', \auth('sanctum')->id())->where('uuid', $uuid)->delete();
+        return mainResponse(true, 'done', [], [], 200);
 
     }
 
@@ -710,12 +701,12 @@ class OrdersController extends Controller
                 Rule::exists(PaymentGateway::class, 'id')->where(function ($q) {
                     $q->where('status', 1);
                 })],
-            'delivery_addresses_uuid' => 'nullable|exists:delivery_addresses,uuid',
-            'content_type' => 'nullable|in:product,serving,course',
+//            'delivery_addresses_uuid' => 'nullable|exists:delivery_addresses,uuid',
+            'content_type' => 'nullable|in:product,service,course',
             'content_uuid' => 'nullable',
             'user_uuid' => 'nullable|exists:users,uuid',
-            'start' => 'nullable|date|after:' . date('Y/m/d'),
-            'end' => 'nullable|date|after:' . $request->start,
+            'start' => 'nullable|date_format:"Y-m-d"|after:' . date('Y/m/d'),
+            'end' => 'nullable|date_format:"Y-m-d"|after_or_equal:' . $request->start,
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -726,51 +717,52 @@ class OrdersController extends Controller
         $user = Auth::guard('sanctum')->user();
 
 
-        if ($request->has('content_type') && $request->has('content_uuid'))
-        {
+        if ($request->has('content_type') && $request->has('content_uuid')) {
 
             if ($request->content_type == "product") {
-                $content = Product::query()->findOrFail($request->content_uuid);
+                $content = Product::query()->find($request->content_uuid);
+                $delivery_addresses_uuid = DeliveryAddresses::query()
+                    ->where('user_uuid', $user->uuid)
+                    ->where('default', 1)
+                    ->value('uuid');
             } elseif ($request->content_type == "course") {
-                $content = Course::query()->findOrFail($request->content_uuid);
-            } elseif ($request->content_type == "serving") {
-                $content = Serving::query()->findOrFail($request->content_uuid);
-//                return $content->price;
+                $content = Course::query()->find($request->content_uuid);
+            } elseif ($request->content_type == "service") {
+                $content = Serving::query()->find($request->content_uuid);
             }
-//            if (!$content->name) {
-//                return mainResponse(false, 'content not found', [], [], 101);
-//            }
-            $settings = Setting::query()->first();
+            if (!$content) {
+                return mainResponse(false, 'content not found', [], [], 101);
+            }
+            $commission = number_format($content->price * $user->commission);
+            $balance = $content->price + $commission;
 
             $data = [
                 'order_number' => Carbon::now()->timestamp . '' . rand(1000, 9999),
-                'commission' => $settings->commission,
+                'commission' => $user->commission,
                 'user_uuid' => $user->uuid,
                 'content_type' => $request->content_type,
-                'delivery_addresses_uuid' => @$request->delivery_addresses_uuid,
+                'delivery_addresses_uuid' => @$delivery_addresses_uuid,
                 'content_uuid' => $request->content_uuid,
-//                'price_with_day' => $content->price,
+                'price' => $content->price,
                 'payment_method_id' => $request->payment_method_id,
             ];
             if ($request->content_type == 'product') {
                 $data['type'] = 'sale';
                 $data['delivery'] = 10;
-                $balnce = 10 + intval($content->price) * $settings->commission;//10 delivery
-            } elseif ($request->content_type == 'serving' && $request->has('start') && $request->has('end')) {
+                $balance = 10 + $balance;//10 delivery
+            } elseif ($request->content_type == 'service' && $request->has('start') && $request->has('end')) {
                 $data['start'] = $request->start;
                 $data['end'] = $request->end;
-                $balnce = intval($content->price) * $settings->commission;
+
 
             } elseif ($request->content_type == 'course') {
-                $balnce = $content->price * $settings->commission;
                 unset($data['delivery_addresses_uuid']);
             } else {
                 return mainResponse(false, 'content not found', [], [], 404);
             }
             $order = Order::create($data);
 
-        }
-        elseif ($request->has('user_uuid')) {
+        } elseif ($request->has('user_uuid')) {
             $uuid = $request->user_uuid;
             $cart = Cart::query()
                 ->where(function (Builder $q) use ($uuid) {
@@ -804,14 +796,14 @@ class OrdersController extends Controller
             }
 
             $order_number = Carbon::now()->timestamp . '' . rand(1000, 9999);
-            $multi_day_discounts=0;
-            $sub_total =0;
+            $multi_day_discounts = 0;
+            $sub_total = 0;
 
             foreach ($cart as $item) {
                 $order = Order::create([
                     'delivery_addresses_uuid' => $request->delivery_addresses_uuid,
                     'order_number' => $order_number,
-                    'price' => $item->price_with_day,
+                    'price' => $item->price,
                     'multi_day_discounts' => $item->multi_day_discounts,
                     'discount_uuid' => $item->discount_uuid,
                     'payment_method_id' => $request->payment_method_id,
@@ -824,25 +816,31 @@ class OrdersController extends Controller
                 ]);
 
                 $multi_day_discounts += $item->multi_day_discounts;
-                $sub_total +=$item->price* $item->days_count;
+                $sub_total += $item->price * $item->days_count;
 
             }
-
-            $cart[0]->discount->discount;
-            if ($cart[0]->discount->discount_type == Discount::FIXED_PRICE) {
+//            $discount = Discount::query()
+//                ->where('code', $request->code)
+//                ->orWhere('uuid', $discount->discount->uuid)
+//                ->first();
+            @$cart[0]->discount->discount;
+            if (@$cart[0]->discount->discount_type == Discount::FIXED_PRICE) {
                 $discount_amount = $cart[0]->discount->discount;
             } else {
-                $discount_amount = $sub_total * ($cart[0]->discount->discount / 100);
+                $discount_amount = $sub_total * (@$cart[0]->discount->discount / 100);
             }
+            $sub_total -= $discount_amount;
+
             $commission = number_format($sub_total * $user->commission);
             $price_with_day = $sub_total;
-            $balnce = number_format($commission + $price_with_day + $multi_day_discounts-$discount_amount);
+//            number_format($sub_total + $commission - $multi_day_discounts);
+            $balance = $sub_total + $commission - $multi_day_discounts;
         } else {
             return mainResponse(false, 'content not found', [], [], 101);
         }
 
         if ($request->payment_method_id == PaymentGateway::MADA) {
-            $amount = $balnce;
+            $amount = $balance;
             $url = "https://eu-test.oppwa.com/v1/checkouts";
             $data = "entityId=8a8294174b7ecb28014b9699220015ca" .
                 "&amount=$amount" .
@@ -866,9 +864,8 @@ class OrdersController extends Controller
 //            return $data;
             $id = $data->id;
 
-        }
-        elseif ($request->payment_method_id == PaymentGateway::ABLEPAY) {
-            $amount = $balnce;
+        } elseif ($request->payment_method_id == PaymentGateway::ABLEPAY) {
+            $amount = $balance;
             $url = "https://eu-test.oppwa.com/v1/checkouts";
             $data = "entityId=8a8294174b7ecb28014b9699220015ca" .
                 "&amount=$amount" .
@@ -891,14 +888,37 @@ class OrdersController extends Controller
             $data = json_decode($responseData);
             $id = $data->id;
 
-        }
-        else {
+        } elseif ($request->payment_method_id == PaymentGateway::VISA) {
+            $amount = $balance;
+            $url = "https://eu-test.oppwa.com/v1/checkouts";
+            $data = "entityId=8a8294174b7ecb28014b9699220015ca" .
+                "&amount=$amount" .
+                "&currency=EUR" .
+                "&paymentType=DB";
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Authorization:Bearer OGE4Mjk0MTc0YjdlY2IyODAxNGI5Njk5MjIwMDE1Y2N8c3k2S0pzVDg='));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// this should be set to true in production
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $responseData = curl_exec($ch);
+            if (curl_errno($ch)) {
+                return curl_error($ch);
+            }
+            curl_close($ch);
+            $data = json_decode($responseData);
+            $id = $data->id;
+
+        } else {
             return mainResponse(false, "payment_method not found", [], [], 404);
         }
 
         $payment = Payment::query()->updateOrCreate([
             'user_uuid' => $user->uuid,
-            'price' => $balnce,
+            'price' => $balance,
             'status' => Payment::PENDING,
 
         ], [
@@ -926,19 +946,23 @@ class OrdersController extends Controller
                     return Carbon::parse($item->created_at)
                         ->format('Y-m-d');
                 });
+
         } elseif ($type == 'location') {
 
 
-            $orders = Order::query()->where('user_uuid', $user->uuid)->where('content_type', 'location')->get()->groupBy(function ($item) {
-                return Carbon::parse($item->created_at)->format('Y-m-d');
-            });
-
+            $orders = Order::query()
+                ->where('user_uuid', $user->uuid)
+                ->where('content_type', 'location')
+                ->get()
+                ->groupBy(function ($item) {
+                    return Carbon::parse($item->created_at)->format('Y-m-d');
+                });
         } elseif ($type == 'service') {
 
 
             $orders = Order::query()
                 ->where('user_uuid', $user->uuid)
-                ->where('content_type', 'serving')
+                ->where('content_type', 'service')
                 ->get()
                 ->groupBy(function ($item) {
                     return Carbon::parse($item->created_at)
@@ -1032,7 +1056,7 @@ class OrdersController extends Controller
 
 
             $orders = Order::query()
-                ->WhereHas('serving', function (Builder $query) use ($user_uuid) {
+                ->WhereHas('service', function (Builder $query) use ($user_uuid) {
                     $query->where('user_uuid', $user_uuid);
                 })
                 ->get()
@@ -1103,7 +1127,7 @@ class OrdersController extends Controller
         $rules = [
             'title' => 'required|string',
             'content_uuid' => 'required',
-            'content_type' => 'required|in:product,serving,course,location',
+            'content_type' => 'required|in:product,service,course,location',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -1113,7 +1137,7 @@ class OrdersController extends Controller
             $content = Product::query()->findOrFail($request->content_uuid);
         } elseif ($request->content_type == "course") {
             $content = Course::query()->findOrFail($request->content_uuid);
-        } elseif ($request->content_type == "serving") {
+        } elseif ($request->content_type == "service") {
             $content = Serving::query()->findOrFail($request->content_uuid);
         } elseif ($request->content_type == "location") {
             $content = Location::query()->findOrFail($request->content_uuid);
@@ -1143,24 +1167,167 @@ class OrdersController extends Controller
         }
         $orders = Order::query()->findOrFail($request->order_uuid);
         $status = $orders->status;
-
+        $request->merge([
+            'product' => true
+        ]);
         $product = ProductHomeResource::make($orders->product);
-        $delivery_addresses = $orders->deliveryAddresses;
 
+        $delivery_addresses = $orders->deliveryAddresses()->select('address', 'uuid', 'country_uuid', 'city_uuid')->first();
         $payment_method = $orders->paymentMethod;
-        $price = DB::table('products')->where('uuid', $orders->content_uuid)->value('price');
-        $invoice = [
-            'commission' => $orders->commission,
-            'price' => @$price,
-            'delivery' => 10,
-            'all' => 10 + $orders->commission + $price
+        $price = $orders->price;
+        $commission = $orders->price * $orders->commission;
+        $bill = [
+            [
+                'title' => __('product'),
+                'amount' => number_format($orders->price, 0, '.', '')
+            ],
+            [
+                'title' => __('commission'),
+                'amount' => number_format($commission, 0, '.', '')
+            ],
         ];
+        if ($orders->discount) {
+            $bill[] = [
+                'title' => __('discount'),
+                'amount' => number_format($orders->discount, 0, '.', '')
+            ];
+        }
+        if ($orders->delivery) {
+            $bill[] = [
+                'title' => __('delivery'),
+                'amount' => number_format($orders->delivery, 0, '.', '')
+            ];
+        }
+        $bill[] = [
+            'title' => __('all'),
+            'amount' => number_format($orders->price + $orders->delivery - $orders->discount + $commission, 0, '.', '')
+        ];
+
         if ($request->Buyer) {
             $user = UserOrderResource::make($orders->user);
         } else {
             $user = UserOrderResource::make($orders->product->user);
         }
-        return mainResponse(true, 'ok', compact('status', 'product', 'user', 'delivery_addresses', 'payment_method', 'invoice'), []);
+        return mainResponse(true, 'ok', compact('status', 'product', 'user', 'delivery_addresses', 'payment_method', 'bill'), []);
+
+
+    }
+
+    public function orderTrackingService(Request $request)
+    {
+        $rules = [
+            'order_uuid' => 'required|exists:orders,uuid',
+            'type' => 'required|in:seller,buyer',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+        $orders = Order::query()->findOrFail($request->order_uuid);
+        $status = $orders->status;
+
+        $serving = ServingTrakingResource::make($orders->content);
+
+        $payment_method = $orders->paymentMethod;
+        $rentalDates = [
+            'count' => $orders->days_count,
+            'start' => $orders->start,
+            'end' => $orders->end,
+        ];
+        $sub_total = $orders->price * $orders->days_count;
+        $commission = $orders->commission;
+        $bill = [
+            [
+                'title' => $orders->price . ' x ' . $orders->days_count . __('days'),
+                'amount' => number_format($orders->price * $orders->days_count, 0, '.', '')
+            ],
+            [
+                'title' => __('commission'),
+                'amount' => number_format($commission, 0, '.', '')
+            ]
+        ];
+
+        $bill[] = [
+            'title' => __('all'),
+            'amount' => number_format($sub_total + $orders->delivery - $orders->discount + $commission, 0, '.', '')
+        ];
+        if ($request->type == "buyer") {
+
+            $user = UserOrderResource::make($orders->user);
+        } else {
+            $user = UserOrderResource::make($orders->product->user);
+        }
+        return mainResponse(true, 'ok', compact('status', 'serving', 'user', 'payment_method', 'rentalDates', 'bill'), []);
+
+
+    }
+
+    public function orderTrackingRent(Request $request)
+    {
+        $rules = [
+            'order_uuid' => 'required|exists:orders,uuid',
+            'type' => 'required|in:seller,buyer',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+        $orders = Order::query()->findOrFail($request->order_uuid);
+        $status = $orders->status;
+        if ($orders->type == 'location') {
+            $request->merge([
+                'product' => true
+            ]);
+        }
+        $product = ProductHomeResource::make($orders->content);
+
+        $payment_method = $orders->paymentMethod;
+        $rentalDates = [
+            'count' => $orders->days_count,
+            'start' => $orders->start,
+            'end' => $orders->end,
+        ];
+        $sub_total = $orders->price * $orders->days_count;
+        $commission = $orders->commission;
+
+        if ($orders->content_type == Order::PRODUCT) {
+            $delivery_addresses = $orders->deliveryAddresses()->select('address', 'uuid', 'country_uuid', 'city_uuid')->first();
+        }
+        $bill = [
+            [
+                'title' => $orders->price . ' x ' . $orders->days_count . __('days'),
+                'amount' => number_format($orders->price * $orders->days_count, 0, '.', '')
+            ],
+            [
+                'title' => __('commission'),
+                'amount' => number_format($commission, 0, '.', '')
+            ]
+        ];
+
+
+        if ($orders->discount) {
+            $bill[] = [
+                'title' => __('discount'),
+                'amount' => number_format($orders->discount, 0, '.', '')
+            ];
+        }
+        if ($orders->delivery) {
+            $bill[] = [
+                'title' => __('delivery'),
+                'amount' => number_format($orders->delivery, 0, '.', '')
+            ];
+        }
+        $bill[] = [
+            'title' => __('all'),
+            'amount' => number_format($sub_total + $orders->delivery - $orders->discount + $commission, 0, '.', '')
+        ];
+        if ($request->type == "buyer") {
+
+            $user = UserOrderResource::make($orders->user);
+        } else {
+            $user = UserOrderResource::make($orders->product->user);
+        }
+        return mainResponse(true, 'ok', compact('status', 'product', 'user', 'payment_method', 'rentalDates', 'bill'), []);
 
 
     }
@@ -1180,19 +1347,41 @@ class OrdersController extends Controller
 
         $course = CourseTrakingResource::make($orders->course);
         $payment_method = $orders->paymentMethod;
-        $price = DB::table('courses')->where('uuid', $orders->content_uuid)->value('price');
-        $invoice = [
-            'commission' => $orders->commission,
-            'price' => @$price,
-            'delivery' => 10,
-            'all' => 10 + $orders->commission + $price
+        $price = $orders->price;
+        $commission = $orders->price * $orders->commission;
+        $bill = [
+            [
+                'title' => __('course'),
+                'amount' => number_format($orders->price, 0, '.', '')
+            ],
+            [
+                'title' => __('commission'),
+                'amount' => number_format($commission, 0, '.', '')
+            ],
         ];
+        if ($orders->discount) {
+            $bill[] = [
+                'title' => __('discount'),
+                'amount' => number_format($orders->discount, 0, '.', '')
+            ];
+        }
+        if ($orders->delivery) {
+            $bill[] = [
+                'title' => __('delivery'),
+                'amount' => number_format($orders->delivery, 0, '.', '')
+            ];
+        }
+        $bill[] = [
+            'title' => __('all'),
+            'amount' => number_format($orders->price + $orders->delivery - $orders->discount + $commission, 0, '.', '')
+        ];
+
         if ($request->Buyer) {
             $user = UserOrderResource::make($orders->user);
         } else {
             $user = UserOrderResource::make($orders->course->user);
         }
-        return mainResponse(true, 'ok', compact('status', 'course', 'user', 'payment_method', 'invoice'), []);
+        return mainResponse(true, 'ok', compact('status', 'course', 'user', 'payment_method', 'bill'), []);
 
 
     }
@@ -1203,12 +1392,12 @@ class OrdersController extends Controller
         $order = Order::query()->findOrFail($uuid);
         if ($order->product->user_uuid == Auth::id()) {
             $order->update([
-                'status' => Order::PENDING1
+                'status' => Order::ACCEPT
             ]);
             OrderStatus::query()->updateOrCreate([
                 'order_uuid' => $order->uuid,
             ], [
-                'status' => Order::PENDING1
+                'status' => Order::ACCEPT
 
             ]);
             $ios_tokens = FcmToken::query()
@@ -1262,7 +1451,5 @@ class OrdersController extends Controller
         return mainResponse(true, 'ok', [], []);
 
     }
-
-
 }
 

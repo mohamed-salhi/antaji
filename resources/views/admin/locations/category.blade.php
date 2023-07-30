@@ -91,11 +91,7 @@
                                             <button id="clear_btn" class="btn btn-outline-secondary" type="submit">
                                                 <span><i class="fa fa-undo"></i> @lang('reset')</span>
                                             </button>
-
-
-                                        <div class="col-3" style="margin-top: 20px">
-
-                                        </div>
+                                    </div>
                                     </div>
                                 </form>
                             </div>
@@ -257,8 +253,8 @@
                     name: 'name'
                 },
                 {
-                    data: 'type',
-                    name: 'type'
+                    data: 'type_translate',
+                    name: 'type_translate'
                 },
                 {
                     data: 'content_count',

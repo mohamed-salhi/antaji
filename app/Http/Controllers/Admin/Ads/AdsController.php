@@ -84,7 +84,7 @@ class AdsController extends Controller
 
     public function indexTable(Request $request)
     {
-        $ads = Ads::query()->withoutGlobalScope('status');
+        $ads = Ads::query()->withoutGlobalScope('status')->orderByDesc('created_at');
         return Datatables::of($ads)
             ->filter(function ($query) use ($request) {
                 if ($request->status){

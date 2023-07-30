@@ -74,7 +74,7 @@ class CategoryController extends Controller
 
     public function indexTable(Request $request)
     {
-        $CategoryLocaton= CategoryContent::query()->where('type','location')->withoutGlobalScope('status')->orderBy('created_at');
+        $CategoryLocaton= CategoryContent::query()->where('type','location')->withoutGlobalScope('status')->orderByDesc('created_at');
 
         return Datatables::of($CategoryLocaton)
             ->filter(function ($query) use ($request) {

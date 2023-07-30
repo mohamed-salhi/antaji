@@ -88,7 +88,7 @@ class CourseController extends Controller
 
     public function indexTable(Request $request)
     {
-        $course = Course::query()->withoutGlobalScope('status')->orderBy('created_at');
+        $course = Course::query()->withoutGlobalScope('status')->orderByDesc('created_at');
         return Datatables::of($course)
             ->filter(function ($query) use ($request) {
                 if ($request->status) {

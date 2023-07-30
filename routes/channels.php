@@ -16,3 +16,23 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+Broadcast::channel('msg.{id}', function ($user, $id) {
+
+        if($user->uuid==$id||$user->id){
+            return true;
+        }
+
+});
+Broadcast::channel('chat.{id}', function ($user, $id) {
+
+    if ($user->hasAbility($id)){
+        return true;
+    }
+
+});
+Broadcast::channel('chat.{id}', function ($user, $id) {
+
+    if ($user->uuid==$id){
+        return true;
+    }
+});

@@ -16,7 +16,7 @@ class CategoryContent extends Model
     public $incrementing = false;
     protected $translatable = ['name'];
     protected $guarded = [];
-    protected $appends = ['name_translate', 'content_count'];
+    protected $appends = ['name_translate', 'content_count','type_translate'];
     protected $hidden = ['name', 'status', 'updated_at', 'created_at', 'pivot'];
 
     const  PRODUCT = 'product';
@@ -47,7 +47,10 @@ class CategoryContent extends Model
     {
         return @$this->content()->count();
     }
-
+    public function getTypeTranslateAttribute()
+    {
+        return __($this->type);
+    }
     //Boot
 
     public static function boot()

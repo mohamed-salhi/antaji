@@ -110,10 +110,9 @@
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('name')</th>
-                                        <th>@lang('sub category')</th>
+{{--                                        <th>@lang('sub category')</th>--}}
                                         <th>@lang('count') @lang('products')</th>
                                         <th>@lang('image')</th>
-
                                         <th>@lang('status')</th>
                                         <th style="width: 225px;">@lang('actions')</th>
                                     </tr>
@@ -254,7 +253,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                          </div>
+                                </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
@@ -336,10 +335,10 @@
                     name: 'name'
                 },
 
-                {
-                    data: 'category_name',
-                    name: 'category_name'
-                },
+                // {
+                //     data: 'category_name',
+                //     name: 'category_name'
+                // },
                 {
                     data: 'product_count',
                     name: 'product_count',

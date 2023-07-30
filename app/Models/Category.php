@@ -10,6 +10,7 @@ use Spatie\Translatable\HasTranslations;
 
 class Category extends Model
 {
+
     use HasFactory, HasTranslations;
 
     protected $primaryKey = 'uuid';
@@ -31,7 +32,7 @@ class Category extends Model
     }
     public function sub()
     {
-        return $this->hasMany(SupCategory::class, 'category_uuid');
+        return $this->hasMany(SubCategory::class, 'category_uuid');
     }
     //Attributes
     public function getNameTranslateAttribute()

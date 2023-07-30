@@ -22,7 +22,9 @@ class Upload extends Model
 
     const IMAGE = 1;
     const VIDEO = 2;
-
+    const VOICE = 3;
+    const LOCATION = 4;
+    const ATTACHMENT = 4;
     //Attributes
     public function getTypeAttachmentAttribute()
     {

@@ -27,7 +27,7 @@ class LocationController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'required|string|max:36',
+            'name' => 'required|string',
             'price' => 'required|int',
             'details' => 'required',
             'user_uuid' => 'required|exists:users,uuid',
@@ -59,7 +59,7 @@ class LocationController extends Controller
         $location = Location::query()->withoutGlobalScope('status')->findOrFail($request->uuid);
 
         $rules = [
-            'name' => 'required|string|max:36',
+            'name' => 'required|string',
             'price' => 'required|int',
             'details' => 'required',
             'user_uuid' => 'required|exists:users,uuid',

@@ -217,7 +217,8 @@ class ArtistController extends Controller
                 " data-uuid="' . $que->uuid .
                     '">'.__('Business photo gallery').'</button>';
                 return $string;
-            })->addColumn('status', function ($que) {
+            })
+            ->addColumn('status', function ($que) {
                 $currentUrl = url('/');
                 if ($que->status == 1) {
                     $data = '
@@ -239,7 +240,7 @@ class ArtistController extends Controller
     {
         $uuids = explode(',', $sup);
 
-        $activate = User::query()->withoutGlobalScope('user')
+        $activate = User::query()->withoutGlobalScope('user')->orderByDesc('created_at')
             ->whereIn('uuid', $uuids)
             ->update([
                 'status' => $status

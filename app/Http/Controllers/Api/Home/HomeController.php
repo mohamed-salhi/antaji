@@ -36,7 +36,7 @@ use App\Models\Product;
 use App\Models\Search;
 use App\Models\Service;
 use App\Models\Setting;
-use App\Models\SupCategory;
+use App\Models\SubCategory;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -193,7 +193,7 @@ class HomeController extends Controller
 
     public function getSupFromCategory($uuid)
     {
-        $sub_categories = SupCategory::query()->where('category_uuid', $uuid)->paginate();
+        $sub_categories = SubCategory::query()->where('category_uuid', $uuid)->paginate();
         $items = $sub_categories->getCollection();
         $items = SubCategoryResource::collection($items);
         $sub_categories->setCollection(collect($items));
@@ -356,7 +356,9 @@ class HomeController extends Controller
                 $items = pageResource($items, artists::class);
                 return mainResponse(true, 'ok', compact('items'), []);
             } elseif ($request->type == 'artists') {
-                $items = User::query()->where('type', User::ARTIST)->whereHas('favorite', function ($query) use ($user) {
+                $items = User::query()
+                    ->where('type', User::ARTIST)
+                    ->whereHas('favorite', function ($query) use ($user) {
                     $query->where('user_uuid', $user->uuid);
                     $query->where('type', User::ARTIST);
                 })->paginate();

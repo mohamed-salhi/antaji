@@ -141,21 +141,31 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get/payment/rent', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getPagePayRent']);
     Route::get('get/payment/sale', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getPagePaySale']);
 
-//    Route::get('get/paymentGateways', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'paymentGateways']);
+    Route::post('message', [\App\Http\Controllers\Api\Contact\ContactController::class, 'message']);
+    Route::get('messages', [\App\Http\Controllers\Api\Contact\ContactController::class, 'messages']);
+
+
+    //    Route::get('get/paymentGateways', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'paymentGateways']);
+    Route::get('cart/pledge/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'pledge']);
     Route::post('content/checkout', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'checkout']);
     Route::get('orders/buyer/{type}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'ordersBuyer']);
     Route::get('orders/owner/{type}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'ordersOwner']);
     Route::get('orders/courses/tracking', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'orderTrackingCourse']);
     Route::get('orders/sale/tracking', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'orderTrackingSale']);
+    Route::get('orders/service/tracking', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'orderTrackingService']);
+    Route::get('orders/rent/tracking', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'orderTrackingRent']);
     Route::post('orders/accept/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'acceptStatusOrder']);
     Route::post('orders/receive/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'receiveStatusOrder']);
-
+    Route::delete('discount/delete/{uuid}/{user_uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'deleteDiscount']);
 
     Route::post('add/reviews', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'AddReviews']);
-
 
     Route::get('packages', [\App\Http\Controllers\Api\Package\PackageController::class, 'getPackages']);
     Route::get('packages/payment/{uuid}', [\App\Http\Controllers\Api\Package\PackageController::class, 'payment']);
     Route::post('packages/checkout', [\App\Http\Controllers\Api\Package\PackageController::class, 'checkout']);
+
+    Route::get('chat/conversations', [\App\Http\Controllers\Api\Chat\ChatController::class, 'conversations']);
+    Route::get('chat/user', [\App\Http\Controllers\Api\Chat\ChatController::class, 'chat']);
+    Route::post('chat/add', [\App\Http\Controllers\Api\Chat\ChatController::class, 'sendMsg']);
 
 });

@@ -456,12 +456,12 @@
                 $('.invalid-feedback').text('');
                 event.preventDefault();
                 var button = $(this)
-                console.log(button.data('images'))
-                console.log(button.data('images_uuid'))
+                // console.log(button.data('images'))
+                // console.log(button.data('images_uuid'))
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
 
-console.log(button.data('images_uuid').split(',') + '')
+// console.log(button.data('images_uuid').split(',') + '')
                 $('#edit_name').val(button.data('name'))
                 $('#edit_price').val(button.data('price'))
                 $('#edit_details').val(button.data('details'))
@@ -473,14 +473,10 @@ console.log(button.data('images_uuid').split(',') + '')
                 $('#edit_category_contents_uuid').val(category_contents_uuids).trigger('change');
 
 
-                let fileArray = button.data('images').split(',') + '';
-                if (fileArray.indexOf(',') >= 0) {
-                    fileArray = button.data('images').split(',');
-                }
-                let fileArrayUuids = button.data('images_uuid').split(',') + '';
-                if (fileArrayUuids.indexOf(',') >= 0) {
-                    fileArrayUuids = button.data('images_uuid').split(',');
-                }
+                let fileArray = button.data('images').split(',');
+                let fileArrayUuids = button.data('images_uuid').split(',');
+
+                console.log(fileArray);
                 var preloaded = []; // Empty array
                 $.each(fileArray, function (index, fileName) {
                     var object = {
@@ -489,7 +485,7 @@ console.log(button.data('images_uuid').split(',') + '')
                     };
                     preloaded.push(object)
                 })
-
+                console.log(preloaded)
                 $('.input-images-2').imageUploader({
                     preloaded: preloaded,
                     imagesInputName: 'images[]',

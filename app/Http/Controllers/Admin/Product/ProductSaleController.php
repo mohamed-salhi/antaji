@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Content;
 use App\Models\Product;
-use App\Models\SupCategory;
+use App\Models\Specification;
+use App\Models\SubCategory;
 use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Psy\Util\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 class ProductSaleController extends Controller
@@ -24,20 +26,34 @@ class ProductSaleController extends Controller
     {
         $rules = [
             'images' => 'required',
-            'images.*' => 'mimes:jpeg,jpg,png,gif,csv,txt,pdf|max:2048',
+            'images.*' => 'required|mimes:jpeg,jpg,png,gif,csv,txt,pdf|max:2048',
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
+            'address' => 'required',
+            'fname' => 'required',
+            'fname.*' => 'string',
+            'fvalue' => 'required',
+            'fvalue.*' => 'string',
             'category_uuid' => 'required|exists:categories,uuid',
             'sub_category_uuid' => 'required|exists:sub_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
         ];
-
         $this->validate($request, $rules);
         $request->merge([
-            'type'=>'sale'
+            'type'=>'sale',
         ]);
-        $product= Product::query()->create($request->only('sale','user_uuid','name','price','details','sub_category_uuid','category_uuid','type'));
+        $product= Product::query()
+            ->create($request->only('sale','user_uuid','name','price','details','sub_category_uuid','category_uuid','type','address'));
+
+
+        for ($i = 0; $i < count($request->fname); $i++) {
+            Specification::query()->create([
+                'key' => $request->fname[$i],
+                'value' => $request->fvalue[$i],
+                'product_uuid' => $product->uuid
+            ]);
+        }
         Content::query()->create([
             'content_uuid'=>$product->uuid,
             'user_uuid'=>$request->user_uuid,
@@ -60,14 +76,19 @@ class ProductSaleController extends Controller
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
+            'address' => 'required',
+            'fname' => 'required',
+            'fname.*' => 'string',
+            'fvalue' => 'required',
+            'fvalue.*' => 'string',
             'category_uuid' => 'required|exists:categories,uuid',
             'sub_category_uuid' => 'required|exists:sub_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
         ];
         $product = Product::query()->withoutGlobalScope('status')->findOrFail($request->uuid);
-
+        $product->specifications()->delete();
         $this->validate($request, $rules);
-        $product->update($request->only('name','details','price','user_uuid','category_content_uuid'));
+        $product->update($request->only('name','details','price','user_uuid','category_content_uuid','address'));
         if (isset($request->delete_images)) {
             $images = Upload::query()->where('imageable_type',Product::class)->where('imageable_id',$product->uuid)->whereNotIn('uuid', $request->delete_images)->get();
 
@@ -75,6 +96,13 @@ class ProductSaleController extends Controller
                 File::delete(public_path(Product::PATH_PRODUCT . $item->filename));
                 $item->delete();
             }
+        }
+        for ($i = 0; $i < count($request->fname); $i++) {
+            Specification::query()->create([
+                'key' => $request->fname[$i],
+                'value' => $request->fvalue[$i],
+                'product_uuid' => $product->uuid
+            ]);
         }
         if ($request->hasFile('images')) {
             foreach ($request->images as $item) {
@@ -113,7 +141,7 @@ class ProductSaleController extends Controller
 
     public function indexTable(Request $request)
     {
-        $product = Product::query()->withoutGlobalScope('status')->where('type','sale')->orderBy('created_at');
+        $product = Product::query()->withoutGlobalScope('status')->where('type','sale')->orderByDesc('created_at');
         return Datatables::of($product)
             ->filter(function ($query) use ($request) {
                 if ($request->status){
@@ -146,12 +174,16 @@ class ProductSaleController extends Controller
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
                 $data_attr .= 'data-name="' . $que->name . '" ';
                 $data_attr .= 'data-price="' . $que->price . '" ';
+                $data_attr .= 'data-address="' . $que->address . '" ';
+
                 $data_attr .= 'data-details="' . $que->details . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-category_uuid="' . $que->category_uuid . '" ';
                 $data_attr .= 'data-sub_category_uuid="' . $que->sub_category_uuid . '" ';
                 $data_attr .= 'data-images_uuid="' . implode(',', $que->imageProduct->pluck('uuid')->toArray()) .'" ';
                 $data_attr .= 'data-images="' . implode(',', $que->imageProduct->pluck('filename')->toArray()) .'" ';
+                $data_attr .= 'data-key="' . implode(',', $que->specifications->pluck('key')->toArray()) .'" ';
+                $data_attr .= 'data-value="' . implode(',', $que->specifications->pluck('value')->toArray()) .'" ';
 
                 $url = url('/products/sale/images/'.$que->uuid);
 
@@ -256,7 +288,7 @@ class ProductSaleController extends Controller
     }
     public function category($uuid)
     {
-        $category = SupCategory::where("category_uuid", $uuid)->pluck("name", "uuid");
+        $category = SubCategory::where("category_uuid", $uuid)->pluck("name", "uuid");
         return $category;
     }
 }

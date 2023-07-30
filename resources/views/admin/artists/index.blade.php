@@ -543,7 +543,7 @@
                         </div>
                         <div class="row">
 
-                            <div class="col-md-6">
+                            <div class="col-6">
                                 <label class="form-label select-label">@lang('select'),@lang('skills')</label>
                                 <select name="skills[]" id="edit_skills" class="select" multiple>
                                     @foreach ($skills as $item)
@@ -561,14 +561,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label select-label">@lang('select'),@lang('skills')</label>
-                            <select name="skills[]" id="edit_skills" class="select" multiple>
-                                @foreach ($skills as $item)
-                                    <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
-                                @endforeach
-                            </select>
-                        </div>
+
 
                         <div class="col-md-12">
                             <div class="form-group">

@@ -18,8 +18,9 @@ class Order extends Model
     protected $appends=['content','days_count'];
     protected $guarded = [];
     const COURSE = 'course';
+    const PRODUCT = 'product';
     const PENDING = 'pending';
-    const PENDING1 = 'pending1';
+    const ACCEPT = 'accept';
     const COMPLETE = 'complete';
     const INACTIVE = 'inactive';
     const BUGING_SUCCEEDED = 'buying_succeeded';
@@ -33,7 +34,7 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'user_uuid');
     }
-    public function serving()
+    public function service()
     {
         return $this->belongsTo(Serving::class, 'content_uuid');
     }
@@ -67,8 +68,8 @@ class Order extends Model
         if ($this->content_type == 'product') {
             return $this->product;
         }
-        if ($this->content_type == 'serving') {
-            return $this->serving;
+        if ($this->content_type == 'service') {
+            return $this->service;
         }
         if ($this->content_type == 'location') {
             return $this->location;

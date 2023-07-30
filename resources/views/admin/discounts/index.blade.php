@@ -599,6 +599,19 @@
                 $('#uuid').val(uuid);
                 console.log(button.data('checkboxes'))
 
+
+
+                console.log(button.data('discount_type'))
+                $('#edit_code').val(button.data('code'))
+                $('#edit_discount').val(button.data('discount'))
+                $('#edit_number_of_usage_for_user').val(button.data('number_of_usage_for_user'))
+                $('#edit_number_of_usage').val(button.data('number_of_usage'))
+                $('#edit_date_from').val(button.data('date_from'))
+                $('#edit_date_to').val(button.data('date_to'))
+                $('#edit_discount_type').val(button.data('discount_type')).trigger('change');
+                @foreach (locales() as $key => $value)
+                $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
+                @endforeach
                 let fileArray = button.data('checkboxes').split(',') + '';
                 if (fileArray.indexOf(',') >= 0) {
                     fileArray = button.data('checkboxes').split(',');
@@ -610,17 +623,6 @@
 
                 })
 
-                console.log(button.data('discount_type'))
-                $('#edit_code').val(button.data('code'))
-                $('#edit_discount').val(button.data('discount'))
-                $('#edit_number_of_usage_for_user').val(button.data('number_of_usage_for_user'))
-                $('#edit_number_of_usage').val(button.data('number_of_usage'))
-                $('#edit_date_from').val(button.data('date_from'))
-                $('#edit_date_to').val(button.data('date_to'))
-                $('#edit_discount_type').val(button.data('discount_type'));
-                @foreach (locales() as $key => $value)
-                $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
-                @endforeach
             });
         });
     </script>

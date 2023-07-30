@@ -32,7 +32,7 @@ class PaymentGatewayController extends Controller
 
     public function getData(Request $request)
     {
-        $countrys = PaymentGateway::query()->withoutGlobalScope('gateway');
+        $countrys = PaymentGateway::query()->withoutGlobalScope('gateway')->orderByDesc('created_at');
         return Datatables::of($countrys)
             ->addColumn('action', function ($que) {
                 $data_attr = '';
@@ -74,8 +74,15 @@ class PaymentGatewayController extends Controller
         return view('admin.paymentGateways.payment', compact('payment'));
     }
 
+
     public function pay(Request $request, $uuid)
     {
+        $payment = Payment::query()->where('transaction_id', $request->id)->where('status',Payment::COMPLETE)->exists();
+        if ($payment) {
+            return 'finished';
+
+        }
+
         $resourcePath = $request->resourcePath;
         $url = "https://eu-test.oppwa.com/$resourcePath";
         $url .= "?entityId=8a8294174b7ecb28014b9699220015ca";
@@ -110,7 +117,6 @@ class PaymentGatewayController extends Controller
 //                ]);
                 $payment->update([
                     'status' => Payment::COMPLETE
-
                 ]);
                 return 'Payment Done';
             }
@@ -121,11 +127,11 @@ class PaymentGatewayController extends Controller
                 ->get();
             foreach ($orders as $item) {
                 $ios_tokens = FcmToken::query()
-                    ->where("user_uuid", $item->content->user_uuid)
+                    ->where("user_uuid", $item->content->user->uuid)
                     ->where('fcm_device', 'ios')
                     ->pluck('fcm_token')->toArray();
                 $android_tokens = FcmToken::query()
-                    ->where("user_uuid", $item->content->user_uuid)
+                    ->where("user_uuid", $item->content->user->uuid)
                     ->where('fcm_device', 'android')
                     ->pluck('fcm_token')->toArray();
                 $msg = [$item->content->name . __('There is a new order')];
@@ -147,7 +153,7 @@ class PaymentGatewayController extends Controller
                     $startDate = Carbon::parse($item->start);
                     $endDate = Carbon::parse($item->end);
                     $dates = [];
-// قم بإضافة كل يوم بين التاريخين إلى المصفوفة
+                    // قم بإضافة كل يوم بين التاريخين إلى المصفوفة
                     for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
                         $dates[] = $date->toDateString();
                         BookingDay::query()->create([
@@ -181,7 +187,6 @@ class PaymentGatewayController extends Controller
                 ->delete();
             $payment->update([
                 'status' => Payment::COMPLETE
-
             ]);
             return 'Payment Done';
 

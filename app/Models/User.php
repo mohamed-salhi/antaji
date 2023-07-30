@@ -105,7 +105,9 @@ class User extends Authenticatable
     {
         return $this->morphOne(Upload::class, 'imageable')->where('type', '=', Upload::VIDEO);
     }
-
+    public function message(){
+        return $this->hasMany(Message::class,'user_uuid')->orderByDesc('created_at');
+    }
     public function imageUser()
     {
         return $this->morphOne(Upload::class, 'imageable')->where('type', '=', Upload::IMAGE)->where('name', '=', 'personal_photo');
@@ -124,7 +126,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(FavoriteUser::class, 'reference_uuid');
     }
-
+    public function hasAbility($id)
+    {
+        $check= Conversation::query()->where('uuid',$id)->get();
+        if ($check) {
+            return true;
+        }
+        return false;
+    }
+//    public function deliveryAddresses()
+//    {
+//        return $this->hasMany(DeliveryAddresses::class, 'user_uuid')->where('default',1);
+//    }
     /**
      * Attribute
      */
@@ -188,7 +201,6 @@ class User extends Authenticatable
     {
         return number_format(100, 1, '.', '') . '%';
     }
-
     public function getCommissionAttribute()
     {
         return $this->package->percentage_of_sale / 100;

@@ -98,6 +98,7 @@
 
                                             </div>
                                         </div>
+                                    </div>
                                 </form>
                             </div>
                             <div class="table-responsive card-datatable" style="padding: 20px">
@@ -259,8 +260,8 @@
                     name: 'name'
                 },
                 {
-                    data: 'type',
-                    name: 'type'
+                    data: 'type_translate',
+                    name: 'type_translate'
                 },
                 {
                     data: 'content_count',

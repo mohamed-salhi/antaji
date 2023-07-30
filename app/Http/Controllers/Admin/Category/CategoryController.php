@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\Category;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\SupCategory;
+use App\Models\SubCategory;
 use App\Models\Type;
 use App\Models\Upload;
 use Illuminate\Http\Request;
@@ -15,8 +15,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-       $types=Type::all();
-
+        $types=Type::all();
         return view('admin.categories.index',compact('types'));
     }
 
@@ -91,8 +90,6 @@ class CategoryController extends Controller
             ]);
         }
     }
-
-
 
     public function indexTable(Request $request)
     {
@@ -173,7 +170,7 @@ class CategoryController extends Controller
     }
     public function subIndexTable(Request $request ,$uuid)
     {
-        $sub= SupCategory::query()->withoutGlobalScope('sub')->where('category_uuid',$uuid)->orderBy('created_at');
+        $sub= SubCategory::query()->withoutGlobalScope('sub')->where('category_uuid',$uuid)->orderByDesc('created_at');
 
         return Datatables::of($sub)
             ->filter(function ($query) use ($request) {
@@ -239,9 +236,9 @@ class CategoryController extends Controller
             $data['name'][$key] = $request->get('name_' . $key);
         }
         $data['category_uuid']=$request->category_uuid;
-        $sub= SupCategory::create($data);
+        $sub= SubCategory::create($data);
         if ($request->has('image')) {
-            UploadImage($request->image, SupCategory::PATH_IMAGE, SupCategory::class, $sub->uuid, true, null, Upload::IMAGE);
+            UploadImage($request->image, SubCategory::PATH_IMAGE, SubCategory::class, $sub->uuid, true, null, Upload::IMAGE);
         }
         return response()->json([
             'item_addedd'
@@ -261,10 +258,10 @@ class CategoryController extends Controller
         foreach (locales() as $key => $language) {
             $data['name'][$key] = $request->get('name_' . $key);
         }
-        $sub = SupCategory::query()->withoutGlobalScope('category')->findOrFail($request->uuid);
+        $sub = SubCategory::query()->withoutGlobalScope('category')->findOrFail($request->uuid);
         $sub->update($data);
         if ($request->has('image')) {
-            UploadImage($request->image, SupCategory::PATH_IMAGE, SupCategory::class, $sub->uuid, true, null, Upload::IMAGE);
+            UploadImage($request->image, SubCategory::PATH_IMAGE, SubCategory::class, $sub->uuid, true, null, Upload::IMAGE);
         }
         return response()->json([
             'item_edited'
@@ -275,7 +272,7 @@ class CategoryController extends Controller
     {
         $uuids=explode(',', $sub);
 
-        $activate =  SupCategory::query()->withoutGlobalScope('sub')
+        $activate =  SubCategory::query()->withoutGlobalScope('sub')
             ->whereIn('uuid',$uuids)
             ->update([
            'status'=>$status
@@ -289,10 +286,10 @@ class CategoryController extends Controller
 
         try {
             $uuids=explode(',', $delete);
-            $sub=  SupCategory::whereIn('uuid', $uuids)->get();
+            $sub=  SubCategory::whereIn('uuid', $uuids)->get();
 
             foreach ($sub as $item){
-                File::delete(public_path(SupCategory::PATH_IMAGE.$item->imageCategory->filename));
+                File::delete(public_path(SubCategory::PATH_IMAGE.$item->imageCategory->filename));
                 $item->imageCategory()->delete();
                 $item->delete();
             }

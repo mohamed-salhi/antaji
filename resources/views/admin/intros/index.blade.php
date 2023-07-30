@@ -60,7 +60,9 @@
                                             <th>@lang('title')</th>
                                             <th>@lang('sub title')</th>
                                             <th>@lang('image')</th>
-                                         <th style="width: 225px;">@lang('actions')</th>
+                                        <th>@lang('status')</th>
+
+                                        <th style="width: 225px;">@lang('actions')</th>
 
                                     </tr>
                                     </thead>
@@ -292,6 +294,10 @@
                     },
                     orderable: false,
                     searchable: false
+                },
+                {
+                    data: 'status',
+                    name: 'status'
                 },
                 {
                     data: 'action',

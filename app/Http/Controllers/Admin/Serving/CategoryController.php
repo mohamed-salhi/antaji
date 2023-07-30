@@ -72,7 +72,7 @@ class CategoryController extends Controller
 
     public function indexTable(Request $request)
     {
-        $CategoryContent= CategoryContent::query()->where('type','serving')->withoutGlobalScope('status')->orderBy('created_at');
+        $CategoryContent= CategoryContent::query()->where('type','serving')->withoutGlobalScope('status')->orderByDesc('created_at');
 
         return Datatables::of($CategoryContent)
             ->filter(function ($query) use ($request) {

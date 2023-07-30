@@ -119,7 +119,7 @@
             background-color: #1e90ff;
         }
     </style>
-{{--    @vite('resources/js/app.js')--}}
+    @vite('resources/js/app.js')
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -473,7 +473,10 @@ var pageNot=2
                 $('.done').html('saving ...').prop('disabled', true);
             },
             success: function (result) {
+
                 table.draw()
+                $('#add_model_form').trigger("reset");
+
                 $('.done').html('add').prop('disabled', false);
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
@@ -482,7 +485,6 @@ var pageNot=2
 
                 $('#full-modal-stem').modal('hide');
                 $('#model-excel').modal('hide');
-                $('#add_model_form').trigger("reset");
 
 
             },
@@ -547,6 +549,7 @@ var pageNot=2
                         _token: '{{ csrf_token() }}'
                     },
                 }).done(function () {
+                    table.draw()
                     toastr.success('@lang('deleted')', '', {
                         rtl: isRtl
                     });
@@ -687,7 +690,7 @@ var pageNot=2
     });
     $('#edit_modal').on('hidden.bs.modal', function() {
         $('#form_edit').trigger("reset");
-
+        $('.data').remove()
         $('.edit_images').remove()
         $('.add_images').append(`<div class="col-12 edit_images">
                         <div class="input-field">
@@ -920,6 +923,35 @@ var pageNot=2
     {{--        })--}}
     {{--    @endcan--}}
     {{--})--}}
+    // window.Echo.channel('msg')
+    //     .listen('.msg', (e) => {
+    //         console.log(e)
+    //         if (e[2] == "admin") {
+    //             console.log(e[2])
+    //             $('#' + e[3]).append(`
+    //      <div class="messag e-data">
+    //           <span class="message-data-time">منذ 1 ثانية</span>
+    //      </div>
+    //                    <div class="message my-message"> ${e[0]}</div>
+    //     `)
+    //             console.log(e[2])
+    //         } else {
+    //             $('#' + e[3]).append(`
+    //           <li class="clearfix">
+    //                                                                 <div class="message-data text-right">
+    //                                                                     <span class="message-data-time">منذ 1 ثانية</span>
+    //                                                                     <img
+    //                                                                         src="${e[4]}"
+    //                                                                         alt="avatar">
+    //                                                                 </div>
+    //                                                                 <div class="message other-message float-right">
+    //                                                                    ${e[0]}
+    //                                                                 </div>
+    //                                                             </li>
+    //         `)
+    //         }
+    //     })
+
 </script>
 
 </body>

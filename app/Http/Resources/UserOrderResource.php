@@ -16,7 +16,7 @@ class UserOrderResource extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
-            'specialization' => $this->specialization_name,
+            'specialization' => @$this->specialization_name??__('user'),
             'name' => $this->name,
             'personal_photo' => $this->image,
         ];

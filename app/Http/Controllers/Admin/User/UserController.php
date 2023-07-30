@@ -150,7 +150,7 @@ class UserController extends Controller
 
     public function indexTable(Request $request)
     {
-        $user = User::query()->withoutGlobalScope('user')->where('type', 'user')->orderBy('created_at');
+        $user = User::query()->withoutGlobalScope('user')->where('type', 'user')->orderByDesc('created_at');
         return Datatables::of($user)
             ->filter(function ($query) use ($request) {
                 if ($request->status) {

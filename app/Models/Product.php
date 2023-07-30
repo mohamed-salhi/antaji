@@ -32,6 +32,10 @@ class Product extends Model
     {
         return $this->belongsTo(MultiDayDiscount::class, 'multi_day_discount_uuid');
     }
+    public function delivery()
+    {
+        return $this->belongsTo(Delivery::class, 'delivery_uuid');
+    }
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_uuid');
@@ -49,7 +53,7 @@ class Product extends Model
 
     public function subCategory()
     {
-        return $this->belongsTo(SupCategory::class, 'sub_category_uuid');
+        return $this->belongsTo(SubCategory::class, 'sub_category_uuid');
     }
 
     public function specifications()

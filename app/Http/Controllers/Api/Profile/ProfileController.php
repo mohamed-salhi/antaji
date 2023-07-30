@@ -75,7 +75,7 @@ class ProfileController extends Controller
         }
         $user->update($request->only('name', 'email', 'mobile', 'country_uuid', 'city_uuid'));
         if ($user) {
-            return mainResponse(true, "done", $user, [], 201);
+            return mainResponse(true, "done", [], [], 201);
 
         } else {
             return mainResponse(false, 'حصل خطا ما', [], ['حصل خطا ما'], 500);
@@ -116,7 +116,7 @@ class ProfileController extends Controller
         if ($request->has('video')) {
             UploadImage($request->video, "upload/user/video", User::class, $user->uuid, true, null, Upload::VIDEO);
         }
-        return mainResponse(true, "done", $user, [], 201);
+        return mainResponse(true, "done", [], [], 201);
 
     }
 
@@ -146,7 +146,7 @@ class ProfileController extends Controller
             $busines->time = $duration_string;
             $busines->save();
         }
-        return mainResponse(true, 'done', $busines, [], 101);
+        return mainResponse(true, 'done', [], [], 101);
     }
 
     public function addBusinessImages(Request $request)
@@ -172,7 +172,7 @@ class ProfileController extends Controller
             }
         }
 
-        return mainResponse(true, 'done', $busines, [], 101);
+        return mainResponse(true, 'done', [], [], 101);
 
 
     }
@@ -218,7 +218,7 @@ class ProfileController extends Controller
         } else {
             return mainResponse(false, 'type must video||images', [], ['type must video||images'], 404);
         }
-        return mainResponse(true, 'done', $business, [], 200);
+        return mainResponse(true, 'done', [], [], 200);
 
     }
 

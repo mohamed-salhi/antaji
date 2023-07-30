@@ -253,6 +253,48 @@
                             </div>
                         </div>
                         <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="about">@lang('address')
+                                </label>
+                                <input type="text" class="form-control" placeholder="@lang('address')"
+                                       name="address" id="address">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-dark">
+                                    <h4 class="m-0">@lang('specifications')</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-right mt-3">
+                                        <button class="add_row btn btn-sm btn-dark">@lang('Add Row')</button>
+                                    </div>
+                                    <div class="row_data">
+                                        <div class="row mb-3">
+                                            <div class="col-md-11">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <input type="text" name="fname[]" class="form-control"
+                                                               placeholder="@lang('key')" required>
+                                                    </div>
+
+                                                    <div class="col-md-4">
+                                                        <input type="text" name="fvalue[]" class="form-control"
+                                                               placeholder="@lang('value')" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
                             <div class="input-field">
                                 <label class="active">Photos</label>
                                 <div class="input-images" style="padding-top: .5rem;"></div>
@@ -348,6 +390,8 @@
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
+                        </div>
+                        <div class="spe">
                         </div>
                         <div class="add_images">
                             <div class="col-12 edit_images">
@@ -514,27 +558,82 @@ console.log()
                 var button = $(this)
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
-                console.log(button.data('images_uuid').split(',') + '')
+                $('#edit_name').val(button.data('name'))
+                console.log(button.data('name'))
+                $('#edit_price').val(button.data('price'))
+                $('#edit_address').val(button.data('address'))
 
-                let fileArray = button.data('images').split(',') + '';
-                if (fileArray.indexOf(',') >= 0) {
-                    fileArray = button.data('images').split(',');
+                $('#edit_details').val(button.data('details'))
+                $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
+                $('#edit_category_uuid').attr('data-sub_category_uuid', button.data('sub_category_uuid'))
+                $('#edit_category_uuid').val(button.data('category_uuid')).trigger('change');
+                let fileArray = button.data('images').split(',');
+                let fileArrayUuids = button.data('images_uuid').split(',');
+                let fileArrayKey = button.data('key').split(',');
+                let fileArrayVlaue = button.data('value').split(',');
+                console.log(fileArrayKey.length)
+                if(fileArrayKey.length>=0){
+                    $('.spe').append(`<div class="data"><div class="col-md-12">
+        <div class="card">
+        <div class="card-header bg-dark">
+        <h4 class="m-0">@lang('specifications')</h4>
+</div>
+    <div class="card-body">
+        <div class="text-right mt-3">
+            <a class="add_row btn btn-sm btn-dark">@lang('Add Row')</a>
+        </div>
+        <div class="row_data">
+            <div class="row mb-3">
+                <div class="col-md-11">
+                    <div class="row">
+
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+        </div>
+  </div>
+    </div>
+</div>
+</div>`)
+                    $.each(fileArrayKey, function (index, fileName) {
+                        $('.row_data').append(`<div class="row mb-3">
+                        <div class="col-md-11">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" name="fname[]" value="${fileArrayKey[index]}" class="form-control" placeholder="{{__('key')}}" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <input type="text" name="fvalue[]" value="${fileArrayVlaue[index]}" class="form-control" placeholder="{{__('value')}}" required>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>`);
+                    })
+
                 }
-                let fileArrayUuids = button.data('images_uuid').split(',') + '';
-                if (fileArrayUuids.indexOf(',') >= 0) {
-                    fileArrayUuids = button.data('images_uuid').split(',');
-                }
+                console.log(fileArrayKey)
+
+
+
                 var preloaded = []; // Empty array
-
                 $.each(fileArray, function (index, fileName) {
                     var object = {
                         id: fileArrayUuids[index],
-
-                        src:'{{ url('/') }}/upload/product/images/' + fileName
+                        src: '{{ url('/') }}/upload/product/images/' + fileName
                     };
                     preloaded.push(object)
                 })
-
+                console.log(preloaded)
                 $('.input-images-2').imageUploader({
                     preloaded: preloaded,
                     imagesInputName: 'images[]',
@@ -542,14 +641,38 @@ console.log()
                     maxSize: 2 * 1024 * 1024,
                     maxFiles: 10
                 });
-                $('#edit_name').val(button.data('name'))
-                console.log(button.data('name'))
-                $('#edit_price').val(button.data('price'))
-                $('#edit_details').val(button.data('details'))
-                $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
-                $('#edit_category_uuid').attr('data-sub_category_uuid', button.data('sub_category_uuid'))
-                $('#edit_category_uuid').val(button.data('category_uuid')).trigger('change');
             });
         });
+
+
+        $('.add_row').click(function(e) {
+            e.preventDefault();
+            console.log('ddd')
+            const row = `<div class="row mb-3">
+                        <div class="col-md-11">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" name="fname[]" class="form-control" placeholder="{{__('key')}}" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <input type="text" name="fvalue[]" class="form-control" placeholder="{{__('value')}}" required>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>`;
+
+            $('.row_data').append(row);
+            $('body').on('click', '.remove_row', function(e) {
+                e.preventDefault();
+                $(this).parent().parent().remove();
+            })
+        })
     </script>
 @endsection

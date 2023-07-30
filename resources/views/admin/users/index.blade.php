@@ -315,7 +315,15 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="about">@lang('address')
+                                    </label>
+                                    <input type="text" class="form-control" placeholder="@lang('address')"
+                                           name="address" id="address">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -323,7 +331,7 @@
                                     <label for="">@lang('country')</label>
                                     <select name="country_uuid" id="" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('country')</option>
+                                        <option selected disabled>@lang('select') @lang('country')</option>
                                         @foreach ($countries as $itemm)
                                             <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                         @endforeach
@@ -336,37 +344,14 @@
                                     <label for="">@lang('city')</label>
                                     <select name="city_uuid" id="" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('city')</option>
+                                        <option selected disabled>@lang('select') @lang('city')</option>
 
                                     </select>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">@lang('type')</label>
-                                    <select name="type" id="" class="select form-control"
-                                            data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('type')</option>
 
-                                        <option value="artist"> @lang('artist') </option>
-                                        <option value="user"> @lang('user') </option>
-                                    </select>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="about">@lang('address')
-                                    </label>
-                                    <input type="text" class="form-control" placeholder="@lang('address')"
-                                           name="address" id="address">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="about">@lang('brief')
@@ -495,7 +480,15 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="about">@lang('address')
+                                    </label>
+                                    <input type="text" class="form-control" placeholder="@lang('address')"
+                                           name="address" id="edit_address">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -798,6 +791,7 @@
                 $('#edit_email').val(button.data('email'))
                 $('#edit_lng').val(button.data('lng'))
                 $('#edit_name').val(button.data('name'))
+                console.log(button.data('address'))
                 $('#edit_address').val(button.data('address'))
                 $('#video-1').attr('src', button.data('video'));
                 $('#edit_src_image_personal_photo').attr('src', button.data('personal_photo'));

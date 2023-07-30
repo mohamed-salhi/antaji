@@ -15,7 +15,7 @@ class DeliveryAddresses extends Model
     public $incrementing = false;
     protected $guarded = [];
     protected $appends = ['city_name', 'country_name'];
-    protected $hidden = ['city_uuid', 'country_uuid', 'status', 'updated_at', 'created_at','country','city'];
+    protected $hidden = ['city_uuid', 'country_uuid', 'status', 'updated_at', 'created_at','country','city','default'];
 
 //Relations
     public function country()

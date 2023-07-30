@@ -96,7 +96,7 @@ class IntroController extends Controller
 
     public function indexTable(Request $request)
     {
-        $intro = Intro::query()->withoutGlobalScope('country');
+        $intro = Intro::query()->withoutGlobalScope('status')->orderByDesc('created_at');
         return Datatables::of($intro)
             ->addColumn('checkbox',function ($que){
                 return $que->uuid;
@@ -122,8 +122,34 @@ class IntroController extends Controller
                     '">' . __('delete') . '</button>';
 //                }
                 return $string;
+            })->addColumn('status', function ($que) {
+                $currentUrl = url('/');
+                if ($que->status == 1) {
+                    $data = '
+<button type="button"  data-url="' . $currentUrl . "/admin/intros/updateStatus/0/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+                        '">' . __('active') . '</button>
+                    ';
+                } else {
+                    $data = '
+<button type="button"  data-url="' . $currentUrl . "/admin/intros/updateStatus/1/" . $que->uuid . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+                        '">' . __('inactive') . '</button>
+                    ';
+                }
+                return $data;
             })
-            ->rawColumns(['action'])->toJson();
+            ->rawColumns(['action', 'status'])->toJson();
     }
+    public function updateStatus($status,$sup)
+    {
+        $uuids=explode(',', $sup);
 
+        $activate =  Intro::query()->withoutGlobalScope('status')
+            ->whereIn('uuid',$uuids)
+            ->update([
+                'status'=>$status
+            ]);
+        return response()->json([
+            'item_edited'
+        ]);
+    }
 }

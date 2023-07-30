@@ -76,7 +76,7 @@ class SkillController extends Controller
 
     public function indexTable(Request $request)
     {
-        $skills = Skill::query()->withoutGlobalScope('skill');
+        $skills = Skill::query()->withoutGlobalScope('skill')->orderByDesc('created_at');
 
         return Datatables::of($skills)
             ->filter(function ($query) use ($request) {

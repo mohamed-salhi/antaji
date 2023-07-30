@@ -68,7 +68,7 @@ class SpecializationController extends Controller
 
     public function indexTable(Request $request)
     {
-        $specializations = Specialization::query()->withoutGlobalScope('specialization');
+        $specializations = Specialization::query()->withoutGlobalScope('specialization')->orderByDesc('created_at');
 
         return Datatables::of($specializations)
             ->filter(function ($query) use ($request) {

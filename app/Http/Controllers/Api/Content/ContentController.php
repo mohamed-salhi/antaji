@@ -23,12 +23,15 @@ use App\Models\Category;
 use App\Models\CategoryContent;
 use App\Models\Content;
 use App\Models\Course;
+use App\Models\Delivery;
+use App\Models\DeliveryAddresses;
 use App\Models\Location;
+use App\Models\MultiDayDiscount;
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\Serving;
 use App\Models\Specification;
-use App\Models\SupCategory;
+use App\Models\SubCategory;
 use App\Models\Upload;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -39,6 +42,14 @@ use Illuminate\Validation\Rule;
 
 class ContentController extends Controller
 {
+    public function create(Request $request){
+       $multi_day_discounts= MultiDayDiscount::query()->where('status',1)->exists();
+       if ($request->product){
+           $delivery=Delivery::query()->where('status',1)->exists();
+           return mainResponse(true, 'done', compact('delivery','multi_day_discounts'), [], 101);
+       }
+        return mainResponse(true, 'done', compact('multi_day_discounts'), [], 101);
+    }
 
     // START PRODUCTS
     public function productCategories(Request $request)
@@ -62,7 +73,7 @@ class ContentController extends Controller
     public function productSubCategories(Request $request, $uuid)
     {
         $name = $request->name;
-        $categories = SupCategory::query()
+        $categories = SubCategory::query()
             ->where('category_uuid', $uuid)
             ->when($name, function ($q) use ($name) {
                 $q->where(function ($q) use ($name) {
@@ -104,9 +115,12 @@ class ContentController extends Controller
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
+            'multi_day_discount_uuid' => 'nullable|exists:multi_day_discounts,uuid',
+            'delivery_uuid' => 'nullable|exists:deliveries,uuid',
+
             'category_uuid' => 'required|exists:categories,uuid',
             'sub_category_uuid' => ['required',
-                Rule::exists(SupCategory::class, 'uuid')->where(function ($query) use ($request) {
+                Rule::exists(SubCategory::class, 'uuid')->where(function ($query) use ($request) {
                     $query->where('category_uuid', $request->category_uuid);
                 }),
             ],
@@ -138,7 +152,7 @@ class ContentController extends Controller
         $request->merge([
             'user_uuid' => $user->uuid
         ]);
-        $product = Product::query()->create($request->only('address', 'user_uuid', 'name', 'price', 'details', 'sub_category_uuid', 'category_uuid', 'type', 'lng', 'lat'));
+        $product = Product::query()->create($request->only('address', 'user_uuid', 'name', 'price', 'details', 'sub_category_uuid', 'category_uuid', 'type', 'lng', 'lat','multi_day_discount_uuid','delivery_uuid'));
         for ($i = 0; $i < count($request->keys); $i++) {
             Specification::query()->create([
                 'key' => $request->keys[$i],
@@ -181,9 +195,12 @@ class ContentController extends Controller
             'type' => 'required|in:sale,rent',
             'price' => 'required|int',
             'details' => 'required',
+            'multi_day_discount_uuid' => 'nullable|exists:multi_day_discounts,uuid',
+            'delivery_uuid' => 'nullable|exists:deliveries,uuid',
+
             'category_uuid' => 'required|exists:categories,uuid',
             'sub_category_uuid' => ['required',
-                Rule::exists(SupCategory::class, 'uuid')->where(function ($query) use ($request) {
+                Rule::exists(SubCategory::class, 'uuid')->where(function ($query) use ($request) {
                     $query->where('category_uuid', $request->category_uuid);
                 }),
             ],
@@ -212,7 +229,7 @@ class ContentController extends Controller
         $request->merge([
             'user_uuid' => $user->uuid
         ]);
-        $product->update($request->only('address', 'name', 'details', 'price', 'user_uuid', 'category_content_uuid', 'lng', 'lat', 'type'));
+        $product->update($request->only('address', 'name', 'details', 'price', 'user_uuid', 'category_content_uuid', 'lng', 'lat', 'type','multi_day_discount_uuid','delivery_uuid'));
         if ($request->hasFile('images')) {
             foreach ($request->images as $item) {
                 UploadImage($item, Product::PATH_PRODUCT, Product::class, $product->uuid, false, null, Upload::IMAGE);
@@ -300,6 +317,8 @@ class ContentController extends Controller
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
+            'multi_day_discount_uuid' => 'nullable|exists:multi_day_discounts,uuid',
+
             'category_contents_uuid' => 'required',
             'category_contents_uuid.*' => 'required|exists:category_contents,uuid',
             'lat' => 'required',
@@ -330,7 +349,7 @@ class ContentController extends Controller
             'user_uuid' => $user->uuid
         ]);
 
-        $location = Location::query()->create($request->only('address', 'name', 'user_uuid', 'price', 'details', 'lng', 'lat'));
+        $location = Location::query()->create($request->only('address', 'name', 'user_uuid', 'price', 'details', 'lng', 'lat','multi_day_discount_uuid'));
         $location->categories()->sync($request->category_contents_uuid);
 
         $content = Content::query()->create([

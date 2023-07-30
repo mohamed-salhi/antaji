@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Content;
 use App\Models\Product;
-use App\Models\SupCategory;
+use App\Models\Specification;
+use App\Models\SubCategory;
 use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -31,6 +32,12 @@ class ProductRentController extends Controller
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
+            'address' => 'required',
+
+            'fname' => 'required',
+            'fname.*' => 'string',
+            'fvalue' => 'required',
+            'fvalue.*' => 'string',
             'category_uuid' => 'required|exists:categories,uuid',
             'sub_category_uuid' => 'required|exists:sub_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
@@ -40,7 +47,14 @@ class ProductRentController extends Controller
         $request->merge([
            'type'=>'rent'
         ]);
-        $product= Product::query()->create($request->only('sale','user_uuid','name','price','details','sub_category_uuid','category_uuid','type'));
+        $product= Product::query()->create($request->only('sale','user_uuid','name','price','details','sub_category_uuid','category_uuid','type','address'));
+        for ($i = 0; $i < count($request->fname); $i++) {
+            Specification::query()->create([
+                'key' => $request->fname[$i],
+                'value' => $request->fvalue[$i],
+                'product_uuid' => $product->uuid
+            ]);
+        }
         Content::query()->create([
             'content_uuid'=>$product->uuid,
             'user_uuid'=>$request->user_uuid,
@@ -63,6 +77,10 @@ class ProductRentController extends Controller
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
+            'fname' => 'required',
+            'fname.*' => 'string',
+            'fvalue' => 'required',
+            'fvalue.*' => 'string',
             'category_uuid' => 'required|exists:categories,uuid',
             'sub_category_uuid' => 'required|exists:sub_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
@@ -72,6 +90,8 @@ class ProductRentController extends Controller
         $product = Product::findOrFail($request->uuid);
 
         $product->update($request->only('name','details','price','user_uuid','category_content_uuid'));
+        $product->specifications()->delete();
+
         if (isset($request->delete_images)) {
             $images = Upload::query()->where('imageable_type',Product::class)->where('imageable_id',$product->uuid)->whereNotIn('uuid', $request->delete_images)->get();
 
@@ -79,6 +99,13 @@ class ProductRentController extends Controller
                 File::delete(public_path(Product::PATH_PRODUCT . $item->filename));
                 $item->delete();
             }
+        }
+        for ($i = 0; $i < count($request->fname); $i++) {
+            Specification::query()->create([
+                'key' => $request->fname[$i],
+                'value' => $request->fvalue[$i],
+                'product_uuid' => $product->uuid
+            ]);
         }
         if ($request->hasFile('images')) {
             foreach ($request->images as $item) {
@@ -151,12 +178,14 @@ class ProductRentController extends Controller
                 $data_attr .= 'data-name="' . $que->name . '" ';
                 $data_attr .= 'data-price="' . $que->price . '" ';
                 $data_attr .= 'data-details="' . $que->details . '" ';
+                $data_attr .= 'data-address="' . $que->address . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-category_uuid="' . $que->category_uuid . '" ';
                 $data_attr .= 'data-sub_category_uuid="' . $que->sub_category_uuid . '" ';
                 $data_attr .= 'data-images_uuid="' . implode(',', $que->imageProduct->pluck('uuid')->toArray()) .'" ';
                 $data_attr .= 'data-images="' . implode(',', $que->imageProduct->pluck('filename')->toArray()) .'" ';
-
+                $data_attr .= 'data-key="' . implode(',', $que->specifications->pluck('key')->toArray()) .'" ';
+                $data_attr .= 'data-value="' . implode(',', $que->specifications->pluck('value')->toArray()) .'" ';
                 $url = url('/products/rent/images/'.$que->uuid);
 
                 $string = '';
@@ -259,7 +288,7 @@ class ProductRentController extends Controller
     }
     public function category($uuid)
     {
-        $category = SupCategory::where("category_uuid", $uuid)->pluck("name", "uuid");
+        $category = SubCategory::where("category_uuid", $uuid)->pluck("name", "uuid");
         return $category;
     }
 }

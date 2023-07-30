@@ -21,10 +21,10 @@ class OrderResource extends JsonResource
             'price'=>@$this->content->price,
             'image'=>@$this->content->image,
 
+
         ];
 if ($daysDifference){
     $item['count']= $daysDifference;
-
 }
         if ($request->has('owner')){
             $item['status']=($this->status==Order::PENDING)?__('new'):$this->status;

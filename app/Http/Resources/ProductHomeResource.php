@@ -14,12 +14,17 @@ class ProductHomeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $item= [
             'uuid' => $this->uuid,
             'name' => $this->name,
             'image' => $this->image,
             'price' => $this->price,
             'currency' => __('sr')
         ];
+        if ($request->product){
+            $item['category_name']=@$this->category_name;
+            $item['sub_category_name']=@$this->sub_category_name;
+        }
+        return $item;
     }
 }

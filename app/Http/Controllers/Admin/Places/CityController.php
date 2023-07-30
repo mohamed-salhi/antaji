@@ -85,7 +85,7 @@ class CityController extends Controller
 
     public function indexTable(Request $request)
     {
-        $city = City::query()->withoutGlobalScope('city');
+        $city = City::query()->withoutGlobalScope('city')->orderByDesc('created_at');
 
         return Datatables::of($city)
             ->filter(function ($query) use ($request) {

@@ -1,4 +1,4 @@
-@extends('part.app')
+@extends('admin.part.app')
 @section('title')
     @lang('admins')
 @endsection
@@ -103,7 +103,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('admin.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
+                <form action="{{ route('managers.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
                       enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
@@ -258,7 +258,7 @@
                 @endif // "oPaginate": {"sPrevious": '<-', "sNext": '->'},
             },
             ajax: {
-                url: '{{route('admin.indexTable',app()->getLocale())}}',
+                url: '{{route('managers.indexTable',app()->getLocale())}}',
                 data: function (d) {
                     d.name = $('#s_name').val();
                 }

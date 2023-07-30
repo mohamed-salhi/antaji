@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
@@ -81,8 +81,8 @@ class AdminController extends Controller
     {
 
 
-        $user = Admin::query();
-        return Datatables::of($user)
+        $admin = Admin::query()->orderBy('created_at');
+        return Datatables::of($admin)
 
             ->addColumn('checkbox',function ($que){
                 return $que->id;
@@ -101,25 +101,37 @@ class AdminController extends Controller
 
                 return $string;
             })
-            ->addColumn('status', function ($que) {
+            ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');
-                return '<div class="checkbox">
-                <input class="activate-row"  url="' . $currentUrl . "/admins/updateStatus/" . $que->id . '" type="checkbox" id="checkbox' . $que->id . '" ' .
-                    ($que->status ? 'checked' : '')
-                    . '>
-                <label for="checkbox' . $que->id . '"><span class="checkbox-icon"></span> </label>
-            </div>';
+                if ($que->status==1){
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/admin/managers/updateStatus/0/" . $que->id . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+                        '">' . __('active') . '</button>
+                    ';
+                }else{
+                    $data='
+<button type="button"  data-url="' . $currentUrl . "/admin/managers/updateStatus/1/" . $que->id . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+                        '">' . __('inactive') . '</button>
+                    ';
+                }
+                return $data;
             })
-            ->rawColumns(['status','Type','action'])
+            ->rawColumns(['status','action'])
             ->make(true);
     }
 
-    public function updateStatus($id)
+    public function updateStatus($status, $sup)
     {
-        $activate =  Admin::findOrFail($id);
-        $activate->status = !$activate->status;
-        if (isset($activate) && $activate->save()) {
-            return $this->sendResponse(null, __('item_edited'));
-        }
+        $uuids = explode(',', $sup);
+
+        $activate = Admin::query()
+            ->whereIn('id', $uuids)
+            ->update([
+                'status' => $status
+            ]);
+        return response()->json([
+            'item_edited'
+        ]);
     }
+
 }

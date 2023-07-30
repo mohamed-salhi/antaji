@@ -26,7 +26,6 @@ class Admin extends Authenticatable
         'email',
         'password',
     ];
-    protected $appends=['conversation'];
     const SUPER=1;
 
     /**

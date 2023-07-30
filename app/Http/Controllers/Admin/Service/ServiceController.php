@@ -86,7 +86,7 @@ class ServiceController extends Controller
 
     public function indexTable(Request $request)
     {
-        $service=Service::query()->withoutGlobalScope('service');
+        $service=Service::query()->withoutGlobalScope('service')->orderByDesc('created_at');
         return Datatables::of($service)
             ->filter(function ($query) use ($request) {
                 if ($request->status){

@@ -44,6 +44,8 @@ Route::group(
                 Route::post('/update', 'update')->name('update');
                 Route::delete('/{uuid}', 'destroy')->name('delete');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+
             });
             Route::controller(CityController::class)->prefix('cities')->name('cities.')->group(function () {
                 Route::get('/', 'index')->name('index');
@@ -190,6 +192,33 @@ Route::group(
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
             });
             Route::controller(\App\Http\Controllers\Admin\Discount\MultiDayDiscountController::class)->name('multidaydiscount.')->prefix('multidaydiscount')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/update', 'update')->name('update');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+
+            });
+            Route::controller(\App\Http\Controllers\Admin\Conversation\ConversationController::class)->name('conversations.')->prefix('conversations')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::get('/details/{uuid}', 'details')->name('details');
+            });
+
+            Route::controller(\App\Http\Controllers\Admin\AdminController::class)->name('managers.')->prefix('managers')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{id}', 'updateStatus')->name('updateStatus');
+                Route::get('/edit/{id}', 'edit')->name('edit');
+            });
+
+            Route::get('/support/index/{uuid?}', [\App\Http\Controllers\Admin\Support\SupportController::class,'index'])->name('index');
+            Route::post('/support/message/send', [\App\Http\Controllers\Admin\Support\SupportController::class,'message'])->name('send_msg');
+            Route::get('/support/readMore/{uuid}', [\App\Http\Controllers\Admin\Support\SupportController::class,'readMore'])->name('admin.support.read_more');
+
+            Route::controller(\App\Http\Controllers\Admin\Discount\DeliveryController::class)->name('delivery.')->prefix('delivery')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/update', 'update')->name('update');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');

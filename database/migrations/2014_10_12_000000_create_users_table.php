@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('status',1)->default(1);
             $table->string('specialization_uuid')->nullable();
+            $table->string('package_uuid')->default(1);
+
             $table->double('address')->nullable();
             $table->double('view')->default(0);
 

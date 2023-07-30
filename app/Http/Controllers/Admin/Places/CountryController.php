@@ -108,7 +108,7 @@ class CountryController extends Controller
 
     public function indexTable(Request $request)
     {
-        $countrys = Country::query()->withoutGlobalScope('status');
+        $countrys = Country::query()->withoutGlobalScope('status')->orderByDesc('created_at');
         return Datatables::of($countrys)
             ->filter(function ($query) use ($request) {
                 if ($request->status){

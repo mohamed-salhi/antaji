@@ -600,7 +600,15 @@
     "Complimentary": "مجاني",
     "Multi-day discounts": "خصومات متعددة الايام",
     "package price": "سعر الباقة",
-    "has expired": "انتهت صلاحيته"
-
+    "has expired": "انتهت صلاحيته",
+    "delivery": "التوصيل",
+    "serving": "خدمة",
+    "Add Row": "اضافة صف",
+    "specifications": "مواصفات",
+    "value": "القيمة",
+    "Conversations": "المحادثات",
+    "one name user": "اسم المستخدم الاول",
+    "tow name user": "اسم المستخدم الثاني",
+    "brief": "الوصف"
 
 }

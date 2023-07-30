@@ -17,7 +17,7 @@ class ProcessPaymentController extends Controller
     }
     public function getData(Request $request)
     {
-        $countrys = Payment::query()->where('status',Payment::COMPLETE);
+        $countrys = Payment::query()->where('status',Payment::COMPLETE)->orderByDesc('created_at');
         return Datatables::of($countrys)
             ->filter(function ($query) use ($request) {
                 if ($request->user_name){

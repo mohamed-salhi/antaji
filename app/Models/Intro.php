@@ -43,5 +43,8 @@ class Intro extends Model
         self::creating(function ($item) {
             $item->uuid = Str::uuid();
         });
+        static::addGlobalScope('status', function (Builder $builder) {
+            $builder->where('status', 1);//1==active
+        });
     }
 }
