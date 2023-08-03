@@ -186,7 +186,7 @@
                                                         class="search_input form-control"
                                                         data-select2-id="select2-data-1-bgy2" tabindex="-1"
                                                         aria-hidden="true">
-                                                    <option selected disabled>Select @lang('country')</option>
+                                                    <option selected disabled>@lang('select') @lang('country')</option>
                                                     @foreach ($countries as $itemm)
                                                         <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                                         </option>
@@ -313,7 +313,7 @@
                                     <label for="">@lang('specializations')</label>
                                     <select name="specialization_uuid" id="" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('specializations')</option>
+                                        <option selected disabled>@lang('select') @lang('specializations')</option>
                                         @foreach ($specializations as $itemm)
                                             <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                             </option>
@@ -329,7 +329,7 @@
                                     <label for="">@lang('country')</label>
                                     <select name="country_uuid" id="" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('country')</option>
+                                        <option selected disabled>@lang('select') @lang('country')</option>
                                         @foreach ($countries as $itemm)
                                             <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                         @endforeach
@@ -342,7 +342,7 @@
                                     <label for="">@lang('city')</label>
                                     <select name="city_uuid" id="" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('city')</option>
+                                        <option selected disabled>@lang('select') @lang('city')</option>
 
                                     </select>
                                     <div class="invalid-feedback"></div>
@@ -443,9 +443,10 @@
                         <input type="hidden" name="lat" id="lat">
                         <input type="hidden" name="lng" id="lng">
                         <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary done">@lang('save')</button>
+
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('add')</button>
                         </div>
                     </div>
                 </form>
@@ -506,7 +507,7 @@
                                     <label for="">@lang('specializations')</label>
                                     <select name="specialization_uuid" id="edit_specialization_uuid" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('specializations')</option>
+                                        <option selected disabled>@lang('select') @lang('specializations')</option>
                                         @foreach ($specializations as $itemm)
                                             <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                         @endforeach
@@ -521,7 +522,7 @@
                                     <label for="">@lang('country')</label>
                                     <select name="country_uuid" id="edit_country_uuid" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('country')</option>
+                                        <option selected disabled>@lang('select') @lang('country')</option>
                                         @foreach ($countries as $itemm)
                                             <option value="{{ $itemm->uuid }}"> {{ $itemm->name }} </option>
                                         @endforeach
@@ -534,7 +535,7 @@
                                     <label for="">@lang('city')</label>
                                     <select name="city_uuid" id="edit_city_uuid" class="select form-control"
                                             data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                        <option selected disabled>Select @lang('city')</option>
+                                        <option selected disabled>@lang('select') @lang('city')</option>
 
                                     </select>
                                     <div class="invalid-feedback"></div>
@@ -617,8 +618,7 @@
                                             <div class="invalid-feedback" style="display: block;"></div>
                                         </div>
                                     </div>
-                                </div>
-                                          </div>
+                              </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -635,9 +635,10 @@
                         <input type="hidden" name="lng" id="edit_lng">
 
                         <div class="modal-footer">
+                            <button  class="btn btn-primary done">@lang('save')</button>
+
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('save changes')</button>
                         </div>
                     </div>
                 </form>
@@ -695,6 +696,7 @@
             serverSide: true,
             responsive: true,
             searching: false,
+            lengthMenu: [[25, 100, -1], [25, 100, "All"]],
             "oLanguage": {
                 @if (app()->isLocale('ar'))
                 "sEmptyTable": "ليست هناك بيانات متاحة في الجدول",
@@ -856,7 +858,7 @@
                         console.log('ccc')
                         $('select[name="city_uuid"]').empty();
                         $('select[name="city_uuid"]').append(`
-                                 <option selected  disabled>Select @lang('city')</option>
+                                 <option selected  disabled>@lang('select') @lang('city')</option>
                                  `)
                         $.each(data, function (key, value) {
                             $('select[name="city_uuid"]').append('<option value="' +

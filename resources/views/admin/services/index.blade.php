@@ -41,15 +41,15 @@
                                 </div>
                                 <div class="text-right">
                                     <div class="form-group">
-                                        <button class="btn btn-outline-primary button_modal" type="button"
-                                                data-toggle="modal" id="" data-target="#full-modal-stem"><span><i
-                                                    class="fa fa-plus"></i>@lang('add')</span>
-                                        </button>
-                                        <button id="btn_delete_all" class="btn_delete_all btn btn-outline-danger "
-                                                type="button">
-                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i>
-                                                    @lang('delete')</span>
-                                        </button>
+{{--                                        <button class="btn btn-outline-primary button_modal" type="button"--}}
+{{--                                                data-toggle="modal" id="" data-target="#full-modal-stem"><span><i--}}
+{{--                                                    class="fa fa-plus"></i>@lang('add')</span>--}}
+{{--                                        </button>--}}
+{{--                                        <button id="btn_delete_all" class="btn_delete_all btn btn-outline-danger "--}}
+{{--                                                type="button">--}}
+{{--                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i>--}}
+{{--                                                    @lang('delete')</span>--}}
+{{--                                        </button>--}}
                                         <button
                                             data-status="1" class="btn_status btn btn-outline-success " type="button">
                                             <span><i aria-hidden="true"></i> @lang('activate')</span>
@@ -170,8 +170,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button type="submit" class="btn btn-primary">@lang('add')</button>
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">@lang('close')</button>
                     </div>
                 </form>
             </div>
@@ -230,9 +232,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
                         <button type="button" class="btn btn-secondary"
                                 data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary">@lang('save changes')</button>
                     </div>
 
             </form>

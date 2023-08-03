@@ -14,11 +14,6 @@ class ChatResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        if ($this->user_uuid==$this->one){
-            $user='userOne';
-        }else{
-            $user='userTow';
-        }
         return [
             'type_text' => $this->type_text,
             'user_uuid' => $this->user_uuid,

@@ -422,9 +422,10 @@
                         <input type="hidden" name="lat" id="lat">
                         <input type="hidden" name="lng" id="lng">
                         <div class="modal-footer">
+                            <button  class="btn btn-primary done">@lang('save')</button>
+
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('add')</button>
                         </div>
                     </div>
                 </form>
@@ -611,9 +612,10 @@
                         <input type="hidden" name="lng" id="edit_lng">
 
                         <div class="modal-footer">
+                            <button  class="btn btn-primary done">@lang('save')</button>
+
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('save changes')</button>
                         </div>
                     </div>
                 </form>

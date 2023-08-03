@@ -301,46 +301,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="form-group">
-                                <br>
-                                <input type="file" id="file-input" name="video">
-                                <video id="video-preview" controls></video>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
                     </div>
 
 
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary">@lang('add')</button>
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">@lang('close')</button>
                     </div>
 
                 </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="video_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">New message</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="form-group">
-                    <br>
-                    <video id="video-1" controls class="video-preview"></video>
-                    <div class="invalid-feedback"></div>
-                </div>
-{{--                <video width="320" height="240" autoplay>--}}
-{{--                    <source id="video-1" type="video/mp4">--}}
-{{--                    <source src="movie.ogg" type="video/ogg">--}}
-{{--                    Your browser does not support the video tag.--}}
-{{--                </video>--}}
             </div>
         </div>
     </div>
@@ -424,19 +396,13 @@
                                     </div>
                                 </div>
                             </div>
-                                      </div>
-                        <div class="col-12">
-                            <div class="form-group">
-                                <br>
-                                <input type="file" accept="video/*" name="video" class="file-input">
-                                <video class="video-preview"></video>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
+                         </div>
+
                         <div class="modal-footer">
+                            <button  class="btn btn-primary done">@lang('save')</button>
+
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('save changes')</button>
                         </div>
                     </div>
                 </form>
@@ -554,12 +520,12 @@
                 $('#edit_category_contents_uuid').val(button.data('category_contents_uuid')).trigger('change');
 
             });
-            $(document).on('click', '.video_btn', function (event) {
-                var button = $(this)
-                console.log(button.data('video'))
-                $('#video-1').attr('src', button.data('video'));
-
-            });
+            // $(document).on('click', '.video_btn', function (event) {
+            //     var button = $(this)
+            //     console.log(button.data('video'))
+            //     $('#video-1').attr('src', button.data('video'));
+            //
+            // });
 
         });
     </script>

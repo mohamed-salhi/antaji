@@ -2,7 +2,10 @@
 
 use App\Http\Resources\artists;
 use App\Models\Category;
+use App\Models\FcmToken;
 use App\Models\Image;
+use App\Models\Notification;
+use App\Models\NotificationUser;
 use App\Models\Upload;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -43,7 +46,6 @@ function languages()
         return ['ar' => 'العربية', 'en' => 'النجليزية'];
     }
 }
-
 
 function mainResponse($status, $msg, $items, $validator = [], $code = 200, $pages = null)
 {
@@ -128,6 +130,7 @@ function paginate($items, $perPage = 15, $page = null, $options = [])
     $items = $items instanceof Collection ? $items : Collection::make($items);
     return new LengthAwarePaginator($items->forPage($page, $perPage)->values(), $items->count(), $perPage, $page, $options);
 }
+
 function paginateOrder($items, $perPage = 15, $page = null, $options = [])
 {
     $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
@@ -257,6 +260,59 @@ function sendFCM($message, $id, $type)
     $result = curl_exec($ch);
 //    echo $result;
     curl_close($ch);
+}
+
+function notfication($receiver_uuid,$sender,$type=null,$msg=null,$name=null,$request=null){
+   if ($msg){
+       $content= [
+           'ar'=>$name . __($msg,[],'ar'),
+           'en'=>$name . $msg
+       ];
+   }else{
+       $content= [
+           'ar'=>$request->get('content_ar'),
+           'en'=>$request->get('content_en')
+       ];
+   }
+
+    $ios_tokens = FcmToken::query()
+        ->whereIn("user_uuid", $receiver_uuid)
+        ->where('fcm_device', 'ios')
+        ->pluck('fcm_token')->toArray();
+    $android_tokens = FcmToken::query()
+        ->whereIn("user_uuid", $receiver_uuid)
+        ->where('fcm_device', 'android')
+        ->pluck('fcm_token')->toArray();
+
+    $icon=null;
+    if ($sender!='admin'){
+        $icon=$sender->image;
+    }
+    $title=null;
+    if ($request){
+       $title= ['en'=>$request->get('title_en'),'ar'=>$request->get('title_en')];
+    }
+
+    $notification= Notification::query()->create([
+        'sender' => $sender,
+        'icon' => $icon,
+        'content' => $content,
+        'type' => $type,
+        'title' =>$title
+    ]);
+
+    foreach ($receiver_uuid as $uuid){
+        NotificationUser::query()->create([
+            'receiver_uuid' => $uuid,
+            'notification_uuid'=>$notification->uuid
+        ]);
+    }
+    if ($ios_tokens) {
+        sendFCM($msg, $ios_tokens, "ios");
+    }
+    if ($android_tokens) {
+        sendFCM($msg, $android_tokens, "android");
+    }
 }
 
 ?>

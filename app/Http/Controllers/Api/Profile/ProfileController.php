@@ -226,10 +226,21 @@ class ProfileController extends Controller
     {
         $user = Auth::guard('sanctum')->user();
         $user = new profileEditResource($user);
+
         if ($user->type == 'artist') {
             $specializations = Specialization::all();
             $skills = Skill::all();
             return mainResponse(true, 'ok', compact('user', 'specializations', 'skills'), []);
+        }
+        return mainResponse(true, 'ok', compact('user'), []);
+    }
+
+    public function getProfile(){
+        $user = Auth::guard('sanctum')->user();
+        $user = new profileEditResource($user);
+
+        if ($user->type == 'artist') {
+            return mainResponse(true, 'ok', compact('user'), []);
         }
         return mainResponse(true, 'ok', compact('user'), []);
     }

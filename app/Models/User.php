@@ -128,7 +128,9 @@ class User extends Authenticatable
     }
     public function hasAbility($id)
     {
-        $check= Conversation::query()->where('uuid',$id)->get();
+        $check= Conversation::query()->where('uuid',$id)->where(function ($q){
+            $q->where('one',$this->uuid)->orWhere('tow',$this->uuid);
+        })->exists();
         if ($check) {
             return true;
         }

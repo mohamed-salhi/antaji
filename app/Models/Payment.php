@@ -11,58 +11,53 @@ class Payment extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $guarded = [];
-//    protected $appends = ['pay_geteway', 'user_name', 'when', 'phone','progress_name'];
-    protected $hidden = ['name', 'updated_at', 'type'];
+    protected $appends = ['pay_geteway', 'user_name', 'when', 'phone'];
+    protected $hidden = ['name', 'updated_at','getway','user'];
 
     //variables
     const PENDING = 'pending';
     const COMPLETE = 'complete';
+    const FAILED = 'failed';
+
 
 
     //relations
 
-//    public function getway()
-//    {
-//        return $this->belongsTo(PaymentGateway::class, 'payment_method_uuid', 'uuid');
-//    }
-//
-//    public function user()
-//    {
-//        return $this->belongsTo(User::class, 'user_uuid');
-//    }
+    public function getway()
+    {
+        return $this->belongsTo(PaymentGateway::class, 'payment_method_id', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_uuid');
+    }
 
 
     //Attributes
-//    public function getWhenAttribute()
-//    {
-//        return date($this->created_at);;
-//    }
+    public function getWhenAttribute()
+    {
+        return date($this->created_at);;
+    }
+    public function getStatusAttribute($value)
+    {
+        return __($value);
+    }
 
+    public function getPayGetewayAttribute()
+    {
+        return @$this->getway->name;
+    }
 
-//    public function getProgressNameAttribute()
-//    {
-//
-//        if ($this->reference_type == Competition::class && $this->status == "complete") {
-//            return __('Recharge to participate in the competition');
-//        } elseif ($this->reference_type == Movement::class && $this->status == "complete") {
-//            return __('Charge to wallet');
-//        }
-//    }
+    public function getUserNameAttribute()
+    {
+        return @$this->user->name;
+    }
 
-//    public function getPayGetewayAttribute()
-//    {
-//        return @$this->getway->name;
-//    }
-//
-//    public function getUserNameAttribute()
-//    {
-//        return @$this->user->name;
-//    }
-//
-//    public function getPhoneAttribute()
-//    {
-//        return @$this->user->phone;
-//    }
+    public function getPhoneAttribute()
+    {
+        return @$this->user->mobile;
+    }
 
     //boot
     public static function boot()

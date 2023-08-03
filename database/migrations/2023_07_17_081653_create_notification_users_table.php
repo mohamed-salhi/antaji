@@ -13,10 +13,8 @@ return new class extends Migration
     {
         Schema::create('notification_users', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->foreignUuid('sender_uuid')->references('uuid')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignUuid('notification_uuid')->references('uuid')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignUuid('receiver_uuid')->references('uuid')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->string('content');
-            $table->string('type');
             $table->timestamps();
         });
     }

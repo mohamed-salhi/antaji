@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PaymentGateway\ProcessPaymentController;
 use App\Http\Controllers\Admin\Places\CityController;
 use App\Http\Controllers\Admin\Places\CountryController;
 use Illuminate\Support\Facades\Route;
@@ -62,6 +63,13 @@ Route::group(
                 Route::delete('/{id}', 'destroy')->name('delete');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+
+            });
+            Route::controller(\App\Http\Controllers\Admin\Notifications\NotificationController::class)->name('notifications.')->prefix('notifications')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::delete('/{id}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
 
             });
             Route::controller(\App\Http\Controllers\Admin\Ads\AdsController::class)->name('ads.')->prefix('ads')->group(function () {
@@ -305,6 +313,11 @@ Route::group(
                 Route::get('content/checkout/{uuid}', 'checkout')->name('checkout')->withoutMiddleware(['auth']);;
                 Route::get('content/pay/{uuid}', 'pay')->name('pay')->withoutMiddleware(['auth']);;
             });
+            Route::controller(ProcessPaymentController::class)->prefix('payments')->name('payments.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/getData', 'getData')->name('getData');
+            });
+
 
         });
 

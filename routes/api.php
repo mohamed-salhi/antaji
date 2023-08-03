@@ -65,6 +65,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get_business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusiness'])->middleware('artists');
     Route::delete('delete_business_image/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessImage'])->middleware('artists');;
     Route::delete('delete_business_video/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessVideo'])->middleware('artists');;
+    Route::get('profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProfile']);
 
 
     Route::get('account_settings', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'accountSettingsGet']);
@@ -167,5 +168,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('chat/conversations', [\App\Http\Controllers\Api\Chat\ChatController::class, 'conversations']);
     Route::get('chat/user', [\App\Http\Controllers\Api\Chat\ChatController::class, 'chat']);
     Route::post('chat/add', [\App\Http\Controllers\Api\Chat\ChatController::class, 'sendMsg']);
+
+    Route::post('orders/chat/add', [\App\Http\Controllers\Api\Orders\OrderServiceController::class, 'sendMsg']);
+    Route::post('orders/offer/{service_uuid}/add', [\App\Http\Controllers\Api\Orders\OrderServiceController::class, 'addOffer']);
+    Route::get('orders/chat', [\App\Http\Controllers\Api\Orders\OrderServiceController::class, 'chat']);
 
 });

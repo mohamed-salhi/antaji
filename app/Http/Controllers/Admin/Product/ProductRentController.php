@@ -194,10 +194,10 @@ class ProductRentController extends Controller
 
                 $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
                     '">' . __('delete') . '</button>';
-                $string .= ' <a href="'.$url.'"  class="btn btn-sm btn-outline-dark btn_image" data-uuid="' . $que->uuid .
-                    '">' . __('images') . '  </a>';
-                $string .= ' <a href="'.$url.'"  class="btn btn-sm btn-outline-info btn_image" data-uuid="' . $que->uuid .
-                    '">' . __('details') . '  </a>';
+//                $string .= ' <a href="'.$url.'"  class="btn btn-sm btn-outline-dark btn_image" data-uuid="' . $que->uuid .
+//                    '">' . __('images') . '  </a>';
+//                $string .= ' <a href="'.$url.'"  class="btn btn-sm btn-outline-info btn_image" data-uuid="' . $que->uuid .
+//                    '">' . __('details') . '  </a>';
                 return $string;
             }) ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');

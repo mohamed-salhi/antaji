@@ -39,9 +39,9 @@ class CourseController extends Controller
         if ($request->hasFile('image')) {
             UploadImage($request->image, Course::PATH_COURSE, Course::class, $course->uuid, false, null, Upload::IMAGE);
         }
-        if ($request->hasFile('video')) {
-            UploadImage($request->video, Course::PATH_COURSE_VIDEO, Course::class, $course->uuid, false, null, Upload::VIDEO);
-        }
+//        if ($request->hasFile('video')) {
+//            UploadImage($request->video, Course::PATH_COURSE_VIDEO, Course::class, $course->uuid, false, null, Upload::VIDEO);
+//        }
         return response()->json([
             'item_added'
         ]);
@@ -62,9 +62,9 @@ class CourseController extends Controller
         if ($request->hasFile('image')) {
             UploadImage($request->image, Course::PATH_COURSE, Course::class, $course->uuid, true, null, Upload::IMAGE);
         }
-        if ($request->hasFile('video')) {
-            UploadImage($request->video, Course::PATH_COURSE_VIDEO, Course::class, $course->uuid, true, null, Upload::VIDEO);
-        }
+//        if ($request->hasFile('video')) {
+//            UploadImage($request->video, Course::PATH_COURSE_VIDEO, Course::class, $course->uuid, true, null, Upload::VIDEO);
+//        }
         return response()->json([
             'item_edited'
         ]);
@@ -122,9 +122,7 @@ class CourseController extends Controller
                     '">' . __('delete') . '</button>';
 
                 $string .= ' <a href="' . $url . '"  class="btn btn-sm btn-outline-info btn_image" data-uuid="' . $que->uuid .
-                    '">' . __('videos') . '  </a>';
-                $string .= '<button class="edit_btn btn btn-sm btn-outline-primary video_btn" data-toggle="modal"
-                    data-target="#video_modal" data-video="' . $que->video . '">' . __('video') . '</button>';
+                    '">' . __('Videos') . '  </a>';
                 return $string;
             })->addColumn('status', function ($que) {
                 $currentUrl = url('/');

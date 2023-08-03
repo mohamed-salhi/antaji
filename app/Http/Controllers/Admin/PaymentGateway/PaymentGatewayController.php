@@ -191,6 +191,11 @@ class PaymentGatewayController extends Controller
             return 'Payment Done';
 
         } else {
+            $payment = Payment::query()->where('transaction_id', $request->id)->first();
+
+            $payment->update([
+                'status' => Payment::FAILED
+            ]);
             return 'Payment false';
 
         }

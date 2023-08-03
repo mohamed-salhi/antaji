@@ -16,6 +16,7 @@ use App\Http\Resources\UserOrderResource;
 use App\Models\BookingDay;
 use App\Models\Cart;
 use App\Models\Course;
+use App\Models\Delivery;
 use App\Models\DeliveryAddresses;
 use App\Models\Discount;
 use App\Models\DiscountUser;
@@ -77,12 +78,9 @@ class OrdersController extends Controller
             }
         }
         $user = auth('sanctum')->user();
-
-
         $total = intval(number_format($content->price * $daysDifference, 0, '.', ''));
         $total += intval(number_format($content->price * (@$content->multiDayDiscount->rate / 100) * -1, 0, '.', ''));
         $total += intval(number_format($content->price * doubleval($user->commission), 0, '.', ''));
-
         $amount = number_format($content->price);
         $bill = [
             [
@@ -554,6 +552,14 @@ class OrdersController extends Controller
                     'title' => __('products'),
                     'amount' => number_format($content->price, 0, '.', '')
                 ];
+                $delivery=DB::table('deliveries')->where('id',1)->value('delivery');
+                if($delivery){
+                    $bill[] = [
+                        'title' => __('deliver'),
+                        'amount' => number_format($delivery )
+                    ];
+                }
+
                 $sub_total = $content->price;
                 $item = [
                     'name' => $content->name,
@@ -659,7 +665,7 @@ class OrdersController extends Controller
 
             $bill[] = [
                 'title' => __('total'),
-                'amount' => number_format($sub_total + intval($commission))
+                'amount' => number_format($sub_total + intval($commission)+@$delivery)
             ];
             if ($request->content_type == "product") {
                 return mainResponse(true, 'ok', compact('payment_methods', 'delivery_addresses', 'item', 'bill'), []);

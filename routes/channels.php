@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Conversation;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -30,9 +31,13 @@ Broadcast::channel('chat.{id}', function ($user, $id) {
     }
 
 });
-Broadcast::channel('chat.{id}', function ($user, $id) {
 
-    if ($user->uuid==$id){
+Broadcast::channel('order.{id}', function ($user, $id) {
+
+    $check= \App\Models\OrderConversation::query()->where('uuid',$id)->where(function ($q)use ($user){
+        $q->where('customer_uuid',$user->uuid)->orWhere('owner_uuid',$user->uuid);
+    })->exists();
+    if ($check) {
         return true;
     }
 });

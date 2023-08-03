@@ -473,7 +473,7 @@ var pageNot=2
                 $('.done').html('saving ...').prop('disabled', true);
             },
             success: function (result) {
-
+                $('#full-modal-stem').modal('hide');
                 table.draw()
                 $('#add_model_form').trigger("reset");
 
@@ -483,7 +483,7 @@ var pageNot=2
                 });
 
 
-                $('#full-modal-stem').modal('hide');
+
                 $('#model-excel').modal('hide');
 
 
@@ -595,7 +595,6 @@ var pageNot=2
 
                     var url_path = window.location.href
                     const url = url_path.split("?")[0]+ '/' + uuid;
-                    alert(url)
                     $.ajax({
                         url: url,
                         method: 'DELETE',
@@ -642,22 +641,21 @@ var pageNot=2
                 $('input').removeClass('is-invalid');
                 $('.text-danger').text('');
                 $('.btn-file').addClass('');
-                $('.btn btn-primary').html('saving ...').prop('disabled', true);
+                $('.done').html('saving ...').prop('disabled', true);
 
             },
             success: function (result) {
                 table.draw()
                 $('#edit_modal').modal('hide');
                 $('.form_edit').trigger("reset");
+                $('.done').html('save').prop('disabled', false);
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
 
-                $('.btn btn-primary').prop('disabled', false);
-
-
             },
             error: function (data) {
+                $('.done').html('save').prop('disabled', false);
 
                 if (data.status === 422) {
 

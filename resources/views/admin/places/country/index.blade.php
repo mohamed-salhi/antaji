@@ -191,8 +191,10 @@
                             </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button type="submit" class="btn btn-primary">@lang('add')</button>
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">@lang('close')</button>
                     </div>
                 </form>
             </div>
@@ -256,11 +258,12 @@
                                     </div>
                                 </div>
                            </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary"
-                                    data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('save changes')</button>
-                        </div>
+                            <div class="modal-footer">
+                                <button  class="btn btn-primary done">@lang('save')</button>
+
+                                <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">@lang('close')</button>
+                            </div>
                     </div>
                 </form>
             </div>

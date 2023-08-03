@@ -1,4 +1,4 @@
-@extends('part.app')
+@extends('admin.part.app')
 @section('title')
     @lang('payment')
 @endsection
@@ -146,10 +146,10 @@
                                         </div>
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="s_balance">@lang('balance')</label>
-                                                <input id="s_balance" type="number"
+                                                <label for="s_price">@lang('price')</label>
+                                                <input id="s_price" type="number"
                                                        class="search_input form-control"
-                                                       placeholder="@lang('balance')">
+                                                       placeholder="@lang('price')">
                                             </div>
                                         </div>
                                         <div class="col-3">
@@ -163,17 +163,23 @@
 
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="s_process">@lang('process')</label>
-                                                <select  id="s_process" class="search_input form-control">
-                                                    <option selected disabled>@lang('select') @lang('process')</option>
-                                                    <option value="1"> @lang('Charge to wallet') </option>
-                                                    <option value="2"> @lang('Recharge to participate in the competition') </option>
-
+                                                <label for="s_payment_method_id">@lang('Payment method')</label>
+                                                <select  id="s_payment_method_id" class="search_input form-control">
+                                                    <option selected disabled>@lang('select') @lang('Payment method')</option>
+                                                    @foreach($method as $item)
+                                                        <option value="{{$item->id}}">{{$item->name}} </option>
+                                                    @endforeach
                                                 </select>
                                                 <div class="invalid-feedback"></div>
                                             </div>
                                         </div>
-
+                                        <div class="col-3">
+                                            <div class="form-group">
+                                                <label for="s_order_number">@lang('Order number')</label>
+                                                <input id="s_order_number" type="number" class="search_input form-control"
+                                                       placeholder="@lang('Order number')">
+                                            </div>
+                                        </div>
                                         <div class="col-3" style="margin-top: 20px">
                                             <button id="search_btn" class="btn btn-outline-info" type="submit">
                                                 <span><i class="fa fa-search"></i> @lang('search')</span>
@@ -195,9 +201,10 @@
                                     <tr>
                                         <th>@lang('user name')</th>
                                         <th>@lang('phone')</th>
-                                        <th>@lang('balance')</th>
+                                        <th>@lang('price')</th>
                                         <th >@lang('payment method')</th>
-                                        <th>@lang('process')</th>
+                                        <th>@lang('Order Name')</th>
+                                        <th>@lang('status')</th>
                                         <th style="width: 225px;">@lang('when')</th>
 
                                     </tr>
@@ -230,6 +237,8 @@
         var table = $('#datatable').DataTable({
             processing: true,
             serverSide: true,
+            searching: false,
+            // lengthMenu: [[25, 100, -1], [25, 100, "All"]],
             "oLanguage": {
                 @if (app()->isLocale('ar'))
                 "sEmptyTable": "ليست هناك بيانات متاحة في الجدول",
@@ -259,17 +268,33 @@
                 data: function (d) {
                     d.user_name = $('#s_user_name').val();
                     d.user_phone = $('#s_user_phone').val();
-                    d.balance = $('#s_balance').val();
+                    d.price = $('#s_price').val();
                     d.date = $('#s_date').val();
-                    d.process = $('#s_process').val();
+                    d.order_number = $('#s_order_number').val();
+                    d.payment_method_id = $('#s_payment_method_id').val();
+
+                    console.log($('#s_order_number').val())
                 }
             },
-            dom: 'B<"clear">lfrtip',
-            buttons: {
-                name: 'primary',
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
+            "buttons": [
+                {
 
-                buttons: [ 'excel' ]
-            },
+                    "extend": 'excel',
+                    // "text": '<button class="btn"><i class="fa fa-file-excel-o" style="color: green;"></i>Export</button>',
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
+            ],
             columns: [
 
                 {
@@ -297,14 +322,32 @@
                     searchable: false
                 },
                 {
-                    render: function (data, type, full, meta) {
-                        return `<h3 class="btn btn-success btn-sm">${data}</h3> `;
-
-                    },
-                    data: 'progress_name',
-                    name: 'progress_name',
+                    // render: function (data, type, full, meta) {
+                    //     return `<h3 class="btn btn-success btn-sm">${data}</h3> `;
+                    //
+                    // },
+                    data: 'order_number',
+                    name: 'order_number',
                     orderable: false,
                     searchable: false
+                },
+                {
+
+                    data: 'status',
+                    name: 'status',
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, full, meta) {
+                        if (data=='{{\App\Models\Payment::COMPLETE}}'||data=='مكتمل'){
+                            return `<h3 class="btn btn-success btn-sm">${data}</h3> `;
+                        }else if(data=='Pending'||data=='معلق'){
+                            return `<h3 class="btn btn-warning btn-sm">${data}</h3> `;
+                        }else{
+                            return `<h3 class="btn btn-danger btn-sm">${data}</h3> `;
+
+                        }
+
+                    },
                 },
                 {
                     data: 'when',
@@ -317,29 +360,46 @@
         });
 
         //Edit
-        $(document).ready(function () {
-            {{--$(document).on('click', '.detail_btn', function (event) {--}}
-            {{--    event.preventDefault();--}}
-            {{--    $('input').removeClass('is-invalid');--}}
-            {{--    $('.invalid-feedback').text('');--}}
-            {{--    var button = $(this)--}}
-            {{--    @foreach (locales() as $key => $value)--}}
-            {{--    $('.detail_name_{{ $key }}').html(button.data('name_{{ $key }}'))--}}
-            {{--    @endforeach--}}
-            {{--    $('#detail_entry_price').html(button.data('entryprice'));--}}
-            {{--    $('#detail_points_earned').html(button.data('pointsearned'));--}}
-            {{--    $('#detail_expiry_date').html(button.data('expirydate'));--}}
-            {{--    $('#detail_dest').html(button.data('dest'));--}}
-            {{--    $('#detail_like').html(button.data('like'));--}}
-            {{--    $('#detail_views').html(button.data('views'));--}}
-            {{--    $('#detail-video-preview').attr('src', button.data('video'));--}}
-            {{--    $('#detail_image').attr('src', button.data('image'));--}}
-            {{--    $('#detail_number_subscriptions').html(button.data('number_subscriptions'));--}}
-            {{--    console.log(button.data('user_winner'))--}}
-            {{--    $('#detail_user_winner').html(button.data('user_winner'));--}}
-
-
-            {{--});--}}
-        });
+        function newexportaction(e, dt, button, config) {
+            var self = this;
+            var oldStart = dt.settings()[0]._iDisplayStart;
+            dt.one('preXhr', function (e, s, data) {
+                // Just this once, load all data from the server...
+                data.start = 0;
+                data.length = 2147483647;
+                dt.one('preDraw', function (e, settings) {
+                    // Call the original action function
+                    if (button[0].className.indexOf('buttons-copy') >= 0) {
+                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-excel') >= 0) {
+                        $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-csv') >= 0) {
+                        $.fn.dataTable.ext.buttons.csvHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.csvFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                        $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                            $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                    } else if (button[0].className.indexOf('buttons-print') >= 0) {
+                        $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+                    }
+                    dt.one('preXhr', function (e, s, data) {
+                        // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                        // Set the property to what it was before exporting.
+                        settings._iDisplayStart = oldStart;
+                        data.start = oldStart;
+                    });
+                    // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                    setTimeout(dt.ajax.reload, 0);
+                    // Prevent rendering of the full data to the DOM
+                    return false;
+                });
+            });
+            // Requery the server with the new one-time export settings
+            dt.ajax.reload();
+        };
     </script>
 @endsection

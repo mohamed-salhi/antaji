@@ -86,7 +86,7 @@ class ContactController extends Controller
                 UploadImage($request->voice, Message::PATH_VOICE, Message::class, $msg->uuid, false, null, Upload::VOICE);
 
             }else{
-                return mainResponse(false, 'image not fount', [], [], 101);
+                return mainResponse(false, 'voice not fount', [], [], 101);
 
             }
         }
@@ -118,6 +118,7 @@ class ContactController extends Controller
         Message::query()->where('user_uuid',$user->uuid)->whereNull('view_user')->where('status','admin')->update([
             'view_user'=>date('Y-m-d H:i:s')
         ]);
+
         return mainResponse(true, __('ok'), compact('msg'), []);
     }
 }

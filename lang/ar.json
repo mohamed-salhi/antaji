@@ -609,6 +609,13 @@
     "Conversations": "المحادثات",
     "one name user": "اسم المستخدم الاول",
     "tow name user": "اسم المستخدم الثاني",
-    "brief": "الوصف"
-
+    "brief": "الوصف",
+    "You have submitted an offer before": "قد قدمت عرض قبل ذلك",
+    "The offer has been submitted successfully": "تم تقديم العرض بنجاح",
+    "Order number": "رقم الطلب",
+    "Payments": "عمليات الدفع",
+    "Payment method": "طريقة الدفع",
+    "send notification": "ارسال اشعار",
+    "Notification According To": "اشعار حسب",
+    "Videos": "فديوهات"
 }

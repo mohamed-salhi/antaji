@@ -108,8 +108,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary done">@lang('add')</button>
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">@lang('close')</button>
                     </div>
 
                 </form>
@@ -144,9 +146,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
                         <button type="button" class="btn btn-secondary"
                                 data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary done">@lang('save changes')</button>
                     </div>
 
                 </form>
@@ -208,7 +211,7 @@
                     render: function (data, type, full, meta) {
                     return `<div class="form-group">
                     <br>
-                    <video id="video-1"  src="${data}" controls class="video-preview"></video>
+                    <video id="video-1"  src="${data}" controls></video>
                     <div class="invalid-feedback"></div>
                 </div>`
                         },
@@ -241,6 +244,18 @@
                 $('.image-preview').attr('src', button.data('image'));
 
 
+            });
+        });
+        $(document).ready(function(){
+            $('.file-input').on('change', function () {
+                var input = $(this)[0];
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('.video-preview').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
             });
         });
     </script>

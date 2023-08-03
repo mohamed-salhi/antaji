@@ -188,8 +188,10 @@
                         @endforeach
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary done">@lang('add')</button>
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">@lang('close')</button>
                     </div>
 
                 </form>
@@ -224,11 +226,12 @@
                                 </div>
                             </div>
                         @endforeach
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary"
-                                    data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary done">@lang('save changes')</button>
-                        </div>
+                            <div class="modal-footer">
+                                <button  class="btn btn-primary done">@lang('save')</button>
+
+                                <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">@lang('close')</button>
+                            </div>
                     </div>
                 </form>
             </div>
@@ -248,6 +251,7 @@
             processing: true,
             serverSide: true,
             responsive: true,
+
             lengthMenu: [[25, 100, -1], [25, 100, "All"]],
 
             "bFilter": false,
