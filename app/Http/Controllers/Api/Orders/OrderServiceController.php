@@ -47,17 +47,17 @@ class OrderServiceController extends Controller
          ]);
        ChatOrder::query()->create([
            'user_uuid'=>$customer->uuid,
-           'order_order_conversation_uuid'=>$conversation->uuid,
+           'order_conversation_uuid'=>$conversation->uuid,
            'type'=>ChatOrder::OFFER
        ]);
        ChatOrder::query()->create([
            'message'=>$request->message,
            'user_uuid'=>$customer->uuid,
-           'order_order_conversation_uuid'=>$conversation->uuid,
+           'order_conversation_uuid'=>$conversation->uuid,
            'type'=>ChatOrder::TEXT
        ]);
       $uuids=[$owner_uuid];
-       notfication($uuids,$customer,'has submitted a new offer',$customer->name,Notification::NEWOFFER);
+       notfication($uuids,$customer,Notification::NEWOFFER,'has submitted a new offer',$customer->name,null);
        return mainResponse(true, __('The offer has been submitted successfully'), [], [], 101);
 
    }

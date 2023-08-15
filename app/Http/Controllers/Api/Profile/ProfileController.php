@@ -7,6 +7,7 @@ use App\Http\Resources\acountSetting;
 use App\Http\Resources\BusinessVideoProfileResource;
 use App\Http\Resources\BusinessVideoResource;
 use App\Http\Resources\CourseResource;
+use App\Http\Resources\EditBusinessVideoResource;
 use App\Http\Resources\ProductHomeResource;
 use App\Http\Resources\profileArtistResource;
 use App\Http\Resources\profileEditResource;
@@ -60,26 +61,35 @@ class ProfileController extends Controller
                 'email',
                 Rule::unique('users', 'email')->ignore($user->uuid, 'uuid')
             ],
-            'mobile' => [
-                'required',
-                'max:12',
-                Rule::unique('users', 'mobile')->ignore($user->uuid, 'uuid')
-            ],
             'country_uuid' => 'required|exists:countries,uuid',
             'city_uuid' => 'required|exists:cities,uuid',
+            'id_image' => 'nullable|image',
         ];
 
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
-        $user->update($request->only('name', 'email', 'mobile', 'country_uuid', 'city_uuid'));
+if ($user->documentation!=User::ACCEPT) {
+    if ($request->hasFile('id_image')) {
+        File::delete(public_path(User::PATH_ID . @$user->idUserImage->filename));
+        $user->idUserImage()->delete();
+
+        $user->update([
+            'documentation' => User::PENDING
+        ]);
+        UploadImage($request->id_image, User::PATH_ID, User::class, $user->uuid, false, null, Upload::IMAGE, 'id_image');
+    }
+}
+else{
+    return mainResponse(false, __('you are already documentation'), [],[], 300);
+}
+
+        $user->update($request->only('name', 'email', /*'mobile', */ 'country_uuid', 'city_uuid'));
         if ($user) {
             return mainResponse(true, "done", [], [], 201);
-
         } else {
             return mainResponse(false, 'حصل خطا ما', [], ['حصل خطا ما'], 500);
-
         }
 
     }
@@ -87,31 +97,37 @@ class ProfileController extends Controller
     public function updateProfile(Request $request)
     {
         $rules = [
-            'personal_photo' => 'required',
-            'cover_Photo' => 'required',
-            'video' => 'required',
-            'brief' => 'required',
+            'cover_photo' => 'nullable|image',
+            'personal_photo' => 'nullable|image',
+            'video' => 'nullable',
+            'brief' => 'required|string',
             'lat' => 'required',
             'lng' => 'required',
-            'address' => 'required',
+            'address' => 'required|string',
         ];
         $user = Auth::guard('sanctum')->user();
-        if ($user->type == 'artist') {
-            $rules['skills'] = 'required';
+        if ($user->type == User::ARTIST) {
+            $rules['skills'] = 'required|array';
+            $rules['skills.*'] = 'required|exists:skills,uuid';
             $rules['specialization_uuid'] = 'required|exists:specializations,uuid';
         }
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
-        if ($user->type == 'artist') {
+        if ($user->type == User::ARTIST) {
             $user->update($request->only('brief', 'lat', 'lng', 'specialization_uuid', 'address'));
             $user->skills()->sync($request->skills);
         } else {
             $user->update($request->only('brief', 'lat', 'lng', 'address'));
         }
-        UploadImage($request->personal_photo, "upload/user/personal", User::class, $user->uuid, true, null, Upload::IMAGE, 'personal_photo');
-        UploadImage($request->cover_Photo, "upload/user/cover", User::class, $user->uuid, true, null, Upload::IMAGE, 'cover_photo');
+        if ($request->hasFile('cover_photo')) {
+            UploadImage($request->cover_photo, "upload/user/cover", User::class, $user->uuid, true, null, Upload::IMAGE, 'cover_photo');
+        }
+
+        if ($request->hasFile('personal_photo')) {
+            UploadImage($request->personal_photo, "upload/user/personal", User::class, $user->uuid, true, null, Upload::IMAGE, 'personal_photo');
+        }
 
         if ($request->has('video')) {
             UploadImage($request->video, "upload/user/video", User::class, $user->uuid, true, null, Upload::VIDEO);
@@ -147,6 +163,67 @@ class ProfileController extends Controller
             $busines->save();
         }
         return mainResponse(true, 'done', [], [], 101);
+    }
+
+    public function editBusinessVideo($uuid)
+    {
+        $video = BusinessVideo::query()->select('uuid', 'user_uuid', 'title')->where('uuid', $uuid)->firstOrFail();
+        if (\auth('sanctum')->id() == $video->user_uuid) {
+            $item = EditBusinessVideoResource::make($video);
+            return mainResponse(true, 'done', $item, [], 101);
+        } else {
+            return mainResponse(false, __('You do not have validity'), [], [], 101);
+
+        }
+    }
+
+    public function updateBusinessVideo(Request $request, $uuid)
+    {
+        $rules['video'] = 'nullable';
+        $rules['title'] = 'required|string|max:100';
+        $rules['image'] = 'nullable|image';
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+        $user = Auth::guard('sanctum')->user();
+        $business = BusinessVideo::query()->findOrFail($uuid);
+
+        if ($user->uuid == $business->user_uuid) {
+            $business->update($request->only('title'));
+            if ($request->hasFile('image')) {
+                UploadImage($request->image, BusinessVideo::PATH_IMAGE, BusinessVideo::class, $business->uuid, true, $business->imageBusiness->uuid, Upload::IMAGE);
+            }
+            if ($request->hasFile('video')) {
+                $video=  UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $business->uuid, true, $business->videoBusiness->uuid, Upload::VIDEO);
+                $getID3 = new \getID3;
+                $video_file = $getID3->analyze('upload/business/video/'.$video);
+                $duration_string = $video_file['playtime_string'];
+                $business->time=$duration_string;
+                $business->save();
+            }
+//            if ($request->hasFile('image')) {
+//                File::delete(public_path(BusinessVideo::PATH_IMAGE . @$business->imageBusiness->filename));
+//                $imagename = uniqid() . '.' . $request->image->getClientOriginalExtension();
+//                $request->image->move(public_path(BusinessVideo::PATH_IMAGE), $imagename);
+//                Upload::query()->find($business->imageBusiness->uuid)->update(
+//                    [
+//                        'filename' => $imagename,
+//                    ]
+//                );
+////                UploadImage($request->image, BusinessVideo::PATH_IMAGE, BusinessVideo::class, $business->uuid, true, null, Upload::IMAGE);
+//            }
+//            if ($request->hasFile('video')) {
+//                UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $business->uuid, true, null, Upload::VIDEO);
+//                $getID3 = new \getID3;
+//                $video_file = $getID3->analyze('upload/business/video/' . $business->videoBusiness->filename);
+//                $duration_string = $video_file['playtime_string'];
+//                $business->time = $duration_string;
+//                $business->save();
+//            }
+            return mainResponse(true, 'done', [], [], 101);
+        }
+
     }
 
     public function addBusinessImages(Request $request)
@@ -209,16 +286,19 @@ class ProfileController extends Controller
     public function getBusiness($type)
     {
         $user = Auth::guard('sanctum')->user();
-        $business = "";
-        if ($type == "video") {
-            $business = BusinessVideo::query()->where('user_uuid', $user->uuid)->paginate();
-            pageResource($business, BusinessVideoProfileResource::class);
+        $items = [];
+        if ($type == "videos") {
+            $items = BusinessVideo::query()->where('user_uuid', $user->uuid)->paginate();
+            pageResource($items, BusinessVideoProfileResource::class);
         } elseif ($type == "images") {
-            $business = Businessimages::query()->where('user_uuid', $user->uuid)->first();
+            $item = Businessimages::query()->where('user_uuid', $user->uuid)->first();
+            if ($item) {
+                $items = paginate(collect($item->images));
+            }
         } else {
-            return mainResponse(false, 'type must video||images', [], ['type must video||images'], 404);
+            return mainResponse(false, 'type must videos||images', [], ['type must videos||images'], 404);
         }
-        return mainResponse(true, 'done', [], [], 200);
+        return mainResponse(true, 'done', compact('items'), [], 200);
 
     }
 
@@ -227,22 +307,32 @@ class ProfileController extends Controller
         $user = Auth::guard('sanctum')->user();
         $user = new profileEditResource($user);
 
-        if ($user->type == 'artist') {
+        if ($user->type == User::ARTIST) {
             $specializations = Specialization::all();
             $skills = Skill::all();
-            return mainResponse(true, 'ok', compact('user', 'specializations', 'skills'), []);
+            return mainResponse(true, 'ok', $user, []);
         }
-        return mainResponse(true, 'ok', compact('user'), []);
+        return mainResponse(true, 'ok', $user, []);
     }
 
-    public function getProfile(){
+    public function editProfileSpecializations()
+    {
+        $items = Specialization::all();
+        return mainResponse(true, 'ok', compact('items'), []);
+    }
+
+    public function editProfileSkills()
+    {
+        $items = Skill::all();
+        return mainResponse(true, 'ok', compact('items'), []);
+    }
+
+    public function getProfile()
+    {
         $user = Auth::guard('sanctum')->user();
         $user = new profileEditResource($user);
 
-        if ($user->type == 'artist') {
-            return mainResponse(true, 'ok', compact('user'), []);
-        }
-        return mainResponse(true, 'ok', compact('user'), []);
+        return mainResponse(true, 'ok', $user, []);
     }
 
     public function getBusinessProfile($user_uuid, $type)

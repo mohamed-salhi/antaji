@@ -252,13 +252,8 @@
                             </div>
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="user_uuid">@lang('users')</label>
-                                <select class="form-control" id="edit_user_uuid" name="user_uuid" required>
-                                    <option value="">@lang('select') @lang('users')</option>
-                                    @foreach ($users as $item)
-                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
-                                    @endforeach
-                                </select>
+                                <input type="hidden" value="{{$user_uuid}}" class="form-control"
+                                       name="user_uuid">
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -306,6 +301,27 @@
     </div>
     </div>
     <!-- Modal -->
+    <div class="modal fade" id="video_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">@lang('video')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <video  width="320" height="240" id="video-show" controls class="video-preview"></video>
+
+                    {{--                    <video  controls>--}}
+                    {{--                        <source type="video/mp4" id="video-show">--}}
+                    {{--                        Your browser does not support the video tag.--}}
+                    {{--                    </video>--}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 @endsection
 @section('js')
 @endsection
@@ -425,6 +441,14 @@
                 $('#video-1').attr('src', button.data('video'));
 
             });
+        });
+
+
+        $(document).on('click', '.btn_video', function (event) {
+            var button = $(this)
+            console.log(button.data('video'))
+            $('#video-show').attr('src', button.data('video'));
+
         });
     </script>
 @endsection

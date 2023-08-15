@@ -36,6 +36,7 @@ use App\Models\Product;
 use App\Models\Search;
 use App\Models\Service;
 use App\Models\Setting;
+use App\Models\Social;
 use App\Models\SubCategory;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -144,6 +145,10 @@ class HomeController extends Controller
     public function page($id)
     {
         $setting = Page::query()->where('id', $id)->first();
+        if ($id == Page::about_application) {
+            $setting->setAttribute('social_medias',Social::query()->select('uuid','link')->get()
+        );
+        }
         return mainResponse(true, "done", $setting, []);
     }
 
@@ -207,7 +212,7 @@ class HomeController extends Controller
         $orderName = ($request->name == 'Desc') ? 'orderByDesc' : 'orderBy';
         $products = Product::query()
             ->where('category_uuid', $uuid)
-            ->where('sup_category_uuid', $sub_category_uuid);
+            ->where('sub_category_uuid', $sub_category_uuid);
         if ($request->has('created_at')) {
             $products->$orderCreate('created_at');
         }
@@ -220,7 +225,7 @@ class HomeController extends Controller
         $products->setCollection(collect($items));
         $items = $products;
 
-        return mainResponse(true, "done", compact('items'), [], 200);
+        return mainResponse(true, "done", $items, [], 200);
     }
 
     public function getDetailsProduct($uuid)
@@ -259,72 +264,37 @@ class HomeController extends Controller
 
     }
 
-    public function favoriteContentPost(Request $request)
+    public function favoritePost(Request $request)
     {
         $rules = [
-            'content_type' => 'required|in:product,location',
+            'type' => 'required|in:' . Favorite::USER . ',' . Favorite::ARTIST . ',' . Favorite::LOCATION . ',' . Favorite::PRODUCT,
         ];
+        if ($request->type == Favorite::USER){
+            $rules['uuid']  = ['required' , Rule::exists(User::class, 'uuid')->where('type', User::USER)];
+        } elseif ($request->type == Favorite::ARTIST){
+            $rules['uuid']  = ['required' , Rule::exists(User::class, 'uuid')->where('type', User::ARTIST)];
+        } elseif ($request->type == Favorite::PRODUCT){
+            $rules['uuid']  = ['required' , Rule::exists(Product::class, 'uuid')];
+        }elseif ($request->type == Favorite::LOCATION){
+            $rules['uuid']  = ['required' , Rule::exists(Location::class, 'uuid')];
+        }
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
-        if ($request->content_type == 'product') {
-            $product = Product::query()->find($request->content_uuid);
-            if (!$product) {
-                return mainResponse(false, 'product not found', [], [], 404);
-            }
-        } else {
-            $location = Location::query()->find($request->content_uuid);
-            if (!$location) {
-                return mainResponse(false, 'location not found', [], [], 404);
-            }
-        }
+
         $user = Auth::guard('sanctum')->user();
         if ($user) {
             $check = Favorite::query()
                 ->where('user_uuid', $user->uuid)
-                ->where('content_uuid', $request->content_uuid)
-                ->where('content_type', $request->content_type)
+                ->where('content_uuid', $request->uuid)
+                ->where('content_type', $request->type)
                 ->first();
             if (!$check) {
                 Favorite::create([
                     'user_uuid' => $user->uuid,
-                    'content_uuid' => $request->content_uuid,
-                    'content_type' => $request->content_type
-                ]);
-                return mainResponse(true, 'ok', [], []);
-            } else {
-                $check->delete();
-                return mainResponse(true, 'done delete', [], []);
-            }
-        } else {
-            return mainResponse(false, 'users is not register', [], []);
-        }
-    }
-
-    public function favoriteUserPost(Request $request)
-    {
-        $rules = [
-            'type' => 'required|in:user,artist',
-            'reference_uuid' => 'required|exists:users,uuid',
-        ];
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
-            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
-        }
-
-        $user = Auth::guard('sanctum')->user();
-        if ($user) {
-            $check = FavoriteUser::query()
-                ->where('user_uuid', $user->uuid)
-                ->where('reference_uuid', $request->reference_uuid)
-                ->where('type', $request->type)
-                ->first();
-            if (!$check) {
-                FavoriteUser::create([
-                    'user_uuid' => $user->uuid,
-                    'reference_uuid' => $request->reference_uuid,
-                    'type' => $request->type
+                    'content_uuid' => $request->uuid,
+                    'content_type' => $request->type
                 ]);
                 return mainResponse(true, 'ok', [], []);
             } else {
@@ -340,35 +310,35 @@ class HomeController extends Controller
     {
         $user = Auth::guard('sanctum')->user();
         if ($user) {
-            if ($request->type == 'products') {
+            if ($request->type == Favorite::PRODUCT) {
                 $items = Product::query()->whereHas('favorite', function ($query) use ($user) {
                     $query->where('user_uuid', $user->uuid);
                 })->paginate();
-            } elseif ($request->type == 'locations') {
+            } elseif ($request->type == Favorite::LOCATION) {
                 $items = Location::query()->whereHas('favorite', function ($query) use ($user) {
                     $query->where('user_uuid', $user->uuid);
                 })->paginate();
-            } elseif ($request->type == 'users') {
+            } elseif ($request->type == Favorite::USER) {
                 $items = User::query()->where('type', User::USER)->whereHas('favorite', function ($query) use ($user) {
                     $query->where('user_uuid', $user->uuid);
                     $query->where('type', User::USER);
                 })->paginate();
                 $items = pageResource($items, artists::class);
                 return mainResponse(true, 'ok', compact('items'), []);
-            } elseif ($request->type == 'artists') {
+            } elseif ($request->type == Favorite::ARTIST) {
                 $items = User::query()
                     ->where('type', User::ARTIST)
                     ->whereHas('favorite', function ($query) use ($user) {
-                    $query->where('user_uuid', $user->uuid);
-                    $query->where('type', User::ARTIST);
-                })->paginate();
+                        $query->where('user_uuid', $user->uuid);
+                        $query->where('type', User::ARTIST);
+                    })->paginate();
                 $items = pageResource($items, artists::class);
                 return mainResponse(true, 'ok', compact('items'), []);
             }
             $items = pageResource($items, ProductResource::class);
             return mainResponse(true, 'ok', compact('items'), []);
         } else {
-            return mainResponse(false, 'users is not register', [], []);
+            return mainResponse(false, 'type is invalid', [], []);
         }
     }
 
@@ -592,11 +562,11 @@ class HomeController extends Controller
         return mainResponse(true, "done", [], [], 200);
     }
 
-    public function businessVideo($uuid)
+    public function businessVideo($uuid, $type, $video_uuid)
     {
-        $businessVide = BusinessVideo::query()->find($uuid);
+        $businessVide = BusinessVideo::query()->findOrFail($video_uuid);
         $update = $businessVide->increment('view');
-        return mainResponse(true, "done", $businessVide, [], 200);
+        return mainResponse(true, "done", [], [], 200);
     }
 
 
@@ -628,7 +598,7 @@ class HomeController extends Controller
                 'default' => false
             ]);
         }
-        $delivery_addresses = DeliveryAddresses::query()->create($request->only('title','address', 'lng', 'lat', 'country_uuid', 'city_uuid', 'user_uuid', 'default'));
+        $delivery_addresses = DeliveryAddresses::query()->create($request->only('title', 'address', 'lng', 'lat', 'country_uuid', 'city_uuid', 'user_uuid', 'default'));
         return mainResponse(true, "done", [], [], 200);
     }
 
@@ -702,12 +672,13 @@ class HomeController extends Controller
                     $deliveryAddress?->update(['default' => 1]);
                 }
             }
-            $delivery_addresses->update($request->only('title','address', 'lng', 'lat', 'country_uuid', 'city_uuid', 'user_uuid', 'default'));
+            $delivery_addresses->update($request->only('title', 'address', 'lng', 'lat', 'country_uuid', 'city_uuid', 'user_uuid', 'default'));
             return mainResponse(true, "done", [], [], 200);
         } else {
             return mainResponse(false, 'delivery_addresses not found', [], ['delivery_addresses not found'], 101);
         }
     }
+
     public function editDeliveryAddresses($uuid)
     {
         $item = DeliveryAddresses::query()->findOrFail($uuid);

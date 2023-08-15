@@ -30,7 +30,7 @@ class ProcessPaymentController extends Controller
                     });
                 }
                 if ($request->date) {
-                    $query->where('created_at', $request->date);
+                    $query->whereDate('created_at', $request->date);
                 }
                 if ($request->price) {
                     $query->where('price', $request->price);

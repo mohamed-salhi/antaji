@@ -7,6 +7,10 @@
         input[type="checkbox"] {
             transform: scale(1.5);
         }
+        .input-images-2 .image-uploader .uploaded .uploaded-image img:hover  {
+            transform: scale(2.2); /* تكبير الصورة عند تحويم المؤشر */
+
+        }
     </style>
 @endsection
 @section('content')
@@ -175,7 +179,7 @@
     <!-- Modal -->
     <div class="modal fade" class="full-modal-stem" id="full-modal-stem" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog  modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">@lang('add')</h5>
@@ -264,12 +268,14 @@
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-header bg-dark">
-                                    <h4 class="m-0">@lang('specifications')</h4>
+                                    <h4 class="m-0"  style="color: white">@lang('specifications')</h4>
                                 </div>
                                 <div class="card-body">
                                     <div class="text-right mt-3">
-                                        <button class="add_row btn btn-sm btn-dark">@lang('Add Row')</button>
+                                        <a class="add_row btn btn-sm btn-dark">@lang('Add Row')</a>
                                     </div>
+                                    <br>
+                                    <br>
                                     <div class="row_data">
                                         <div class="row mb-3">
                                             <div class="col-md-11">
@@ -286,7 +292,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-1">
-                                                <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                                                <a class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -296,7 +302,7 @@
                         </div>
                         <div class="col-md-12">
                             <div class="input-field">
-                                <label class="active">Photos</label>
+                                <label class="active">@lang('Photos')</label>
                                 <div class="input-images" style="padding-top: .5rem;"></div>
                             </div>
                         </div>
@@ -317,7 +323,7 @@
     <!-- Modal -->
     <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
          aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog  modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">@lang('edit')</h5>
@@ -343,7 +349,7 @@
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="price">@lang('price')</label>
-                                <input type="text" class="form-control"
+                                <input type="number" class="form-control"
                                        placeholder="@lang('price')"
                                        name="price" id="edit_price">
                                 <div class="invalid-feedback"></div>
@@ -394,11 +400,29 @@
                             </div>
                         </div>
                         <div class="spe">
+                            <div class="data"><div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-header bg-dark">
+                                            <h4 class="m-0"  style="color: white">@lang('specifications')</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="text-right mt-3">
+                                                <a id="addRow" class="add_row btn btn-sm btn-dark">@lang('Add Row')</a>
+                                            </div>
+                                            <br>
+                                            <br>
+                                            <div class="row_data">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="add_images">
                             <div class="col-12 edit_images">
                                 <div class="input-field">
-                                    <label class="active">Photos</label>
+                                    <label class="active">@lang('Photos')</label>
                                     <div class="input-images-2" style="padding-top: .5rem;"></div>
                                 </div>
                                 <div class="invalid-feedback"></div>
@@ -576,31 +600,6 @@ console.log()
                 let fileArrayVlaue = button.data('value').split(',');
                 console.log(fileArrayKey.length)
                 if(fileArrayKey.length>=0){
-                    $('.spe').append(`<div class="data"><div class="col-md-12">
-        <div class="card">
-        <div class="card-header bg-dark">
-        <h4 class="m-0">@lang('specifications')</h4>
-</div>
-    <div class="card-body">
-        <div class="text-right mt-3">
-            <a class="add_row btn btn-sm btn-dark">@lang('Add Row')</a>
-        </div>
-        <div class="row_data">
-            <div class="row mb-3">
-                <div class="col-md-11">
-                    <div class="row">
-
-                    </div>
-                </div>
-                <div class="col-md-1">
-                    <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
-                </div>
-            </div>
-        </div>
-  </div>
-    </div>
-</div>
-</div>`)
                     $.each(fileArrayKey, function (index, fileName) {
                         $('.row_data').append(`<div class="row mb-3">
                         <div class="col-md-11">
@@ -618,7 +617,7 @@ console.log()
                             </div>
                         </div>
                         <div class="col-md-1">
-                            <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                            <a class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></a>
                         </div>
                     </div>`);
                     })
@@ -642,11 +641,11 @@ console.log()
                     imagesInputName: 'images[]',
                     preloadedInputName: 'delete_images',
                     maxSize: 2 * 1024 * 1024,
-                    maxFiles: 10
+                    maxFiles: 20,
+                    with: 100
                 });
             });
         });
-
 
         $('.add_row').click(function(e) {
             e.preventDefault();
@@ -667,7 +666,7 @@ console.log()
                             </div>
                         </div>
                         <div class="col-md-1">
-                            <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                            <a class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></a>
                         </div>
                     </div>`;
 

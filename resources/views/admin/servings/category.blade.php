@@ -108,7 +108,7 @@
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('name')</th>
-                                        <th>@lang('type')</th>
+{{--                                        <th>@lang('type')</th>--}}
                                         <th>@lang('services count')</th>
                                         <th>@lang('status')</th>
                                         <th style="width: 225px;">@lang('actions')</th>
@@ -155,10 +155,11 @@
                         @endforeach
                     </div>
 
-
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
-                        <button class="btn btn-primary">@lang('add')</button>
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">@lang('close')</button>
                     </div>
 
                 </form>
@@ -260,10 +261,10 @@
                     data: 'name_translate',
                     name: 'name'
                 },
-                {
-                    data: 'type_translate',
-                    name: 'type_translate'
-                },
+                // {
+                //     data: 'type_translate',
+                //     name: 'type_translate'
+                // },
                 {
                     data: 'content_count',
                     name: 'content_count'

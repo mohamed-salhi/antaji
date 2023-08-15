@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\FavoriteUser;
 use App\Models\Package;
 use App\Models\Reviews;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,11 +20,12 @@ class profileUserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
         return [
             'uuid' => $this->uuid,
             'type' => $this->type,
-            'is_verified' => $this->package->type==Package::VIP,
-            'is_favorite' => FavoriteUser::query()->where('reference_uuid', $this->uuid)->where('user_uuid', Auth::guard('sanctum')->id()),
+            'is_verified' => $this->is_verified,
+            'is_favorite' => $this->is_favorite,
             'name' => $this->name,
             'lat' => $this->lat,
             'lng' => $this->lng,

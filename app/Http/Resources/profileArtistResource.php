@@ -23,8 +23,8 @@ class profileArtistResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'type' => $this->type,
-            'is_verified' => $this->package->type==Package::VIP,
-            'is_favorite' => FavoriteUser::query()->where('reference_uuid', $this->uuid)->where('user_uuid', Auth::guard('sanctum')->id())->exists(),
+            'is_verified' =>$this->is_verified,
+            'is_favorite' =>$this->is_favorite,
             'name' => $this->name,
             'skills' => ($this->type == 'artist') ? $this->skills()->select('name')->get() : null,
             'lat' => $this->lat,

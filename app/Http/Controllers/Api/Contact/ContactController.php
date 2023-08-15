@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Contact;
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use App\Models\Message;
+use App\Models\Social;
 use App\Models\Upload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,12 +13,21 @@ use Illuminate\Support\Facades\Validator;
 
 class ContactController extends Controller
 {
-    public function contact(Request $request){
+    public function contactUs(Request $request)
+    {
+        $social_medias=   Social::query()->select('uuid','link')->get();
+
+        return mainResponse(true, 'ok', compact('social_medias'), []);
+    }
+
+    public function contact(Request $request)
+    {
         $rules = [
             'name' => 'required|max:100',
             'email' => 'required|email',
-            'description' => 'required',
-            'image' => 'required|image',
+            'description' => 'required|string',
+            'images' => 'nullable|array',
+            'images.*' => 'required|image',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -27,23 +37,28 @@ class ContactController extends Controller
 //        $request->merge([
 //            'user_uuid'=>$user->uuid
 //        ]);
-        $contact=   Contact::create($request->only('name','description','email'));
-        if ($request->hasFile('image')) {
-            UploadImage($request->image, "upload/contact/", Contact::class, $contact->uuid, false ,null,Upload::IMAGE);
+        $contact = Contact::create($request->only('name', 'description', 'email'));
+        if ($request->hasFile('images')) {
+            foreach ($request->images as $item) {
+                UploadImage($item, "upload/contact/", Contact::class, $contact->uuid, false, null, Upload::IMAGE);
+            }
         }
-        if ($contact){
+
+        if ($contact) {
 //            $not= NotificationAdmin::query()->create([
 //                'not_uuid'=>$contact->uuid,
 //                'type'=>'help-list',
 //                'content'=>['en'=>__('You have a message of help from '.$user->name),'ar'=> $user->name.'لديك رسالة مساعدة من '],
 //            ]);
 //            event(new NotificationAdminEvent('help-list',__('You have a message of help from '.$user->name),null,route('helps.index')."?uuid=".$not->uuid));
-            return mainResponse(true, 'ok',[], []);
+            return mainResponse(true, 'ok', [], []);
         }
-        return mainResponse(false, 'error',[], []);
+        return mainResponse(false, 'error', [], []);
 
     }
-    public function message(Request $request){
+
+    public function message(Request $request)
+    {
         $rules = [
             'message' => 'nullable|max:100',
             'type' => 'required|in:1,2,3,4,5',
@@ -60,63 +75,61 @@ class ContactController extends Controller
 
         $user = Auth::guard('sanctum')->user();
         $request->merge([
-            'user_uuid'=>$user->uuid,
-            'status'=>'user',
-            'view_user'=>date('Y-m-d H:i:s')
+            'user_uuid' => $user->uuid,
+            'status' => 'user',
+            'view_user' => date('Y-m-d H:i:s')
         ]);
 
-        if ($request->type==Message::TEXT){
-            if ($request->has('message')){
-                $msg=   Message::create($request->only('message','user_uuid','status','type'));
-            }else{
+        if ($request->type == Message::TEXT) {
+            if ($request->has('message')) {
+                $msg = Message::create($request->only('message', 'user_uuid', 'status', 'type'));
+            } else {
                 return mainResponse(false, 'message not fount', [], [], 101);
             }
-        }
-        elseif ($request->type==Message::IMAGE){
-            if ($request->hasFile('image')){
-                $msg=   Message::create($request->only('user_uuid','status','type'));
+        } elseif ($request->type == Message::IMAGE) {
+            if ($request->hasFile('image')) {
+                $msg = Message::create($request->only('user_uuid', 'status', 'type'));
                 UploadImage($request->image, Message::PATH_IMAGE, Message::class, $msg->uuid, false, null, Upload::IMAGE);
-            }else{
+            } else {
                 return mainResponse(false, 'image not fount', [], [], 101);
             }
-        }
-        elseif ($request->type==Message::VOICE){
-            if ($request->hasFile('voice')){
-                $msg=   Message::create($request->only('user_uuid','status','type'));
+        } elseif ($request->type == Message::VOICE) {
+            if ($request->hasFile('voice')) {
+                $msg = Message::create($request->only('user_uuid', 'status', 'type'));
                 UploadImage($request->voice, Message::PATH_VOICE, Message::class, $msg->uuid, false, null, Upload::VOICE);
 
-            }else{
+            } else {
                 return mainResponse(false, 'voice not fount', [], [], 101);
 
             }
-        }
-        elseif ($request->type==Message::LOCATION){
-            if ($request->has('lat_lng')){
-                $msg=Message::create($request->only('lat_lng','user_uuid','status','type'));
-            }else{
+        } elseif ($request->type == Message::LOCATION) {
+            if ($request->has('lat_lng')) {
+                $msg = Message::create($request->only('lat_lng', 'user_uuid', 'status', 'type'));
+            } else {
                 return mainResponse(false, 'lat_lng not fount', [], [], 101);
             }
-        }
-        elseif ($request->type==Message::ATTACHMENT){
-            if ($request->hasFile('attachment')){
-                $msg=   Message::create($request->only('user_uuid','status','type'));
+        } elseif ($request->type == Message::ATTACHMENT) {
+            if ($request->hasFile('attachment')) {
+                $msg = Message::create($request->only('user_uuid', 'status', 'type'));
                 UploadImage($request->attachment, Message::PATH_ATTACHMENT, Message::class, $msg->uuid, false, null, Upload::ATTACHMENT);
-            }else{
+            } else {
                 return mainResponse(false, 'image not fount', [], [], 101);
             }
         }
-        event (new \App\Events\Msg($msg->content,$user->name,"user",$user->uuid,$user->image,$request->type,$msg->created_at));
-        if ($msg){
-            return mainResponse(true, 'ok',[], []);
+        event(new \App\Events\Msg($msg->content, $user->name, "user", $user->uuid, $user->image, $request->type, $msg->created_at));
+        if ($msg) {
+            return mainResponse(true, 'ok', [], []);
         }
-        return mainResponse(false, 'error',[], []);
+        return mainResponse(false, 'error', [], []);
 
     }
-    public function messages(){
+
+    public function messages()
+    {
         $user = Auth::guard('sanctum')->user();
-        $msg=Message::query()->where('user_uuid',$user->uuid)->paginate(5);
-        Message::query()->where('user_uuid',$user->uuid)->whereNull('view_user')->where('status','admin')->update([
-            'view_user'=>date('Y-m-d H:i:s')
+        $msg = Message::query()->where('user_uuid', $user->uuid)->paginate(5);
+        Message::query()->where('user_uuid', $user->uuid)->whereNull('view_user')->where('status', 'admin')->update([
+            'view_user' => date('Y-m-d H:i:s')
         ]);
 
         return mainResponse(true, __('ok'), compact('msg'), []);

@@ -15,10 +15,12 @@ class BusinessVideoProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'image'=>$this->image,
-            'title'=>$this->title,
-            'view'=>$this->view,
-            'time'=>$this->time,
+            'uuid' => $this->uuid,
+            'image' => $this->image,
+            'title' => $this->title,
+//            'view' => $this->view,
+            'views' => $this->view . ' ' . __('views'),
+            'time' => $this->time,
         ];
     }
 }

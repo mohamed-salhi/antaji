@@ -588,7 +588,7 @@
     "number of usage": "عدد الاستخدام",
     "number of usage for user": "عدد الاستخدام للمستخدم",
     "percent": "نسبه مئويه",
-    "fixed price": "سعر ثابت",
+    "Fixed Price": "سعر ثابت",
     "discount type": "نوع الخصم",
     "Where do you use it?": "اين تستخدم؟",
     "Excel Export": "طباعة بالاكسل",
@@ -617,5 +617,13 @@
     "Payment method": "طريقة الدفع",
     "send notification": "ارسال اشعار",
     "Notification According To": "اشعار حسب",
-    "Videos": "فديوهات"
+    "Videos": "فديوهات",
+    "Rent Product": "منتاجات للاايجار",
+    "Sale Product": "منتاجات للبيع",
+    "Distribution distribution by cities": "توزيع المستخدمين حسب المدن",
+    "Sale ProdDistribution distribution by users": "توزيع المستخدمين حسب المستخدمين",
+    "acceptable": "مقبول",
+    "unacceptable": "مرفوض",
+    "documentation": "توثيق",
+    "Photos": "الصور"
 }

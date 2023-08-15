@@ -56,6 +56,10 @@ Route::group(
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
             });
+//            Route::controller(\App\Http\Controllers\Admin\MainController::class)->prefix('main')->name('main.')->group(function () {
+                Route::get('/main', [\App\Http\Controllers\Admin\MainController::class,'index'])->name('main.index');
+
+//            });
             Route::controller(\App\Http\Controllers\Admin\Service\ServiceController::class)->name('services.')->prefix('services')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/store', 'store')->name('store');
@@ -221,7 +225,15 @@ Route::group(
                 Route::put('/updateStatus/{status}/{id}', 'updateStatus')->name('updateStatus');
                 Route::get('/edit/{id}', 'edit')->name('edit');
             });
+            Route::controller(\App\Http\Controllers\Admin\Social\SocialController::class)->name('social.')->prefix('social')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{uuid}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
 
+            });
             Route::get('/support/index/{uuid?}', [\App\Http\Controllers\Admin\Support\SupportController::class,'index'])->name('index');
             Route::post('/support/message/send', [\App\Http\Controllers\Admin\Support\SupportController::class,'message'])->name('send_msg');
             Route::get('/support/readMore/{uuid}', [\App\Http\Controllers\Admin\Support\SupportController::class,'readMore'])->name('admin.support.read_more');
@@ -232,6 +244,12 @@ Route::group(
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
+
+            });
+            Route::controller(\App\Http\Controllers\Admin\Documentation\DocumentationController::class)->name('documentations.')->prefix('documentations')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
 
             });
             Route::controller(\App\Http\Controllers\Admin\Contact\ContactController::class)->prefix('contacts')->name('contacts.')->group(function () {
@@ -309,6 +327,7 @@ Route::group(
             Route::controller(\App\Http\Controllers\Admin\PaymentGateway\PaymentGatewayController::class)->prefix('paymentGateways')->name('paymentGateways.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/getData', 'getData')->name('getData');
+
                 Route::put('/activate/{uuid}', 'activate')->name('activate');
                 Route::get('content/checkout/{uuid}', 'checkout')->name('checkout')->withoutMiddleware(['auth']);;
                 Route::get('content/pay/{uuid}', 'pay')->name('pay')->withoutMiddleware(['auth']);;

@@ -169,7 +169,7 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
             $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('name', $name)->first();
             if ($image) {
                 File::delete(public_path($path . $image->filename));
-                $image->update(
+                return $image->update(
                     [
                         'filename' => $imagename,
                         'imageable_id' => $imageable_id,
@@ -179,7 +179,7 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
                     ]
                 );
             } else {
-                Upload::create([
+                return   Upload::create([
                     'filename' => $imagename,
                     'imageable_id' => $imageable_id,
                     'imageable_type' => $model,
@@ -188,13 +188,13 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
                 ]);
             }
         } else {
-            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->first();
+            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('type',$type)->first();
             if ($id) {
                 $image = Upload::where('uuid', $id)->first();
             }
             if ($image) {
                 File::delete(public_path($path . $image->filename));
-                $image->update(
+               $image->update(
                     [
                         'filename' => $imagename,
                         'imageable_id' => $imageable_id,
@@ -203,8 +203,9 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
                         'name' => $name
                     ]
                 );
+                return $imagename;
             } else {
-                Upload::create([
+                return  Upload::create([
                     'filename' => $imagename,
                     'imageable_id' => $imageable_id,
                     'imageable_type' => $model,
@@ -287,6 +288,8 @@ function notfication($receiver_uuid,$sender,$type=null,$msg=null,$name=null,$req
     $icon=null;
     if ($sender!='admin'){
         $icon=$sender->image;
+        $sender=$sender->uuid;
+
     }
     $title=null;
     if ($request){

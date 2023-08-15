@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +20,10 @@ class artists extends JsonResource
             'specialization' => $this->specialization_name,
             'name' => $this->name,
             'personal_photo' => $this->image,
-            'video' => $this->video_user
+            'cover_photo' => $this->cover_user,
+            'video' => $this->video_user,
+            'is_verified' => $this->is_verified,
+            'is_favorite' => $this->is_favorite
         ];
     }
 }

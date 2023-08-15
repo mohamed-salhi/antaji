@@ -16,12 +16,17 @@ class acountSetting extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
-            'phone' => $this->mobile,
-            'email' => $this->email,
-            'country_name' => $this->country_name,
-            'city_name' => $this->city_name,
             'name'=>$this->name,
-            'countries'=>$this->country,
+            'email' => $this->email,
+            'mobile' => $this->mobile,
+            'mobile_without_country_code' => @explode( '-', $this->mobile)[1],
+            'mobile_country_code' => @explode( '-', $this->mobile)[0],
+            'country_image' => @$this->country->image,
+            'country_name' => $this->country_name,
+            'country_uuid' => $this->country_uuid,
+            'city_name' => $this->city_name,
+            'city_uuid' => $this->city_uuid,
+            'is_id_verified' => ($this->documentation)?true:false,
         ];
     }
 }

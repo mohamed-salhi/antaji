@@ -399,8 +399,8 @@
                             console.log(button.data('url'))
                         },
                         success: function (result) {
-                            var count = $('#count_contact').text();
-                            $('#count_contact').html(parseInt(count) - 1)
+                            var count = $('#counthelps').text();
+                            $('#counthelps').html(parseInt(count) - 1)
                             table.draw()
                         },
                     });

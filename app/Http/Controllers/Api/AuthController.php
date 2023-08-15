@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\NotificationAdminEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CityResource;
+use App\Http\Resources\Login;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\FCM;
@@ -34,6 +35,7 @@ class AuthController extends Controller
         $countries = $countries->get();
         return mainResponse(true, 'ok', compact('countries'), []);
     }
+
     public function cities(Request $request)
     {
         $cities = City::query()->where('country_uuid', auth('sanctum')->user()->country_uuid)->paginate();
@@ -88,7 +90,10 @@ class AuthController extends Controller
             return mainResponse(false, __('Code is not correct'), [], []);
         }
 
-        return mainResponse(true, __('ok'), compact('token'), []);
+        $user->setAttribute('token', $token);
+        $user = new Login($user);
+
+        return mainResponse(true, __('ok'), $user, []);
     }
 
     public function again(Request $request)
@@ -144,6 +149,9 @@ class AuthController extends Controller
             ], [
                 'code' => Hash::make($code)
             ]);
+            $token = $user->createToken('api')->plainTextToken;
+            $user->setAttribute('token', $token);
+            $user = new Login($user);
             return mainResponse(true, __('ok'), $user, []);
         } else {
             return mainResponse(false, __('حصل خطا ما'), [], []);

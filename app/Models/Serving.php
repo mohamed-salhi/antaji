@@ -16,6 +16,10 @@ class Serving extends Model
     protected $hidden = ['category', 'user'];
     public $incrementing = false;
     protected $guarded = [];
+    const PERCEN='percent';
+    const FIXED_PRICE='fixed price';
+    const HOUR='hour';
+
     //boot
     //Relations
     public function user()

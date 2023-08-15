@@ -391,7 +391,7 @@
                                              data-trigger="fileinput"
                                              style="width: 200px; height: 150px;">
                                             <img id="flag"
-                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                                 src="{{asset('dashboard/app-assets/images/placeholder.jpeg')}}"
                                                  alt=""/>
                                         </div>
                                         <div class="form-group">
@@ -414,7 +414,7 @@
                                              data-trigger="fileinput"
                                              style="width: 200px; height: 150px;">
                                             <img id="flag"
-                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                                 src="{{asset('dashboard/app-assets/images/placeholder.jpeg')}}"
                                                  alt=""/>
                                         </div>
                                         <div class="form-group">
@@ -583,7 +583,7 @@
                                              data-trigger="fileinput"
                                              style="width: 200px; height: 150px;">
                                             <img id="edit_src_image_personal_photo"
-                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                                 src="{{asset('dashboard/app-assets/images/placeholder.jpeg')}}"
                                                  alt=""/>
                                         </div>
                                         <div class="form-group">
@@ -606,7 +606,7 @@
                                              data-trigger="fileinput"
                                              style="width: 200px; height: 150px;">
                                             <img id="edit_src_image_cover_Photo"
-                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
+                                                 src="{{asset('dashboard/app-assets/images/placeholder.jpeg')}}"
                                                  alt=""/>
                                         </div>
                                         <div class="form-group">

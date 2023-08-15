@@ -32,13 +32,14 @@ class ServingController extends Controller
             'details' => 'required',
             'category_contents_uuid' => 'required|exists:category_contents,uuid',
             'city_uuid' =>'required|exists:cities,uuid',
-            'from' => 'required|date|after:'.date('Y/m/d'),
-            'to' => 'required|date|after:'.$request->form,
-            'working_condition' => 'required|in:contract,Fixed_price,hour',
+            'from' => 'required|date_format:"Y-m-d"|after:yesterday',
+            'to' => 'required|date_format:"Y-m-d"|after:' . $request->from,
+            'working_condition' => 'required|in:contract,fixed_price,hour',
+            'address' => 'required'
         ];
 
         $this->validate($request, $rules);
-        $serving= Serving::query()->create($request->only('name','user_uuid','price','details','category_contents_uuid','city_uuid','to','from','working_condition'));
+        $serving= Serving::query()->create($request->only('name','address','user_uuid','price','details','category_contents_uuid','city_uuid','to','from','working_condition'));
         $content= Content::query()->create([
             'content_uuid'=>$serving->uuid,
             'user_uuid' => $request->user_uuid,
@@ -58,9 +59,11 @@ class ServingController extends Controller
             'details' => 'required',
             'category_contents_uuid' => 'required|exists:category_contents,uuid',
             'city_uuid' =>'required|exists:cities,uuid',
-            'from' => 'required|date|after:'.date('Y/m/d'),
+            'from' => 'required|date|after:yesterday',
             'to' => 'required|date|after:'.$request->form,
-            'working_condition' => 'required|in:contract,Fixed_price,hour',
+            'working_condition' => 'required|in:contract,fixed_price,hour',
+            'address' => 'required'
+
         ];
         $this->validate($request, $rules);
         $serving->update($request->only('name','user_uuid','price','details','category_contents_uuid','city_uuid','to','from','working_condition'));
@@ -123,6 +126,7 @@ class ServingController extends Controller
                 $data_attr .= 'data-price="' . $que->price . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-details="' . $que->details . '" ';
+                $data_attr .= 'data-address="' . $que->address . '" ';
                 $data_attr .= 'data-to="' . $que->to . '" ';
                 $data_attr .= 'data-from="' . $que->from . '" ';
                 $data_attr .= 'data-city_uuid="' . $que->city_uuid . '" ';

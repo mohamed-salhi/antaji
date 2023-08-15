@@ -163,7 +163,7 @@ class CourseController extends Controller
 
     public function videoIndexTable(Request $request, $uuid)
     {
-        $images = Upload::query()->where('imageable_id', $uuid)->where('imageable_type', Course::class)->where('type',Upload::VIDEO);
+        $images = Upload::query()->where('imageable_id', $uuid)->where('imageable_type', Course::class)->where('type',Upload::VIDEO)->orderByDesc('created_at');
         return \Yajra\DataTables\DataTables::of($images)
             ->addColumn('checkbox', function ($que) {
                 return $que->uuid;

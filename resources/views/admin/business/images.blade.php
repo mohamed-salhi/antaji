@@ -309,14 +309,8 @@
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
                 $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
-                let fileArray = button.data('images').split(',') + '';
-                if (fileArray.indexOf(',') >= 0) {
-                    fileArray = button.data('images').split(',');
-                }
-                let fileArrayUuids = button.data('images_uuid').split(',') + '';
-                if (fileArrayUuids.indexOf(',') >= 0) {
-                    fileArrayUuids = button.data('images_uuid').split(',');
-                }
+                let fileArray = button.data('images').split(',')
+                let fileArrayUuids = button.data('images_uuid').split(',')
                 var preloaded = []; // Empty array
                 $.each(fileArray, function (index, fileName) {
                     var object = {

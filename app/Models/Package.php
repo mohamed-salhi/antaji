@@ -14,22 +14,23 @@ class Package extends Model
 
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $translatable = ['name','details'];
-    protected $appends = ['name_translate','details_translate','is_subscriber'];
-    protected $hidden=['details','name'];
+    protected $translatable = ['name', 'details'];
+    protected $appends = ['name_translate', 'details_translate', 'is_subscriber'];
+    protected $hidden = ['details', 'name'];
     protected $guarded = [];
 
-    const VIP='vip';
-    const PROFESSIONAL='professionals';
-    const BASIC='basic';
+    const VIP = 'vip';
+    const PROFESSIONAL = 'professionals';
+    const BASIC = 'basic';
 
     //Relations
 
     //Attributes
     public function getPriceAttribute($value)
     {
-        return ($value)?$value:__('Complimentary');
+        return ($value) ? $value : __('Complimentary');
     }
+
     public function getNameTranslateAttribute()
     {
         return @$this->name;
@@ -42,9 +43,10 @@ class Package extends Model
     {
         return @$this->details;
     }
+
     public function getIsSubscriberAttribute()
     {
-        return User::query()->where('uuid',auth('sanctum')->id())->where('package_uuid',$this->uuid)->exists();
+        return User::query()->where('uuid', auth('sanctum')->id())->where('package_uuid', $this->uuid)->exists();
     }
 
     //boot

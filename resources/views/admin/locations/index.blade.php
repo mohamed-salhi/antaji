@@ -7,6 +7,10 @@
         input[type="checkbox"] {
             transform: scale(1.5);
         }
+
+        /*img:hover {*/
+        /*    transform: scale(2.2); !* تكبير الصورة عند تحويم المؤشر *!*/
+        /*}*/
     </style>
 @endsection
 @section('content')
@@ -160,7 +164,7 @@
     <!-- Modal -->
     <div class="modal fade" class="full-modal-stem" id="full-modal-stem" tabindex="-1" role="dialog"
          aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">@lang('add')</h5>
@@ -237,7 +241,7 @@
                         </div>
                         <div class="col-md-12">
                             <div class="input-field">
-                                <label class="active">Photos</label>
+                                <label class="active">@lang('Photos')</label>
                                 <div class="input-images" style="padding-top: .5rem;"></div>
                             </div>
                         </div>
@@ -257,9 +261,8 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">@lang('edit')</h5>
@@ -323,10 +326,10 @@
                             </select>
                             <div class="invalid-feedback"></div>
                         </div>
-                <div class="add_images">
+                <div class="add_images" >
                     <div class="col-12 edit_images">
                         <div class="input-field">
-                            <label class="active">Photos</label>
+                            <label class="active">@lang('Photos')</label>
                             <div class="input-images-2" style="padding-top: .5rem;"></div>
                         </div>
                         <div class="invalid-feedback"></div>
@@ -494,7 +497,7 @@
                     imagesInputName: 'images[]',
                     preloadedInputName: 'delete_images',
                     maxSize: 2 * 1024 * 1024,
-                    maxFiles: 10
+                    maxFiles: 20
                 });
             });
         });

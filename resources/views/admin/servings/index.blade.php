@@ -149,7 +149,7 @@
                                                             disabled>@lang('select')  @lang('working condition')</option>
                                                     <option value="hour"> @lang('hour')</option>
                                                     <option value="contract"> @lang('contract')</option>
-                                                    <option value="Fixed_price"> @lang('Fixed price')</option>
+                                                    <option value="fixed_price"> @lang('Fixed Price')</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -290,9 +290,9 @@
                                         class="select form-control"
                                         data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
                                     <option selected disabled>@lang('select') @lang('working condition')</option>
-                                    <option value="hour"> hour</option>
-                                    <option value="contract"> contract</option>
-                                    <option value="Fixed_price"> Fixed_price</option>
+                                    <option value="hour"> @lang('hour')</option>
+                                    <option value="contract">@lang('contract') </option>
+                                    <option value="fixed_price"> @lang('Fixed Price')</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -313,6 +313,15 @@
                                 <input type="date" class="form-control"
                                        placeholder="@lang('to')" name="to"
                                        id="name">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="about">@lang('address')
+                                </label>
+                                <input type="text" class="form-control" placeholder="@lang('address')"
+                                       name="address" id="address">
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -422,9 +431,9 @@
                                         class="select form-control"
                                         data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
                                     <option selected disabled>@lang('select') @lang('working condition')</option>
-                                    <option value="hour"> hour</option>
-                                    <option value="contract"> contract</option>
-                                    <option value="Fixed_price"> Fixed_price</option>
+                                    <option value="hour"> @lang('hour')</option>
+                                    <option value="contract">@lang('contract') </option>
+                                    <option value="fixed_price"> @lang('Fixed Price')</option>
                                 </select>
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -458,6 +467,15 @@
                                         <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
                                     @endforeach
                                 </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="about">@lang('address')
+                                </label>
+                                <input type="text" class="form-control" placeholder="@lang('address')"
+                                       name="address" id="edit_address">
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -545,7 +563,18 @@
                 },
                 {
                     data: 'working_condition',
-                    name: 'working_condition'
+                    name: 'working_condition',
+                    "render": function (data, type, full, meta) {
+                         if(data=='{{\App\Models\Serving::FIXED_PRICE}}'){
+                             return '{{__('fixed price')}}'
+                        }else if(data=='{{\App\Models\Serving::HOUR}}'){
+                             return '{{__('hour')}}'
+
+                         }else {
+                             return '{{__('contract')}}'
+
+                         }
+                    },
                 },
                 {
                     data: 'city_name',
@@ -597,6 +626,8 @@
                 $('#edit_to').val(button.data('to'))
                 $('#edit_category_contents_uuid').val(button.data('category_contents_uuid'))
                 $('#edit_city_uuid').val(button.data('city_uuid')).trigger('change');
+                $('#edit_address').val(button.data('address'));
+console.log(button.data('address'))
                 $('#edit_working_condition').val(button.data('working_condition')).trigger('change');
             });
         });

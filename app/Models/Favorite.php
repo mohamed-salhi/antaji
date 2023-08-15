@@ -10,10 +10,15 @@ use Illuminate\Support\Str;
 class Favorite extends Model
 {
     use HasFactory;
+
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $guarded=[];
+    protected $guarded = [];
 
+    const PRODUCT = 'product';
+    const LOCATION = 'location';
+    const ARTIST = 'artist';
+    const USER = 'user';
 
     public static function boot()
     {

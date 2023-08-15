@@ -19,13 +19,13 @@ class ProductResource extends JsonResource
             'name' => $this->name,
             'image' => $this->image,
             'content_type' => $this->content_type,
+            'is_favorite' => $this->is_favorite,
             'price' => $this->price,
             'currency' => __('sr')
         ];
 
         if ($request->uuid) {
             $item['type'] = $this->type;
-            $item['is_favorite'] = $this->is_favorite;
             $item['attachments'] = $this->attachments;
             $item['details'] = $this->details;
             $item['specifications'] = $this->specifications()->select('uuid', 'key', 'value')->get();

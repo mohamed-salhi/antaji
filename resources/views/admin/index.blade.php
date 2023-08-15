@@ -44,7 +44,20 @@
                                             <button class="btn btn-outline-primary button_modal" type="button"
                                                     data-toggle="modal" id=""
                                                     data-target="#full-modal-stem"><span><i
-                                                            class="fa fa-plus"></i>@lang('add')</span>
+                                                        class="fa fa-plus"></i>@lang('add')</span>
+                                            </button>
+                                            <button
+
+                                                class="btn_delete_all btn btn-outline-danger " type="button">
+                                                <span><i aria-hidden="true"></i> @lang('delete')</span>
+                                            </button>
+                                            <button
+                                                data-status="1" class="btn_status btn btn-outline-success " type="button">
+                                                <span><i aria-hidden="true"></i> @lang('activate')</span>
+                                            </button>
+                                            <button
+                                                data-status="0" class="btn_status btn btn-outline-warning " type="button">
+                                                <span><i aria-hidden="true"></i> @lang('deactivate')</span>
                                             </button>
                                         </div>
                                     </div>
@@ -55,13 +68,7 @@
                                     <div class="row">
 
 
-                                        <div class="col-3" style="margin-top: 20px">
-                                            <button id="btn_delete_all"
-                                                    class="btn_delete_all btn btn-outline-danger " type="button">
-                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i> @lang('delete')</span>
-                                            </button>
 
-                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -144,9 +151,10 @@
 {{--                            </div>--}}
 {{--                        </div>--}}
                         <div class="modal-footer">
+                            <button class="btn btn-primary done">@lang('save')</button>
+
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
-                            <button class="btn btn-primary">@lang('add')</button>
                         </div>
                     </div>
                 </form>
@@ -155,53 +163,54 @@
     </div>
 
     <!-- Modal -->
-{{--    <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"--}}
-{{--         aria-hidden="true">--}}
-{{--        <div class="modal-dialog modal-dialog-centered" role="document">--}}
-{{--            <div class="modal-content">--}}
-{{--                <div class="modal-header">--}}
-{{--                    <h5 class="modal-title" id="exampleModalLongTitle">@lang('edit')</h5>--}}
-{{--                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">--}}
-{{--                        <span aria-hidden="true">&times;</span>--}}
-{{--                    </button>--}}
-{{--                </div>--}}
-{{--                <form action="{{ route('admin.update') }}" method="POST" id="form_edit" class=""--}}
-{{--                      enctype="multipart/form-data">--}}
-{{--                    @csrf--}}
-{{--                    <input type="hidden" name="id" id="id" class="form-control"/>--}}
-{{--                    <div class="modal-body">--}}
-{{--                        <div class="col-12">--}}
-{{--                            <div class="form-group">--}}
-{{--                                <label for="name">@lang('name')</label>--}}
-{{--                                <input type="text" class="form-control"--}}
-{{--                                       placeholder="@lang('name')"--}}
-{{--                                       name="name" id="edit-name">--}}
-{{--                                <div class="invalid-feedback"></div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                        <div class="col-12">--}}
-{{--                            <div class="form-group">--}}
-{{--                                <label for="email">@lang('email')</label>--}}
-{{--                                <input type="email" class="form-control"--}}
-{{--                                       placeholder="@lang('email')"--}}
-{{--                                       name="email" id="edit-email">--}}
-{{--                                <div class="invalid-feedback"></div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                        <div class="col-12">--}}
-{{--                            <div class="form-group">--}}
-{{--                                <label for="password">@lang('password')</label>--}}
-{{--                                <input type="password" class="form-control"--}}
-{{--                                       placeholder="@lang('password')"--}}
-{{--                                       name="password">--}}
-{{--                                <div class="invalid-feedback"></div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
+    <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">@lang('edit')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('managers.update') }}" method="POST" id="form_edit" class=""
+                      enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="id" id="id" class="form-control"/>
+                    <div class="modal-body">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="name">@lang('name')</label>
+                                <input type="text" class="form-control"
+                                       placeholder="@lang('name')"
+                                       name="name" id="edit-name">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="email">@lang('email')</label>
+                                <input type="email" class="form-control"
+                                       placeholder="@lang('email')"
+                                       name="email" id="edit-email">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="password">@lang('password')</label>
+                                <input type="password" class="form-control"
+                                       id="edit-password"
+                                       placeholder="@lang('password')"
+                                       name="password">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
 {{--                        <div class="mb-5">--}}
 {{--                            <label>Roles</label>--}}
-{{--                            --}}{{--                            @php--}}
-{{--                            --}}{{--                                $role_admin=$item->roles->pluck('id')->toArray();--}}
-{{--                            --}}{{--                            @endphp--}}
+{{--                                                        @php--}}
+{{--                                                            $role_admin=$item->roles->pluck('id')->toArray();--}}
+{{--                                                        @endphp--}}
 {{--                            <div id="roleadmin">--}}
 {{--                                @foreach($roles as $itemm)--}}
 {{--                                    <div class="form-check">--}}
@@ -215,16 +224,17 @@
 {{--                            </div>--}}
 
 {{--                        </div>--}}
-{{--                        <div class="modal-footer">--}}
-{{--                            <button type="button" class="btn btn-secondary"--}}
-{{--                                    data-dismiss="modal">@lang('close')</button>--}}
-{{--                            <button class="btn btn-primary">@lang('save changes')</button>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </form>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    </div>--}}
+                        <div class="modal-footer">
+                            <button class="btn btn-primary done">@lang('save')</button>
+
+                            <button type="button" class="btn btn-secondary"
+                                    data-dismiss="modal">@lang('close')</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('scripts')
     <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
@@ -305,25 +315,26 @@
 
 
         $(document).ready(function () {
-            $(document).on('click', '.btn_edit', function (event) {
+            $(document).on('click', '.edit_btn', function (event) {
                 $('input').removeClass('is-invalid');
                 $('.invalid-feedback').text('');
                 event.preventDefault();
                 var button = $(this)
                 var id = button.data('id')
+                console.log(button.data('name'))
                 $('#id').val(id);
                 $('#edit-name').val(button.data('name'));
                 $('#edit-email').val(button.data('email'));
-                $.ajax({
-                    url: "admins" + "/" + id + "/" + "role",
-                    type: "GET",
-                    dataType: "json",
-                    success: function (data) {
-                        $.each(data, function (key, value) {
-                            {{--$('#roleadmin').append(' <div class="form-check"> <input class="form-check-input" name="roles[]" type="checkbox" value="{{$itemm->id}}" id="flexCheckDefault" @checked(in_array($itemm->id, old('roles',$role_admin )))> <label class="form-check-label" for="flexCheckDefault">{{$itemm->name}}</label> </div>');--}}
-                        });
-                    },
-                });
+                {{--$.ajax({--}}
+                {{--    url: "admins" + "/" + id + "/" + "role",--}}
+                {{--    type: "GET",--}}
+                {{--    dataType: "json",--}}
+                {{--    success: function (data) {--}}
+                {{--        $.each(data, function (key, value) {--}}
+                {{--            --}}{{--$('#roleadmin').append(' <div class="form-check"> <input class="form-check-input" name="roles[]" type="checkbox" value="{{$itemm->id}}" id="flexCheckDefault" @checked(in_array($itemm->id, old('roles',$role_admin )))> <label class="form-check-label" for="flexCheckDefault">{{$itemm->name}}</label> </div>');--}}
+                {{--        });--}}
+                {{--    },--}}
+                {{--});--}}
 
             });
         });

@@ -129,6 +129,9 @@ class BusinessController extends Controller
 
                 $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
                     '">' . __('delete') . '</button>';
+                $string .= ' <button type="button" class="btn btn-sm btn-outline-primary btn_video" data-video="' . $que->video .
+                    '" data-toggle="modal"
+                    data-target="#video_modal">' . __('video') . '</button>';
                 return $string;
             }) ->addColumn('status', function ($que)  {
                 $currentUrl = url('/');

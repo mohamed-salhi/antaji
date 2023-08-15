@@ -111,10 +111,10 @@ class PaymentGatewayController extends Controller
 //                PackageUser::query()->where('user_uuid',$payment->user_uuid)->update([
 //                    'status' => false
 //                ]);
-//                PackageUser::query()->create([
-//                    'package_uuid' => $payment->package_uuid,
-//                    'user_uuid' => $payment->user_uuid,
-//                ]);
+                PackageUser::query()->create([
+                    'package_uuid' => $payment->package_uuid,
+                    'user_uuid' => $payment->user_uuid,
+                ]);
                 $payment->update([
                     'status' => Payment::COMPLETE
                 ]);
@@ -126,27 +126,29 @@ class PaymentGatewayController extends Controller
                 ->withoutGlobalScope('status')
                 ->get();
             foreach ($orders as $item) {
-                $ios_tokens = FcmToken::query()
-                    ->where("user_uuid", $item->content->user->uuid)
-                    ->where('fcm_device', 'ios')
-                    ->pluck('fcm_token')->toArray();
-                $android_tokens = FcmToken::query()
-                    ->where("user_uuid", $item->content->user->uuid)
-                    ->where('fcm_device', 'android')
-                    ->pluck('fcm_token')->toArray();
-                $msg = [$item->content->name . __('There is a new order')];
-                NotificationUser::query()->create([
-                    'receiver_uuid' => $item->content->user_uuid,
-                    'sender_uuid' => $item->user_uuid,
-                    'content' => ['en' => $item->content->name . 'There is a new order', 'ar' => $item->content->name . 'هناك طلب جديد'],
-                    'type' => ('There_is_a_new_order')
-                ]);
-                if ($ios_tokens) {
-                    sendFCM($msg, $ios_tokens, "ios");
-                }
-                if ($android_tokens) {
-                    sendFCM($msg, $android_tokens, "android");
-                }
+//                $ios_tokens = FcmToken::query()
+//                    ->where("user_uuid", $item->content->user->uuid)
+//                    ->where('fcm_device', 'ios')
+//                    ->pluck('fcm_token')->toArray();
+//                $android_tokens = FcmToken::query()
+//                    ->where("user_uuid", $item->content->user->uuid)
+//                    ->where('fcm_device', 'android')
+//                    ->pluck('fcm_token')->toArray();
+//                $msg = [$item->content->name . __('There is a new order')];
+//                NotificationUser::query()->create([
+//                    'receiver_uuid' => $item->content->user_uuid,
+//                    'sender_uuid' => $item->user_uuid,
+//                    'content' => ['en' => $item->content->name . 'There is a new order', 'ar' => $item->content->name . 'هناك طلب جديد'],
+//                    'type' => ('There_is_a_new_order')
+//                ]);
+//                if ($ios_tokens) {
+//                    sendFCM($msg, $ios_tokens, "ios");
+//                }
+//                if ($android_tokens) {
+//                    sendFCM($msg, $android_tokens, "android");
+//                }
+//                notfication($item->content->user_uuid,$item->user_uuidnull,'There_is_a_new_order','There_is_a_new_order',$request);
+
 
 
                 if (isset($item->start) && isset($item->end)) {

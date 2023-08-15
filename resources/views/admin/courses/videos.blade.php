@@ -211,7 +211,7 @@
                     render: function (data, type, full, meta) {
                     return `<div class="form-group">
                     <br>
-                    <video id="video-1"  src="${data}" controls></video>
+                    <video id="video-1"  width="320" height="240"  src="${data}" controls></video>
                     <div class="invalid-feedback"></div>
                 </div>`
                         },

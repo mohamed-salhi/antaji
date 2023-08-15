@@ -36,6 +36,7 @@ Route::delete('search/history/delete/{uuid?}', [\App\Http\Controllers\Api\Home\H
 
 Route::get('artists', [\App\Http\Controllers\Api\Home\HomeController::class, 'artists']);
 Route::get('users/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'artist']);
+Route::post('users/{uuid}/business/{type}/{video_uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'businessVideo']);
 Route::get('users/{uuid}/business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
 Route::get('users/{uuid}/products/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
 Route::get('users/{uuid}/courses', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getCourseProfile']);
@@ -55,16 +56,22 @@ Route::middleware(['guest:sanctum'])->prefix('auth')->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
-    Route::post('update_profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateProfile']);
+    Route::post('profile/update', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateProfile']);
 
-    Route::post('contact', [\App\Http\Controllers\Api\Contact\ContactController::class, 'contact']);
+    Route::get('contact_us', [\App\Http\Controllers\Api\Contact\ContactController::class, 'contactUs']);
+    Route::post('contact_us', [\App\Http\Controllers\Api\Contact\ContactController::class, 'contact']);
 
 
-    Route::post('add_business/video', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessVideo'])->middleware('artists');
-    Route::post('add_business/images', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessImages'])->middleware('artists');;
-    Route::get('get_business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusiness'])->middleware('artists');
-    Route::delete('delete_business_image/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessImage'])->middleware('artists');;
-    Route::delete('delete_business_video/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessVideo'])->middleware('artists');;
+    Route::get('business/{type}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusiness'])->middleware('artists');
+    Route::post('business/videos/add', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessVideo'])->middleware('artists');
+    Route::post('business/videos/update/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'updateBusinessVideo'])->middleware('artists');
+    Route::get('business/videos/edit/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'editBusinessVideo'])->middleware('artists');
+
+
+    Route::delete('business/videos/delete/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessVideo'])->middleware('artists');;
+    Route::post('business/images/add', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'addBusinessImages'])->middleware('artists');;
+    Route::delete('business/images/delete/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteBusinessImage'])->middleware('artists');;
+
     Route::get('profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProfile']);
 
 
@@ -73,10 +80,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/cities', [\App\Http\Controllers\Api\AuthController::class, 'cities']);
 
-    Route::post('/user/favorite', [\App\Http\Controllers\Api\Home\HomeController::class, 'favoriteUserPost']);
-    Route::post('/content/favorite', [\App\Http\Controllers\Api\Home\HomeController::class, 'favoriteContentPost']);
-
-    Route::get('/favorite', [\App\Http\Controllers\Api\Home\HomeController::class, 'favoriteGet']);
+    Route::post('favorites', [\App\Http\Controllers\Api\Home\HomeController::class, 'favoritePost']);
+    Route::get('favorites', [\App\Http\Controllers\Api\Home\HomeController::class, 'favoriteGet']);
 
     Route::get('my_subscriptions/courses', [\App\Http\Controllers\Api\Home\HomeController::class, 'mySubscriptionsCourses']);
 
@@ -115,15 +120,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('services/services', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'services']);
     Route::get('services/services/{uuid}', [\App\Http\Controllers\Api\OurServices\ServicesController::class, 'service']);
 
-    Route::get('business/video/{uuid}', [\App\Http\Controllers\Api\Home\HomeController::class, 'businessVideo']);
 
 //    Route::get('profile/{uuid}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProfile']);
 //    Route::get('profile/{type}/products/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getProductProfile']);
 //    Route::get('profile/{type}/business/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getBusinessProfile']);
 //    Route::get('profile/course/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'getCourseProfile']);
 //    Route::get('profile/{uuid?}', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'profile']);
-    Route::get('edit/profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'editProfile']);
-    Route::get('delete/profile', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteUser']);
+    Route::get('profile/edit', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'editProfile']);
+    Route::get('profile/specializations', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'editProfileSpecializations']);
+    Route::get('profile/skills', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'editProfileSkills']);
+    Route::get('profile/delete', [\App\Http\Controllers\Api\Profile\ProfileController::class, 'deleteUser']);
 
     Route::get('delivery_addresses', [\App\Http\Controllers\Api\Home\HomeController::class, 'getDeliveryAddresses']);
     Route::post('delivery_addresses/add', [\App\Http\Controllers\Api\Home\HomeController::class, 'addDeliveryAddresses']);
@@ -135,20 +141,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('cart/add', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'addCart']);
     Route::delete('cart/delete/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'deteteCart']);
     Route::get('cart/{uuid?}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getCart']);
+    Route::get('cart/pledge/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'pledge']);
 
-    Route::post('update/cart/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'updateCart']);
+    Route::post('cart/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'updateCart']);
     Route::get('cart/{uuid}/edit', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'editCart']);
 
-    Route::get('get/payment/rent', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getPagePayRent']);
-    Route::get('get/payment/sale', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getPagePaySale']);
+    Route::get('payment/rent', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getPagePayRent']);
+    Route::get('payment/sale', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'getPagePaySale']);
 
     Route::post('message', [\App\Http\Controllers\Api\Contact\ContactController::class, 'message']);
     Route::get('messages', [\App\Http\Controllers\Api\Contact\ContactController::class, 'messages']);
 
 
     //    Route::get('get/paymentGateways', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'paymentGateways']);
-    Route::get('cart/pledge/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'pledge']);
-    Route::post('content/checkout', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'checkout']);
+    Route::post('payment/checkout', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'checkout']);
+    Route::get('payment/{uuid}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'paymentDetails']);
     Route::get('orders/buyer/{type}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'ordersBuyer']);
     Route::get('orders/owner/{type}', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'ordersOwner']);
     Route::get('orders/courses/tracking', [\App\Http\Controllers\Api\Orders\OrdersController::class, 'orderTrackingCourse']);

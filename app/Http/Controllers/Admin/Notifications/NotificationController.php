@@ -41,7 +41,7 @@ class NotificationController extends Controller
             notfication($request->user_id,'admin',null,null,null,$request);
         }elseif ($request->notification_according_to){
             $uuids= User::query()->pluck('uuid');
-            notfication($uuids,'admin',$request->all(),null,null,$request);
+            notfication($uuids,'admin',null,null,null,$request);
         }elseif ($request->has('city_id')){
             $uuids= User::query()->whereIn('city_uuid',$request->city_id)->pluck('uuid');
             notfication($uuids,'admin',$request->all(),null,null,$request);

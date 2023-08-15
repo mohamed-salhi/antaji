@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html class="loaded semi-dark-layout" lang="en" data-textdirection="rtl">
 <!-- BEGIN: Head-->
 
@@ -10,20 +11,20 @@
             height: 300px;
             overflow: scroll;
         }
-        .buttons-excel{
-            border: 2px solid red;
-            border-radius: 25px;
-            background-color: green; /* Green */
 
-            color: white;
-            padding: 15px 32px;
+        .buttons-excel {
+            border: 1px solid #15a30b;
+            border-radius: 10px;
+            background-color: transparent;
+            color: #15a30b;
+            padding: 11px 19px;
             text-align: center;
-
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
+            font-size: 15px;
         }
-        .buttons-pdf{
+
+        .buttons-pdf {
             background-color: red; /* Green */
             border: 2px solid red;
             border-radius: 25px;
@@ -35,6 +36,7 @@
             display: inline-block;
             font-size: 16px;
         }
+
         .image-upload {
             position: relative;
             width: 100px;
@@ -57,6 +59,7 @@
             transform: scale(0.5);
             /* تحديد حجم النصف */
         }
+
         #detail_image {
             width: 100%;
             height: 100%;
@@ -64,6 +67,7 @@
             transform: scale(0.9);
             /* تحديد حجم النصف */
         }
+
         #video-preview {
             width: 100%;
             height: 100%;
@@ -71,6 +75,7 @@
             transform: scale(0.5);
             /* تحديد حجم النصف */
         }
+
         .video-preview {
             width: 100%;
             height: 100%;
@@ -78,6 +83,7 @@
             transform: scale(0.5);
             /* تحديد حجم النصف */
         }
+
         #detail-video-preview {
             width: 100%;
             height: 100%;
@@ -85,6 +91,7 @@
             transform: scale(0.9);
             /* تحديد حجم النصف */
         }
+
         .multiselect {
             width: 200px;
         }
@@ -128,7 +135,8 @@
     <title>@yield('title')</title>
     <!-- Favicons -->
     <link href="{{asset('dashboard/app-assets/images/logo/Antaji.png')}}" rel="icon">
-    <link href="{{asset('dashboard/app-assets/images/logo/Antaji.png')}}" rel="apple-touch-icon">{{--    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('dashboard/app-assets/images/ico/favicon.ico') }}">--}}
+    <link href="{{asset('dashboard/app-assets/images/logo/Antaji.png')}}"
+          rel="apple-touch-icon">{{--    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('dashboard/app-assets/images/ico/favicon.ico') }}">--}}
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600"
           rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -208,14 +216,16 @@
       data-menu="vertical-menu-modern" data-col="">
 <!-- BEGIN: Header-->
 <nav
-    class="header-navbar navbar navbar-expand-lg align-items-center floating-nav navbar-light " style="background-color: #E3071C">
+    class="header-navbar navbar navbar-expand-lg align-items-center floating-nav navbar-light "
+    style="background-color: #E3071C">
     <div class="navbar-container d-flex content">
         <ul class="nav navbar-nav align-items-center ml-auto">
-{{--            <x-not></x-not>--}}
+            {{--            <x-not></x-not>--}}
             <li class="nav-item dropdown dropdown-language">
                 <a class="nav-link dropdown-toggle" id="dropdown-flag" href="javascript:void(0);"
                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="selected-language" style="color:#ffffff;">{{ LaravelLocalization::getCurrentLocaleNative() }}</span>
+                    <span class="selected-language"
+                          style="color:#ffffff;">{{ LaravelLocalization::getCurrentLocaleNative() }}</span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-flag">
                     @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
@@ -366,14 +376,14 @@
 
 </script>
 <script>
-var pageNot=2
+    var pageNot = 2
     $("#seemore").on("click", function (e) {
         $.ajax({
             type: "get",
             cache: false,
             contentType: false,
             processData: false,
-            url: $(this).data('url')+"/?page="+pageNot,
+            url: $(this).data('url') + "/?page=" + pageNot,
             beforeSend: function () {
             },
             success: function (result) {
@@ -381,7 +391,7 @@ var pageNot=2
                 $('#not-seeall').append(result);
             },
             error: function (data) {
-               console.log('err')
+                console.log('err')
             }
         });
     })
@@ -421,7 +431,7 @@ var pageNot=2
         $('.search_input').val("").trigger("change")
         table.draw();
     });
-    $(document).ready(function() {
+    $(document).ready(function () {
         //image
         $('.file-input').on('change', function () {
             var input = $(this)[0];
@@ -433,7 +443,7 @@ var pageNot=2
                 reader.readAsDataURL(input.files[0]);
             }
         });
-        $(document).ready(function(){
+        $(document).ready(function () {
             $('#file-input').on('change', function () {
                 var input = $(this)[0];
                 if (input.files && input.files[0]) {
@@ -473,15 +483,15 @@ var pageNot=2
                 $('.done').html('saving ...').prop('disabled', true);
             },
             success: function (result) {
+                $('.done').html('@lang("save")').prop('disabled', false);
+
                 $('#full-modal-stem').modal('hide');
                 table.draw()
                 $('#add_model_form').trigger("reset");
 
-                $('.done').html('add').prop('disabled', false);
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
-
 
 
                 $('#model-excel').modal('hide');
@@ -489,7 +499,7 @@ var pageNot=2
 
             },
             error: function (data) {
-                $('.done').html('add').prop('disabled', false);
+                $('.done').html('@lang("save")').prop('disabled', false);
 
                 if (data.status === 422) {
                     var response = data.responseJSON;
@@ -539,7 +549,7 @@ var pageNot=2
 
 
                 var url_path = window.location.href
-                const url = url_path.split("?")[0]+ '/' + uuid;
+                const url = url_path.split("?")[0] + '/' + uuid;
 
                 $.ajax({
                     url: url,
@@ -594,7 +604,7 @@ var pageNot=2
 
 
                     var url_path = window.location.href
-                    const url = url_path.split("?")[0]+ '/' + uuid;
+                    const url = url_path.split("?")[0] + '/' + uuid;
                     $.ajax({
                         url: url,
                         method: 'DELETE',
@@ -686,7 +696,7 @@ var pageNot=2
         // $('.image').append(`<img class="image-preview">`)
         $('.invalid-feedback').text('');
     });
-    $('#edit_modal').on('hidden.bs.modal', function() {
+    $('#edit_modal').on('hidden.bs.modal', function () {
         $('#form_edit').trigger("reset");
         $('.data').remove()
         $('.edit_images').remove()
@@ -727,7 +737,7 @@ var pageNot=2
                         _token: '{{ csrf_token() }}'
                     },
                 }).done(function () {
-                    toastr.success('@lang('updated')', '', {
+                    toastr.success('@lang('done_successfully')', '', {
                         rtl: isRtl
                     });
                     table.draw()
@@ -769,8 +779,8 @@ var pageNot=2
                 buttonsStyling: true
             }).then(function (result) {
                 if (result.value) {
-                    var url_path = window.location.href+ '/updateStatus/'+status
-                    const url = url_path.split("?")[0]+ '/' + uuid;
+                    var url_path = window.location.href + '/updateStatus/' + status
+                    const url = url_path.split("?")[0] + '/' + uuid;
                     $.ajax({
                         url: url,
                         method: 'put',

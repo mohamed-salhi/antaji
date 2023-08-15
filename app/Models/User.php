@@ -22,7 +22,7 @@ class User extends Authenticatable
      */
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-        protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name', 'products_count', 'reviews', 'response', 'specialization_name', 'commission'];
+        protected $appends = ['image', 'cover_user', 'video_user', 'city_name', 'country_name', 'products_count', 'reviews', 'response', 'specialization_name', 'commission', 'is_favorite','id_image_user','is_verified'];
     protected $fillable = [
         'name',
         'email',
@@ -36,6 +36,8 @@ class User extends Authenticatable
         'lat',
         'lng',
         'address',
+        'documentation',
+
         'package_uuid'
     ];
     const USER = "user";
@@ -43,6 +45,11 @@ class User extends Authenticatable
     const PATH_COVER = "/upload/user/cover/";
     const PATH_PERSONAL = "/upload/user/personal/";
     const PATH_VIDEO = "/upload/user/video/";
+    const PATH_ID = "/upload/user/id/";
+    const PENDING = 0;
+    const ACCEPT = 1;
+    const REJECT = 2;
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -112,6 +119,10 @@ class User extends Authenticatable
     {
         return $this->morphOne(Upload::class, 'imageable')->where('type', '=', Upload::IMAGE)->where('name', '=', 'personal_photo');
     }
+    public function idUserImage()
+    {
+        return $this->morphOne(Upload::class, 'imageable')->where('type', '=', Upload::IMAGE)->where('name', '=', 'id_image');
+    }
 
     public function skills()
     {
@@ -124,7 +135,7 @@ class User extends Authenticatable
     }
     public function favorite()
     {
-        return $this->hasMany(FavoriteUser::class, 'reference_uuid');
+        return $this->hasMany(Favorite::class, 'content_uuid');
     }
     public function hasAbility($id)
     {
@@ -156,6 +167,9 @@ class User extends Authenticatable
 
     public function getSpecializationNameAttribute()
     {
+        if ($this->type == self::USER){
+            return __('user');
+        }
         return @$this->specialization->name;
     }
 
@@ -168,13 +182,33 @@ class User extends Authenticatable
     {
         return (@$this->videoImage->filename) ? url('/') . self::PATH_VIDEO . @$this->videoImage->filename : null;
     }
+    public function getIdImageUserAttribute()
+    {
+        if (@$this->idUserImage->filename) {
+            return url('/') . self::PATH_ID . @$this->idUserImage->filename;
+        } else {
+            return url('/') . '/dashboard/app-assets/images/4367.jpg';
 
+        }
+    }
+    public function getIsFavoriteAttribute()
+    {
+        return $this->favorite()->where('user_uuid', auth('sanctum')->id())->exists();
+    }
+    public function getIsVerifiedAttribute()
+    {
+        $is_verified=false;
+        if ($this->package->type==Package::VIP&&$this->documentation==User::ACCEPT){
+            $is_verified=true;
+        }
+        return $is_verified;
+    }
     public function getImageAttribute()
     {
         if (@$this->imageUser->filename) {
             return url('/') . self::PATH_PERSONAL . @$this->imageUser->filename;
         } else {
-            return url('/') . '/upload/user/fea062c5fb579ac0dc5ae2c22c6c51fb.jpg';
+            return url('/') . '/dashboard/app-assets/images/4367.jpg';
 
         }
     }
@@ -205,7 +239,7 @@ class User extends Authenticatable
     }
     public function getCommissionAttribute()
     {
-        return $this->package->percentage_of_sale / 100;
+        return ((@$this->package->percentage_of_sale ?? 0) / 100);
     }
 
     /**

@@ -36,13 +36,13 @@ class AdminController extends Controller
         return response()->json([
             'item_edited'
         ]);    }
-    public function edit($id){
-        $admin=Admin::findOrFail($id);
-//        $roles = Role::pluck('name','name')->all();
-//        $userRole = $admin->roles->pluck('name','name')->all();
-
-        return view('admin.edit');
-    }
+//    public function edit($id){
+//        $admin=Admin::findOrFail($id);
+////        $roles = Role::pluck('name','name')->all();
+////        $userRole = $admin->roles->pluck('name','name')->all();
+//
+//        return view('admin.edit');
+//    }
     public function update(Request $request){
         $request->validate([
             'name'=>'required',
@@ -53,7 +53,7 @@ class AdminController extends Controller
                 'max:255',
             ],
             'password'=>'nullable|min:6',
-            'role' => 'required'
+//            'role' => 'required'
         ]);
 
         $admin=Admin::query()->find($request->id);
@@ -61,20 +61,22 @@ class AdminController extends Controller
             'name',
             'email',
         ]);
-        $data['password']=Hash::make($request->password);
+        if ($request->has('password')){
+            $data['password']=Hash::make($request->password);
+        }
+
         $admin->update($data);
-        DB::table('model_has_roles')->where('model_id',$admin->id)->delete();
+//        DB::table('model_has_roles')->where('model_id',$admin->id)->delete();
 
 //        $admin->assignRole($request->input('role'));
 
-        return redirect()->route('admin.index',);
+        return 'done';
 
     }
     public function destroy($id){
-
         $id_admin=explode(',', $id);
         Admin::whereIn('id',$id_admin)->delete();
-        return $this->sendResponse(null, __('item_deleted'));
+        return 'done';
 
     }
     public function indexTable(Request $request)
@@ -91,11 +93,12 @@ class AdminController extends Controller
                 $data_attr = 'data-id="' . $que->id . '" ';
                 $data_attr .= 'data-name="' .$que->name . '" ';
                 $data_attr .= 'data-email="' .$que->email . '" ';
-                $string = '';
-                    $route=url('/admins/edit/'.$que->id);
-                    $string .= '<a class="edit_btn btn btn-sm btn-outline-primary" href="'.$route.'" >' . __('edit') . '</a>';
 
-                    $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-id="' . $que->id .
+                $string = '';
+                    $string .= '<a class="edit_btn btn btn-sm btn-outline-primary" data-toggle="modal"
+                    data-target="#edit_modal" ' . $data_attr . '>' . __('edit') . '</a>';
+
+                    $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->id .
                         '">' . __('delete') . '</button>';
 
 
