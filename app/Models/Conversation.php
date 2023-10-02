@@ -17,19 +17,19 @@ class Conversation extends Model
     protected $hidden=['chat'];
 
     //Relations
-    public function userOne()
-    {
-        return $this->belongsTo(User::class, 'one');
-    }
+
 
     public function userTow()
     {
         return $this->belongsTo(User::class, 'tow');
     }
-
+    public function userOne()
+    {
+        return $this->belongsTo(User::class, 'one');
+    }
     public function chat()
     {
-        return $this->hasMany(Chat::class, 'conversation_uuid');
+        return $this->hasMany(Chat::class, 'conversation_uuid') ->orderByDesc('created_at');
     }
 
     //Attributes
@@ -71,11 +71,11 @@ class Conversation extends Model
     }
     public function getUserNameOneAttribute()
     {
-        return $this->userOne->name;
+        return @$this->userOne->name;
     }
     public function getUserNameTowAttribute()
     {
-        return $this->userTow->name;
+        return @$this->userTow->name;
     }
 
     public static function boot()

@@ -17,15 +17,15 @@ class NotificationAdminEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $type;
-    public $admin_id;
+    public $title;
     public $content;
     public $link;
 
-    public function __construct($type, $content, $admin_id = null,$link)
+    public function __construct($type, $content, $title,$link)
     {
-         $this->type = $type;
-         $this->content = $content;
-         $this->admin_id = $admin_id;
+        $this->type = $type;
+        $this->content = $content;
+        $this->title = $title;
         $this->link = $link;
     }
 
@@ -37,7 +37,7 @@ class NotificationAdminEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('NotificationAdmin.'.$this->type),
+            new Channel('NotificationAdmin.'.$this->type),
         ];
     }
     public function broadcastAs(): string
@@ -45,6 +45,6 @@ class NotificationAdminEvent implements ShouldBroadcast
         return 'NotificationAdmin';
     }
     public function broadcastWith(): array{
-        return [$this->type,$this->admin_id,$this->content,$this->link];
+        return [$this->type,$this->title,$this->content,$this->link];
     }
 }

@@ -38,35 +38,34 @@
                                 <div class="head-label">
                                     <h4 class="card-title">@lang('admins')</h4>
                                 </div>
-{{--                                @can('admin.create')--}}
-                                    <div class="text-right">
-                                        <div class="form-group">
-                                            <button class="btn btn-outline-primary button_modal" type="button"
-                                                    data-toggle="modal" id=""
-                                                    data-target="#full-modal-stem"><span><i
-                                                        class="fa fa-plus"></i>@lang('add')</span>
-                                            </button>
-                                            <button
+                                {{--                                @can('admin.create')--}}
+                                <div class="text-right">
+                                    <div class="form-group">
+                                        <button class="btn btn-outline-primary button_modal" type="button"
+                                                data-toggle="modal" id=""
+                                                data-target="#full-modal-stem"><span><i
+                                                    class="fa fa-plus"></i>@lang('add')</span>
+                                        </button>
+                                        <button
 
-                                                class="btn_delete_all btn btn-outline-danger " type="button">
-                                                <span><i aria-hidden="true"></i> @lang('delete')</span>
-                                            </button>
-                                            <button
-                                                data-status="1" class="btn_status btn btn-outline-success " type="button">
-                                                <span><i aria-hidden="true"></i> @lang('activate')</span>
-                                            </button>
-                                            <button
-                                                data-status="0" class="btn_status btn btn-outline-warning " type="button">
-                                                <span><i aria-hidden="true"></i> @lang('deactivate')</span>
-                                            </button>
-                                        </div>
+                                            class="btn_delete_all btn btn-outline-danger " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('delete')</span>
+                                        </button>
+                                        <button
+                                            data-status="1" class="btn_status btn btn-outline-success " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('activate')</span>
+                                        </button>
+                                        <button
+                                            data-status="0" class="btn_status btn btn-outline-warning " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('deactivate')</span>
+                                        </button>
                                     </div>
-{{--                                @endcan--}}
+                                </div>
+                                {{--                                @endcan--}}
                             </div>
                             <div class="card-body">
                                 <form id="search_form">
                                     <div class="row">
-
 
 
                                     </div>
@@ -81,9 +80,9 @@
                                         <th>@lang('name')</th>
                                         <th>@lang('email')</th>
                                         <th>@lang('status')</th>
-{{--                                        @can('admin.delete'||'admin.update')--}}
-                                            <th style="width: 225px;">@lang('actions')</th>
-{{--                                        @endcan--}}
+                                        {{--                                        @can('admin.delete'||'admin.update')--}}
+                                        <th style="width: 225px;">@lang('actions')</th>
+                                        {{--                                        @endcan--}}
 
                                     </tr>
                                     </thead>
@@ -141,15 +140,14 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-{{--                        <div class="mb-5">--}}
-{{--                            <label>Roles</label>--}}
-{{--                            <div class="col-xs-12 col-sm-12 col-md-12">--}}
-{{--                                <div class="form-group">--}}
-{{--                                    <strong>Role:</strong>--}}
-{{--                                    {!! Form::select('role[]', $roles,[], array('class' => 'form-control','multiple')) !!}--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
+                        <div class="col-12">
+                            <label class="form-label select-label">@lang('select'),@lang('tags')</label>
+                            <select name="roles[]" id="roles" class="select" multiple>
+                                @foreach ($roles as $item)
+                                    <option value="{{ $item->name }}"> {{ $item->name }} </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="modal-footer">
                             <button class="btn btn-primary done">@lang('save')</button>
 
@@ -206,24 +204,14 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-{{--                        <div class="mb-5">--}}
-{{--                            <label>Roles</label>--}}
-{{--                                                        @php--}}
-{{--                                                            $role_admin=$item->roles->pluck('id')->toArray();--}}
-{{--                                                        @endphp--}}
-{{--                            <div id="roleadmin">--}}
-{{--                                @foreach($roles as $itemm)--}}
-{{--                                    <div class="form-check">--}}
-{{--                                        <input class="form-check-input" name="roles[]" type="checkbox"--}}
-{{--                                               value="{{$itemm->id}}" id="flexCheckDefault">--}}
-{{--                                        <label class="form-check-label" for="flexCheckDefault">--}}
-{{--                                            {{$itemm->name}}--}}
-{{--                                        </label>--}}
-{{--                                    </div>--}}
-{{--                                @endforeach--}}
-{{--                            </div>--}}
-
-{{--                        </div>--}}
+                        <div class="col-12">
+                            <label class="form-label select-label">@lang('select'),@lang('tags')</label>
+                            <select name="roles[]" id="edit_roles" class="select" multiple>
+                                @foreach ($roles as $item)
+                                    <option value="{{ $item->name }}"> {{ $item->name }} </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="modal-footer">
                             <button class="btn btn-primary done">@lang('save')</button>
 
@@ -301,32 +289,36 @@
                     name: 'status',
 
                 },
-{{--                    @can('admin.delete'||'fuelType.update')--}}
+                    {{--                    @can('admin.delete'||'fuelType.update')--}}
                 {
                     data: 'action',
                     name: 'action',
                     orderable: false,
                     searchable: false
                 },
-{{--                @endcan--}}
+                {{--                @endcan--}}
             ]
 
         });
 
 
         $(document).ready(function () {
-            $(document).on('click', '.edit_btn', function (event) {
+            $(document).on('click', '.btn_edit', function (event) {
                 $('input').removeClass('is-invalid');
                 $('.invalid-feedback').text('');
                 event.preventDefault();
                 var button = $(this)
                 var id = button.data('id')
-                console.log(button.data('name'))
                 $('#id').val(id);
                 $('#edit-name').val(button.data('name'));
                 $('#edit-email').val(button.data('email'));
+                var roles = button.data('roles') + '';
+                if (roles.indexOf(',') >= 0) {
+                    roles = button.data('roles').split(',');
+                }
+                $('#edit_roles').val(roles).trigger('change');
                 {{--$.ajax({--}}
-                {{--    url: "admins" + "/" + id + "/" + "role",--}}
+                {{--    url: "managers" + "/" + id + "/" + "role",--}}
                 {{--    type: "GET",--}}
                 {{--    dataType: "json",--}}
                 {{--    success: function (data) {--}}

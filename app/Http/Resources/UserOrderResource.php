@@ -15,10 +15,10 @@ class UserOrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'uuid' => $this->uuid,
-            'specialization' => @$this->specialization_name??__('user'),
-            'name' => $this->name,
-            'personal_photo' => $this->image,
+            'uuid' => @$this->uuid,
+            'specialization' => @$this->specialization_name,
+            'name' => @$this->name,
+            'image' => @$this->image,
         ];
     }
 }

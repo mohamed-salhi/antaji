@@ -99,7 +99,7 @@
                             </div>
                             {{--                                @endif--}}
                             <form action="{{route('paymentGateways.pay',$payment->uuid)}}" class="paymentWidgets"
-                                  data-brands="VISA MASTER AMEX MADA"></form>
+                                  data-brands="{{ @$payment->getway->brand }}"></form>
 
 
                         </div>

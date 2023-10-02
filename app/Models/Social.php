@@ -31,7 +31,7 @@ class Social extends Model
     }
     public function getIconAttribute()
     {
-        return  url('/') . self::PATH . @$this->imageSocial->filename;
+        return !is_null(@$this->imageSocial->path) ? asset(Storage::url(@$this->imageSocial->path) ):null;
     }
 
 

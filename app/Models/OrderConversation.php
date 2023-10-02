@@ -14,15 +14,28 @@ class OrderConversation extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $guarded = [];
+
     //Relations
-    public function service()
+//    public function service()
+//    {
+//        return $this->belongsTo(Serving::class, 'service_uuid');
+//    }
+
+    public function owner()
     {
-       return $this->belongsTo(Serving::class, 'service_uuid');
+        return $this->belongsTo(User::class, 'owner_uuid');
     }
-    public function chat(): \Illuminate\Database\Eloquent\Relations\HasMany
+
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_uuid');
+    }
+
+    public function chat()
     {
         return $this->hasMany(ChatOrder::class, 'order_conversation_uuid');
     }
+
 //boot
     public static function boot()
     {

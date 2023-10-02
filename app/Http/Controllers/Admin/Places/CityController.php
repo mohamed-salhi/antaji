@@ -20,6 +20,10 @@ class CityController extends Controller
 //        $this->middleware('permission:place-edit', ['only' => ['update','activate']]);
 //        $this->middleware('permission:place-delete', ['only' => ['destroy']]);
 //    }
+    function __construct()
+    {
+        $this->middleware('permission:place', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index()
     {
 

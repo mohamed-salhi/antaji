@@ -4,21 +4,29 @@ namespace App\Http\Controllers\Admin\Contact;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\ViewNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class ContactController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:contact-us', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
+
     public function index(Request $request)
     {
-//        if ($request->has('uuid')){
-//
-//            ViewNotificationAdmin::query()->updateOrCreate([
-//                'admin_id'=>Auth::id(),
-//                'notification_admins_uuid'=>$request->uuid
-//            ]);
-//        }
+        if ($request->has('uuid')){
+
+            ViewNotification::query()->updateOrCreate([
+                'admin_id'=>Auth::id(),
+                'notification_admins_uuid'=>$request->uuid
+            ]);
+        }
         return view('admin.contacts.index');
     }
 
@@ -30,7 +38,9 @@ class ContactController extends Controller
             $uuids = explode(',', $uuid);
             $help = Contact::whereIn('uuid', $uuids)->get();
             foreach ($help as $item) {
-                File::delete(public_path('upload/image/help/' . $item->imageContact->filename));
+                Storage::delete('public/' . @$item->imageContact->path);
+
+//                File::delete(public_path('upload/image/help/' . $item->imageContact->filename));
                 $item->delete();
             }
             return response()->json([

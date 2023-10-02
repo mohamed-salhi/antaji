@@ -206,8 +206,8 @@
                 searchable: false
             },
                 {
-                    data: 'video',
-                    name: 'video',
+                    data: 'video1',
+                    name: 'video1',
                     render: function (data, type, full, meta) {
                     return `<div class="form-group">
                     <br>

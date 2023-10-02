@@ -19,7 +19,7 @@ class ServingContentResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'name' => $this->name,
-            'working_condition' => $this->working_condition,
+            'working_condition' => __($this->working_condition),
             'category_name' => $this->category_name,
             'city_name' => $this->city_name,
             'price' => $this->price,

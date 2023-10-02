@@ -9,21 +9,25 @@ use Illuminate\Http\Request;
 
 class SupportController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:support', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index($uuid = null)
     {
         $users = User::query()->select('uuid','name')->has('message')->with('message')->withCount([
             'message'=> function($q){
-                $q->whereNull('view_admin')->where('status','admin');
+                $q->whereNull('view_admin')->where('status','user');
             }
 
         ])->orderByDesc('created_at')->get();
         if ($uuid) {
-            Message::query()->where('user_uuid',$uuid)->whereNull('view_admin')->where('status','admin')->update([
+            Message::query()->where('user_uuid',$uuid)->whereNull('view_admin')->where('status','user')->update([
                 'view_admin'=>date('Y-m-d H:i:s')
             ]);
             $chat = User::query()->where('uuid', $uuid)->with([
                 'message'=> function($q){
-                    $q->paginate(5);
+                    $q->paginate(20);
                 }
             ])->orderBy('created_at')->first();
             $seen=false;
@@ -37,7 +41,7 @@ class SupportController extends Controller
         } else {
             $msg = User::query()->has('message')->with([
                 'message'=> function($q){
-                    $q->paginate(5);
+                    $q->paginate(20);
                 }
             ])->orderBy('created_at')->first();
             Message::query()->where('user_uuid',@$msg->uuid)->whereNull('view_admin')->where('status','user')->update([
@@ -68,7 +72,8 @@ class SupportController extends Controller
 
         ]);
         $msg = Message::create($request->only('message', 'user_uuid', 'status', 'type'));
-        event(new \App\Events\Msg($request->message, $request->user_uuid, "admin", $request->user_uuid, $msg->user->image, 1, $msg->created_at));
+        event(new \App\Events\Msg($request->message, $request->user_uuid, "admin", $request->user_uuid, $msg->user->image, 1, $msg->created_at,$msg->type_text));
+//        event(new \App\Events\Chat($request->message, $request->user_uuid,  $request->user_uuid));
         return 'done';
 
     }
@@ -81,7 +86,7 @@ class SupportController extends Controller
             $q->paginate(5);
             }
         ])->orderBy('created_at')->first();
-
+dd($chat);
         $data = '';
         for ($i = count($chat->message) - 1; $i > 0; $i--) {
             if ($chat->message[$i]->status == 'admin') {

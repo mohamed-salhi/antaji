@@ -10,6 +10,10 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DiscountController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:discount', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index()
     {
         return view('admin.discounts.index');
@@ -25,7 +29,7 @@ class DiscountController extends Controller
             'number_of_usage' => 'required|integer',
             'number_of_usage_for_user' => 'required|integer',
             'date_from' => 'required|date',
-            'checkboxes' => 'required|array',
+            'checkboxes' => 'nullable|array',
             'date_to' => 'required|date|after:' . $request->date_from,
         ];
         foreach (locales() as $key => $language) {
@@ -45,6 +49,7 @@ class DiscountController extends Controller
         foreach (locales() as $key => $language) {
             $data['name'][$key] = $request->get('name_' . $key);
         }
+
         $discount = Discount::query()->create($data);
       foreach ($request->checkboxes as $item){
           DiscountContent::query()->create([
@@ -66,7 +71,7 @@ class DiscountController extends Controller
             'discount_type' => 'required|string',
             'number_of_usage' => 'required|integer',
             'number_of_usage_for_user' => 'required|integer',
-            'checkboxes' => 'required|array',
+            'checkboxes' => 'nullable|array',
             'date_from' => 'required|date',
             'date_to' => 'required|date|after:' . $request->form,
         ];
@@ -84,6 +89,11 @@ class DiscountController extends Controller
             'date_to'=>$request->date_to,
 
         ];
+
+        foreach (locales() as $key => $language) {
+            $data['name'][$key] = $request->get('name_' . $key);
+        }
+        $discount->discountContent()->delete();
         $discount->update($data);
         foreach ($request->checkboxes as $item){
             DiscountContent::query()->updateOrCreate([
@@ -113,16 +123,28 @@ class DiscountController extends Controller
     {
         $discount = Discount::query()->withoutGlobalScope('status')->orderByDesc('created_at');
         return Datatables::of($discount)
-//            ->filter(function ($query) use ($request) {
-//                if ($request->status) {
-//                    ($request->status==1)? $query->where('status', $request->status):$query->where('status',0);
-//                }
-//                if ($request->discount) {
-//                    $query->where('discount', $request->discount);
-//                }
-//                if ($request->code) {
-//                    $query->where('code', $request->code);
-//                }
+            ->filter(function ($query) use ($request) {
+                if ($request->status) {
+                    ($request->status==1)? $query->where('status', $request->status):$query->where('status',0);
+                }
+                if ($request->discount) {
+                    $query->where('discount', $request->discount);
+                }
+                if ($request->code) {
+                    $query->where('code', $request->code);
+                }
+                if ($request->name) {
+                    $query->where('name->' . locale(), 'like', "%{$request->name}%");
+
+                    foreach (locales() as $key => $value) {
+                        if ($key != locale())
+                            $query->orWhere('name->' . $key, 'like', "%{$request->name}%");
+                    }
+
+                }
+                if ($request->discount_type) {
+                    $query->where('discount_type', $request->discount_type);
+                }
 //                if ($request->date_to) {
 //                    $query->whereData('date_to', $request->date_to);
 //                }
@@ -138,8 +160,8 @@ class DiscountController extends Controller
 //                if ($request->city_uuid) {
 //                    $query->where('city_uuid', $request->city_uuid);
 //                }
-//
-//            })
+
+            })
             ->addColumn('checkbox', function ($que) {
                 return $que->uuid;
             })

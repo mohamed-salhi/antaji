@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -19,7 +20,7 @@ class Product extends Model
 
     protected $guarded = [];
     const PATH_PRODUCT = "/upload/product/images/";
-
+    const TYPE = 'product';
     const SALE = 'sale';
     const RENT = 'rent';
 
@@ -28,14 +29,15 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'user_uuid');
     }
-    public function multiDayDiscount()
-    {
-        return $this->belongsTo(MultiDayDiscount::class, 'multi_day_discount_uuid');
-    }
+//    public function multiDayDiscount()
+//    {
+//        return $this->belongsTo(MultiDayDiscount::class, 'multi_day_discount_uuid');
+//    }
     public function delivery()
     {
         return $this->belongsTo(Delivery::class, 'delivery_uuid');
     }
+
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_uuid');
@@ -79,7 +81,16 @@ class Product extends Model
 
     public function getIsFavoriteAttribute()
     {
-        return Favorite::query()->where('content_uuid', $this->uuid)->where('user_uuid', Auth::guard('sanctum')->user()->uuid)->exists();
+        if (@Auth::guard('sanctum')->user()->uuid) {
+            return Favorite::query()->where('content_uuid', $this->uuid)->where('user_uuid', Auth::guard('sanctum')->user()->uuid)->exists();
+        } else {
+            return false;
+        }
+    }
+
+    public function getPriceAttribute($value)
+    {
+        return number_format($value, 0, '.', '');
     }
 
     public function getLatAttribute($value)
@@ -109,7 +120,7 @@ class Product extends Model
 
     public function getImageAttribute()
     {
-        return url('/') . self::PATH_PRODUCT . @$this->oneImageProduct->filename;
+        return !is_null(@$this->oneImageProduct->path) ? asset(Storage::url(@$this->oneImageProduct->path)) : null;
     }
 
     public function getAttachmentsAttribute()
@@ -118,7 +129,7 @@ class Product extends Model
         foreach ($this->imageProduct as $item) {
             $attachments[] = [
                 'uuid' => $item->uuid,
-                'attachment' => url('/') . self::PATH_PRODUCT . $item->filename,
+                'attachment' => !is_null(@$item->path) ? asset(Storage::url(@$item->path)) : null,
             ];
         }
         return $attachments;

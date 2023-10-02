@@ -7,10 +7,20 @@
         input[type="checkbox"] {
             transform: scale(1.5);
         }
-        .input-images-2 .image-uploader .uploaded .uploaded-image img:hover  {
-            transform: scale(2.2); /* تكبير الصورة عند تحويم المؤشر */
+        /*.input-images-2 .image-uploader .uploaded .uploaded-image img:hover  {*/
+        /*    transform: scale(2.2); !* تكبير الصورة عند تحويم المؤشر *!*/
 
+        /*}*/
+        #map {
+            height: 400px;
+            width: 100%;
         }
+
+        #edit_map {
+            height: 400px;
+            width: 100%;
+        }
+
     </style>
 @endsection
 @section('content')
@@ -309,7 +319,9 @@
                         </div>
                     </div>
 
-
+                    <div id="map"></div>
+                    <input type="hidden" name="lat" id="lat">
+                    <input type="hidden" name="lng" id="lng">
                     <div class="modal-footer">
                         <button  class="btn btn-primary done">@lang('save')</button>
 
@@ -409,8 +421,7 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <div class="spe">
-                            <div class="data"><div class="col-md-12">
+                  <div class="col-md-12">
                                     <div class="card">
                                         <div class="card-header bg-dark">
                                             <h4 class="m-0" style="color: white">@lang('specifications')</h4>
@@ -426,8 +437,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+
                         </div>
                         <div class="add_images">
                             <div class="col-12 edit_images">
@@ -438,6 +448,9 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
+                        <div id="edit_map"></div>
+                        <input type="hidden" name="lat" id="edit_lat">
+                        <input type="hidden" name="lng" id="edit_lng">
                         <div class="modal-footer">
                             <button  class="btn btn-primary done">@lang('save')</button>
 
@@ -452,6 +465,66 @@
 @endsection
 @section('scripts')
     <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
+    <script>
+        let map, edit_map;
+        let marker, edit_marker;
+
+        async function initMap() {
+            // The location of Uluru
+            const position = {lat: 24.121894767907012, lng: 46.74972295072583};
+            // Request needed libraries.
+            //@ts-ignore
+            const {Map} = await google.maps.importLibrary("maps");
+
+            // The map, centered at Uluru
+            map = new Map(document.getElementById("map"), {
+                zoom: 4,
+                center: position,
+                mapId: "DEMO_MAP_ID",
+            });
+
+            marker = new google.maps.Marker({
+                map: map,
+                position: position,
+                title: "Center"
+            });
+
+            google.maps.event.addListener(map, 'click', function (e) {
+                let myLatlng = e["latLng"];
+                marker.setPosition(myLatlng);
+                map.setCenter(myLatlng);
+                $('#lat').val(myLatlng.lat)
+                $('#lng').val(myLatlng.lng)
+
+            });
+
+
+            // The map, centered at Uluru
+            edit_map = new Map(document.getElementById("edit_map"), {
+                zoom: 4,
+                center: position,
+                mapId: "DEMO_MAP_ID",
+            });
+
+            edit_marker = new google.maps.Marker({
+                map: edit_map,
+                position: position,
+                title: "Center"
+            });
+
+
+            google.maps.event.addListener(edit_map, 'click', function (e) {
+                let myLatlng = e["latLng"];
+                edit_marker.setPosition(myLatlng);
+                edit_map.setCenter(myLatlng);
+                $('#edit_lat').val(myLatlng.lat)
+                $('#edit_lng').val(myLatlng.lng)
+            });
+
+        }
+
+    </script>
+
     <script type="text/javascript">
         $.ajaxSetup({
             headers: {
@@ -494,18 +567,23 @@
                 }
             },
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: [
+            "buttons": [
                 {
-                    extend: 'excel',
+
+                    "extend": 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
-                    exportOptions: {
-                        columns: [1,2,3,4,5,6],
-                        modifier: {
-                            search: 'applied',
-                            order: 'applied'
-                        }
-                    }
-                }
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
             ],
             columns: [{
                 "render": function (data, type, full, meta) {
@@ -587,6 +665,15 @@
 
         $(document).ready(function () {
             $(document).on('click', '.btn_edit', function (event) {
+                $('.ss').remove();
+                $('.edit_images').remove()
+                $('.add_images').append(` <div class="col-12 edit_images">
+                        <div class="input-field">
+                            <label class="active">@lang('Photos')</label>
+                            <div class="input-images-2" style="padding-top: .5rem;"></div>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                    </div>`)
                 $('input').removeClass('is-invalid');
                 $('.invalid-feedback').text('');
                 event.preventDefault();
@@ -600,7 +687,11 @@
                 $('#edit_price').val(button.data('price'))
                 console.log(button.data('address'))
                 $('#edit_address').val(button.data('address'))
-
+                let latlng = {lat: parseFloat(button.data('lat')), lng: parseFloat(button.data('lng'))};
+                edit_marker.setPosition(latlng);
+                edit_map.setCenter(latlng);
+                $('#edit_lat').val(button.data('lat'))
+                $('#edit_lng').val(button.data('lng'))
                 $('#edit_details').val(button.data('details'))
                 $('#edit_user_uuid').val(button.data('user_uuid')).trigger('change');
                 $('#edit_category_uuid').attr('data-sub_category_uuid', button.data('sub_category_uuid'))
@@ -620,7 +711,7 @@
 console.log(fileArrayKey.length)
 if(fileArrayKey.length>=0){
     $.each(fileArrayKey, function (index, fileName) {
-        $('.row_data').append(`<div class="row mb-3">
+        $('.row_data').append(`<div class="row mb-3 ss">
                         <div class="col-md-11">
                             <div class="row">
                                 <div class="col-md-4">
@@ -636,7 +727,7 @@ if(fileArrayKey.length>=0){
                             </div>
                         </div>
                         <div class="col-md-1">
-                            <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                            <a class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></a>
                         </div>
                     </div>`);
     })
@@ -650,7 +741,7 @@ console.log(fileArrayKey)
                 $.each(fileArray, function (index, fileName) {
                     var object = {
                         id: fileArrayUuids[index],
-                        src: '{{ url('/') }}/upload/product/images/' + fileName
+                        src: '{{ url('/') }}/storage/' + fileName
                     };
                     preloaded.push(object)
                 })
@@ -669,7 +760,7 @@ console.log(fileArrayKey)
         $('.add_row').click(function(e) {
             e.preventDefault();
 console.log('ddd')
-            const row = `<div class="row mb-3">
+            const row = `<div class="row mb-3 ss">
                         <div class="col-md-11">
                             <div class="row">
                                 <div class="col-md-4">
@@ -685,15 +776,21 @@ console.log('ddd')
                             </div>
                         </div>
                         <div class="col-md-1">
-                            <button class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></button>
+                            <a class="btn btn-danger w-100 remove_row"><i class="fas fa-times"></i></a>
                         </div>
                     </div>`;
 
             $('.row_data').append(row);
-            $('body').on('click', '.remove_row', function(e) {
+
+        })
+        $(document).ready(function () {
+            $('body').on('click', '.remove_row', function (e) {
                 e.preventDefault();
                 $(this).parent().parent().remove();
             })
         })
+    </script>
+    <script async
+            src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&callback=initMap">
     </script>
 @endsection

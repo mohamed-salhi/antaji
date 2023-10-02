@@ -7,10 +7,15 @@ use App\Models\Ads;
 use App\Models\Upload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class AdsController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:ads', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index(Request $request)
     {
         return view('admin.ads.index');
@@ -39,17 +44,17 @@ class AdsController extends Controller
 
     public function update(Request $request)
     {
-        $ads=  Ads::findOrFail($request->uuid);
+        $ads=  Ads::query()->findOrFail($request->uuid);
 
         $rules = [
-            'image'=>'required|image',
+            'image'=>'nullable|image',
             'link'=>'required',
         ];
         $this->validate($request, $rules);
         $data = [
             'link'=>$request->link
         ];
-        $ads=  Ads::query()->create($data);
+//        $ads=  Ads::query()->create($data);
         $ads->update($data);
         if ($request->hasFile('image')) {
             UploadImage($request->image, "upload/ads/", Ads::class, $ads->uuid, true ,null,Upload::IMAGE,'home_page');
@@ -68,7 +73,9 @@ class AdsController extends Controller
             $ads=  Ads::whereIn('uuid', $uuids)->get();
 
             foreach ($ads as $item){
-                File::delete(public_path('/upload/ads/'.$item->imageAds->filename));
+                Storage::delete('public/' . @$item->imageAds->path);
+
+//                File::delete(public_path('/upload/ads/'.$item->imageAds->filename));
                 $item->imageAds()->delete();
                 $item->delete();
             }

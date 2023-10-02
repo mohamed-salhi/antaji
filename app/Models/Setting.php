@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
@@ -17,7 +18,7 @@ class Setting extends Model
 
     public function getImageAttribute()
     {
-        return url('/') . '/upload/setting/' . @$this->imageSetting->filename;
+        return !is_null(@$this->imageSetting->path) ? asset(Storage::url(@$this->imageSetting->path) ):null;
     }
     public function imageSetting()
     {

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
@@ -20,7 +21,7 @@ class PaymentGateway extends Model
 
     //Variables
     const MADA = 1;
-    const ABLEPAY = 2;
+    const APPLE_PAY = 2;
     const VISA = 3;
 
     const ACTIVE = 1;
@@ -33,8 +34,7 @@ class PaymentGateway extends Model
 
     public function getImageAttribute()
     {
-        return url('/') . '/upload/payment/' . @$this->imagePayment->filename;
-    }
+       return !is_null(@$this->imagePayment->path) ? asset(Storage::url(@$this->imagePayment->path) ):null;    }
 
     //Relations
     public function imagePayment()
@@ -46,7 +46,7 @@ class PaymentGateway extends Model
     public static function boot()
     {
         parent::boot();
-        static::addGlobalScope('gateway', function (Builder $builder) {
+        static::addGlobalScope('status', function (Builder $builder) {
             $builder->where('status', 1);//1==active
         });
 

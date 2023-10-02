@@ -18,11 +18,11 @@ class MyLocationResource extends JsonResource
 //            return CategoryResource::collection($this->categories);
 //        });
         return[
-            'uuid' => $this->uuid,
-            'name' => $this->name,
-            'image' => $this->image,
-            'categories_name' => implode(', ', $this->categories->pluck('name')->toArray()) ,
-            'price' => $this->price,
+            'uuid' => @$this->uuid,
+            'name' => @$this->name,
+            'image' => @$this->image,
+            'categories_name' => implode(', ', @$this->categories->pluck('name')->toArray()) ,
+            'price' => @$this->price,
             'currency' => __('sr')
         ];
 

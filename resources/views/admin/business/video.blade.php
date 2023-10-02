@@ -75,14 +75,14 @@
                                                 <div class="invalid-feedback"></div>
                                             </div>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="form-group">
-                                                <label for="s_name">@lang('Artist name')</label>
-                                                <input id="s_name" type="text"
-                                                       class="search_input form-control"
-                                                       placeholder="@lang('Artist name')">
-                                            </div>
-                                        </div>
+{{--                                        <div class="col-3">--}}
+{{--                                            <div class="form-group">--}}
+{{--                                                <label for="s_name">@lang('Artist name')</label>--}}
+{{--                                                <input id="s_name" type="text"--}}
+{{--                                                       class="search_input form-control"--}}
+{{--                                                       placeholder="@lang('Artist name')">--}}
+{{--                                            </div>--}}
+{{--                                        </div>--}}
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <label for="s_title">@lang('title')</label>
@@ -125,7 +125,7 @@
                                     <tr>
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
-                                        <th>@lang('Artist name')</th>
+{{--                                        <th>@lang('Artist name')</th>--}}
                                         <th>@lang('title')</th>
                                         <th>@lang('image')</th>
                                         <th>@lang('views')</th>
@@ -168,19 +168,20 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label for="">@lang('users')</label>
-                                <select name="user_uuid" id="country_uuid" class="select form-control"
-                                        data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
-                                    <option selected disabled>@lang('select') @lang('users')</option>
-                                    @foreach ($users as $item)
-                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
+                        <input  name="user_uuid" type="hidden" value="{{$user_uuid}}">
+{{--                        <div class="col-12">--}}
+{{--                            <div class="form-group">--}}
+{{--                                <label for="">@lang('users')</label>--}}
+{{--                                <select name="user_uuid" id="country_uuid" class="select form-control"--}}
+{{--                                        data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">--}}
+{{--                                    <option selected disabled>@lang('select') @lang('users')</option>--}}
+{{--                                    @foreach ($users as $item)--}}
+{{--                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>--}}
+{{--                                    @endforeach--}}
+{{--                                </select>--}}
+{{--                                <div class="invalid-feedback"></div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
                         <div class="col-12">
                             <label for="icon">@lang('flag')</label>
                             <div>
@@ -384,10 +385,10 @@
                 orderable: false,
                 searchable: false
             },
-                {
-                    data: 'artist_name',
-                    name: 'artist_name'
-                },
+                // {
+                //     data: 'artist_name',
+                //     name: 'artist_name'
+                // },
                 {
                     data: 'title',
                     name: 'title'

@@ -11,6 +11,10 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:setting', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index()
     {
         $settings = Setting::query()->first();
@@ -146,7 +150,7 @@ class SettingController extends Controller
         if ($setting) {
             return redirect()->back()->with('done', "done");
         } else {
-            return redirect()->back()->with('done', "err");;
+            return redirect()->back()->with('done', "err");
         }
     }
 }

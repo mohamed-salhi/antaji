@@ -9,16 +9,29 @@ use App\Models\Location;
 use App\Models\Project;
 use App\Models\Upload;
 use App\Models\User;
+use App\Models\ViewNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class LocationController extends Controller
 {
-    public function index()
+    function __construct()
     {
+        $this->middleware('permission:location', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
+    public function index(Request $request)
+    {
+        if ($request->has('uuid')){
+
+            ViewNotification::query()->updateOrCreate([
+                'admin_id'=>Auth::id(),
+                'notification_uuid'=>$request->uuid
+            ]);
+        }
         $category_contents = CategoryContent::query()->where('type', 'location')->select('uuid', 'name')->get();
         $users = User::query()->select('name', 'uuid')->get();
         return view('admin.locations.index', compact('category_contents', 'users'));
@@ -27,6 +40,9 @@ class LocationController extends Controller
     public function store(Request $request)
     {
         $rules = [
+            'address' => 'required|string',
+            'lat' => 'required|string',
+            'lng' => 'required|string',
             'name' => 'required|string',
             'price' => 'required|int',
             'details' => 'required',
@@ -35,7 +51,7 @@ class LocationController extends Controller
             'images.*' => 'mimes:jpeg,jpg,png|max:2048'
         ];
         $this->validate($request, $rules);
-        $location = Location::query()->create($request->only('name', 'user_uuid', 'price', 'details'));
+        $location = Location::query()->create($request->only('name', 'user_uuid', 'price', 'details','address','lat','lng'));
         $location->categories()->sync($request->category_contents_uuid);
         Content::query()->create([
             'content_uuid' => $location->uuid,
@@ -61,14 +77,17 @@ class LocationController extends Controller
         $rules = [
             'name' => 'required|string',
             'price' => 'required|int',
+            'lat' => 'required|string',
+            'lng' => 'required|string',
             'details' => 'required',
             'user_uuid' => 'required|exists:users,uuid',
             'category_contents_uuid' => 'required|exists:category_contents,uuid',
+            'address' => 'required|string',
 
         ];
 
         $this->validate($request, $rules);
-        $location->update($request->only('name', 'details', 'price', 'user_uuid'));
+        $location->update($request->only('name', 'lat','lng','details', 'price', 'user_uuid','address'));
         $location->categories()->sync($request->category_contents_uuid);
 
         if ($request->has('delete_images')) {
@@ -99,7 +118,9 @@ class LocationController extends Controller
 
         foreach ($location as $item) {
             foreach ($item->imageLocation as $image) {
-                File::delete(public_path(Location::PATH_LOCATION . $image->filename));
+                Storage::delete('public/' . @$image->path);
+
+//                File::delete(public_path(Location::PATH_LOCATION . $image->filename));
                 $image->delete();
             }
            $item->cart()->delete();
@@ -150,9 +171,12 @@ class LocationController extends Controller
                 $data_attr .= 'data-name="' . $que->name . '" ';
                 $data_attr .= 'data-price="' . $que->price . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
+                $data_attr .= 'data-address="' . $que->address . '" ';
+                $data_attr .= 'data-lng="' . $que->lng . '" ';
+                $data_attr .= 'data-lat="' . $que->lat . '" ';
                 $data_attr .= 'data-details="' . $que->details . '" ';
                 $data_attr .= 'data-images_uuid="' . implode(',', $que->imageLocation->pluck('uuid')->toArray()) .'" ';
-                $data_attr .= 'data-images="' . implode(',', $que->imageLocation->pluck('filename')->toArray()) .'" ';
+                $data_attr .= 'data-images="' . implode(',', $que->imageLocation->pluck('path')->toArray()) .'" ';
 
                 $data_attr .= 'data-category_contents_uuid="' . implode(',', $que->categories->pluck('uuid')->toArray()) . '," ';
 

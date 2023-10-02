@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Contact extends Model
@@ -27,7 +28,8 @@ class Contact extends Model
 //Attributes
     public function getImageAttribute()
     {
-        return url('/') . '/upload/contact/' . @$this->imageContact->filename;
+        return   !is_null(@$this->imageContact->path) ? asset(Storage::url(@$this->imageContact->path) ):null;
+
     }
 
     //Boot

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -49,7 +50,8 @@ class User extends Authenticatable
     const PENDING = 0;
     const ACCEPT = 1;
     const REJECT = 2;
-
+    const ANDROID = 'android';
+    const IOS = 'ios';
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -128,7 +130,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Skill::class, 'skill_user', 'user_uuid', 'skill_uuid');
     }
-
+    public function businessVideo()
+    {
+        return $this->hasMany(BusinessVideo::class, 'user_uuid');
+    }
+    public function businessImage()
+    {
+        return $this->belongsTo(Businessimages::class, 'user_uuid');
+    }
     public function products()
     {
         return $this->hasMany(Product::class, 'user_uuid');
@@ -175,21 +184,17 @@ class User extends Authenticatable
 
     public function getCoverUserAttribute()
     {
-        return (@$this->coverImage->filename) ? url('/') . self::PATH_COVER . @$this->coverImage->filename : null;
+        return !is_null(@$this->coverImage->path) ? asset(Storage::url(@$this->coverImage->path) ) : null;
     }
 
     public function getVideoUserAttribute()
     {
-        return (@$this->videoImage->filename) ? url('/') . self::PATH_VIDEO . @$this->videoImage->filename : null;
+        return !is_null(@$this->videoImage->path) ? asset(Storage::url(@$this->videoImage->path) ): null;
     }
     public function getIdImageUserAttribute()
     {
-        if (@$this->idUserImage->filename) {
-            return url('/') . self::PATH_ID . @$this->idUserImage->filename;
-        } else {
-            return url('/') . '/dashboard/app-assets/images/4367.jpg';
 
-        }
+            return !is_null(@$this->idUserImage->path) ? asset(Storage::url(@$this->idUserImage->path) ): url('/') . '/dashboard/app-assets/images/4367.jpg';
     }
     public function getIsFavoriteAttribute()
     {
@@ -205,12 +210,7 @@ class User extends Authenticatable
     }
     public function getImageAttribute()
     {
-        if (@$this->imageUser->filename) {
-            return url('/') . self::PATH_PERSONAL . @$this->imageUser->filename;
-        } else {
-            return url('/') . '/dashboard/app-assets/images/4367.jpg';
-
-        }
+     return !is_null(@$this->imageUser->path) ? asset(Storage::url(@$this->imageUser->path) ): url('/') . '/dashboard/app-assets/images/4367.jpg';
     }
 
     public function getLatAttribute($value)
@@ -235,7 +235,7 @@ class User extends Authenticatable
 
     public function getReviewsAttribute()
     {
-        return number_format(100, 1, '.', '') . '%';
+        return number_format(2, 1, '.', '') . '%';
     }
     public function getCommissionAttribute()
     {

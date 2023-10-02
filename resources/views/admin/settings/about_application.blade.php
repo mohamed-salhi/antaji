@@ -32,7 +32,7 @@
         <div class="content-body">
             @if(session('done'))
                 <div class="alert alert-primary" role="alert" style="height: 50px">
-                    <h1 class="text-success">done</h1>
+                    <h1 class="text-success">@lang('done_successfully')</h1>
                 </div>
             @endif
             <section id="">

@@ -59,13 +59,23 @@
                                 {{--                                @can('place-create')--}}
                                 <div class="text-right">
                                     <div class="form-group">
-                                        <button
-                                            data-status="1" class="btn_status btn btn-outline-success " type="button">
-                                            <span><i aria-hidden="true"></i> @lang('activate')</span>
+                                        <button class="btn btn-outline-primary button_modal" type="button"
+                                                data-toggle="modal" id=""
+                                                data-target="#full-modal-stem"><span><i
+                                                    class="fa fa-plus"></i>@lang('add')</span>
+                                        </button>
+                                        <button id="btn_delete_all" class="btn_delete_all btn btn-outline-danger "
+                                                type="button">
+                                                <span><i class="fa fa-lg fa-trash-alt" aria-hidden="true"></i>
+                                                    @lang('delete')</span>
                                         </button>
                                         <button
-                                            data-status="0" class="btn_status btn btn-outline-warning " type="button">
-                                            <span><i aria-hidden="true"></i> @lang('deactivate')</span>
+                                            data-status="1"   class="btn_status btn btn-outline-success " type="button">
+                                            <span><i  aria-hidden="true"></i> @lang('activate')</span>
+                                        </button>
+                                        <button
+                                            data-status="0"  class="btn_status btn btn-outline-warning " type="button">
+                                            <span><i  aria-hidden="true"></i> @lang('deactivate')</span>
                                         </button>
                                     </div>
                                 </div>
@@ -79,7 +89,7 @@
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('rate')</th>
-                                        <th>@lang('minimal_day')</th>
+                                        <th>@lang('minimal day')</th>
                                         <th>@lang('status')</th>
                                         <th style="width: 225px;">@lang('actions')</th>
                                     </tr>
@@ -96,6 +106,52 @@
         </div>
     </div>
 
+    <div class="modal fade" class="full-modal-stem" id="full-modal-stem" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">@lang('add')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('multidaydiscount.store') }}" method="POST" id="add-mode-form" class="add-mode-form"
+                      enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="uuid" id="uuid" class="form-control"/>
+                    <div class="modal-body">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="name">@lang('rate') </label>
+                                <input type="number" class="form-control"
+                                       placeholder="@lang('rate')" name="rate"
+                                       id="rate">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="price">@lang('minimal day') </label>
+                                <input type="number" class="form-control"
+                                       placeholder="@lang('minimal day')" name="minimal_day"
+                                       id="minimal_day">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button  class="btn btn-primary done">@lang('save')</button>
+
+                        <button type="button" class="btn btn-secondary"
+                                data-dismiss="modal">@lang('close')</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal -->
     <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"

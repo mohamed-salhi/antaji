@@ -6,14 +6,17 @@ use App\Events\NotificationAdminEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CityResource;
 use App\Http\Resources\Login;
+use App\Models\Admin;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\FCM;
 use App\Models\FcmToken;
 use App\Models\Intro;
+use App\Models\Notification;
 use App\Models\NotificationAdmin;
 use App\Models\Package;
 use App\Models\PackageUser;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\Setting;
 use App\Models\Verification;
@@ -38,7 +41,10 @@ class AuthController extends Controller
 
     public function cities(Request $request)
     {
-        $cities = City::query()->where('country_uuid', auth('sanctum')->user()->country_uuid)->paginate();
+        $country_uuid = @auth('sanctum')->user()->country_uuid;
+        $cities = City::query()->when($country_uuid, function ($q) use ($country_uuid) {
+            $q->where('country_uuid', $country_uuid);
+        })->paginate();
         $items = pageResource($cities, CityResource::class);
         return mainResponse(true, 'ok', compact('items'), []);
     }
@@ -117,6 +123,7 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+
         $rules = [
             'full_mobile' => 'required|string|digits_between:8,14',
             'mobile' => 'required|unique:users,mobile',
@@ -152,6 +159,21 @@ class AuthController extends Controller
             $token = $user->createToken('api')->plainTextToken;
             $user->setAttribute('token', $token);
             $user = new Login($user);
+            $admins_uuid = Admin::query()->whereHas('roles.permissions', function ($query) {
+                $query->where('name', 'user')->orWhere('name', 'artisan');
+            })->pluck('id')->toArray();
+            array_push($admins_uuid, 1);
+            if ($request->type == User::USER) {
+                $not = $this->sendNotification($user->uuid, User::class, $user->uuid, $admins_uuid, Notification::NEW_USER, 'user', 'admin');
+                event(new NotificationAdminEvent('user', $not->content, $not->title, route('users.index') . "?uuid=" . $not->uuid));
+
+            } else {
+                $not = $this->sendNotification($user->uuid, User::class, $user->uuid, $admins_uuid, Notification::NEW_ARTIST, 'user', 'admin');
+                event(new NotificationAdminEvent('artist', $not->content, $not->title, route('artists.index') . "?uuid=" . $not->uuid));
+
+            }
+
+
             return mainResponse(true, __('ok'), $user, []);
         } else {
             return mainResponse(false, __('حصل خطا ما'), [], []);

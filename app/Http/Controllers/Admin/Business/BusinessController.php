@@ -9,10 +9,15 @@ use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class BusinessController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:artisan', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function indexVideo(Request $request){
         $user_uuid=$request->user_uuid;
         $users=User::query()->select('name','uuid')->where('type','artist')->get();
@@ -32,7 +37,7 @@ class BusinessController extends Controller
         if ($request->hasFile('video')) {
             $video=  UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $busines->uuid, false, null, Upload::VIDEO);
             $getID3 = new \getID3;
-            $video_file = $getID3->analyze('upload/business/video/'.$video->filename);
+            $video_file = $getID3->analyze('storage/'.$video->path);
             $duration_string = $video_file['playtime_string'];
             $busines->time=$duration_string;
             $busines->save();
@@ -58,7 +63,7 @@ class BusinessController extends Controller
         if ($request->hasFile('video')) {
             $video=  UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $business->uuid, true, null, Upload::VIDEO);
             $getID3 = new \getID3;
-            $video_file = $getID3->analyze('upload/business/video/'.$video->filename);
+            $video_file = $getID3->analyze('storage/'.$video->path);
             $duration_string = $video_file['playtime_string'];
             $business->time=$duration_string;
             $business->save();
@@ -72,8 +77,11 @@ class BusinessController extends Controller
         $uuids=explode(',', $uuid);
         $Business_Video=  BusinessVideo::whereIn('uuid', $uuids)->get();
         foreach ($Business_Video as $item) {
-            File::delete(public_path(BusinessVideo::PATH_IMAGE . @$item->imageBusiness->filename));
-            File::delete(public_path(BusinessVideo::PATH_VIDEO . @$item->videoBusiness->filename));
+            Storage::delete('public/' . @$item->imageBusiness->path);
+            Storage::delete('public/' . @$item->videoBusiness->path);
+
+//            File::delete(public_path(BusinessVideo::PATH_IMAGE . @$item->imageBusiness->filename));
+//            File::delete(public_path(BusinessVideo::PATH_VIDEO . @$item->videoBusiness->filename));
             $item->videoBusiness()->delete();
             $item->imageBusiness()->delete();
             $item->delete();
@@ -221,7 +229,9 @@ class BusinessController extends Controller
 
         foreach ($business as $item) {
             foreach ($item->imageBusiness as $image) {
-                File::delete(public_path(Businessimages::PATH . $image->filename));
+//                File::delete(public_path(Businessimages::PATH . $image->filename));
+                Storage::delete('public/' . @$image->path);
+
                 $image->delete();
             }
             $item->delete();
@@ -254,7 +264,7 @@ class BusinessController extends Controller
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-images_uuid="' . implode(',', $que->imageBusiness->pluck('uuid')->toArray()) .'" ';
-                $data_attr .= 'data-images="' . implode(',', $que->imageBusiness->pluck('filename')->toArray()) .'" ';
+                $data_attr .= 'data-images="' . implode(',', $que->imageBusiness->pluck('path')->toArray()) .'" ';
 
                 $string = '';
                 $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"

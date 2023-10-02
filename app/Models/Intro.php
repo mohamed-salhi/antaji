@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
@@ -33,7 +34,7 @@ class Intro extends Model
     }
     public function getImageAttribute()
     {
-        return url('/') . '/upload/intro/' . @$this->imageIntro->filename;
+        return!is_null(@$this->imageIntro->path) ? asset(Storage::url(@$this->imageIntro->path) ):null;
     }
 
     //Boot

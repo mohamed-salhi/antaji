@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,10 +16,12 @@ class CourseTrakingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'uuid'=>$this->uuid,
-            'name'=>$this->name,
-            'price'=>$this->price,
-            'cover'=>$this->image,
+            'uuid' => @$this->uuid,
+            'name' => @$this->name,
+            'type_text' => __(Order::COURSE),
+            'price' => @$this->price,
+            'currency' => __('sr'),
+            'cover' => @$this->image,
         ];
     }
 }

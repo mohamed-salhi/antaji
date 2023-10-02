@@ -18,9 +18,9 @@ class CategoryResource extends JsonResource
             return CategoryResource::collection($this->sub);
         });
         return [
-            'uuid' => $this->uuid,
-            'name_translate' => $this->name_translate,
-            'sub_categories' => $sub,
+            'uuid' => @$this->uuid,
+            'name_translate' => @$this->name_translate,
+            'sub_categories' => @$sub,
         ];
     }
 }

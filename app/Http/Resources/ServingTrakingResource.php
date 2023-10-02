@@ -16,22 +16,18 @@ class ServingTrakingResource extends JsonResource
     public function toArray(Request $request): array
     {
         $item = [
-            'uuid' => $this->uuid,
-            'name' => $this->name,
-            'category_name' => $this->category_name,
-            'working_condition' => $this->working_condition,
-            'is_new' => $this->created_at->isBefore(Carbon::now()->subDays()),
-            'is_special' => (fmod($this->id, 3) == 0),
-            'city_name' => $this->city_name,
-            'price' => $this->price,
+            'uuid' => @$this->uuid,
+            'name' => @$this->name,
+            'category_name' => @$this->category_name,
+            'working_condition' => @$this->working_condition,
+            'is_new' => @$this->created_at->isBefore(Carbon::now()->subDays()),
+            'is_special' => (fmod(@$this->id, 3) == 0),
+            'city_name' => @$this->city_name,
+            'price' => @$this->price,
             'currency' => __('sr'),
+            'details' => @$this->details,
 
         ];
-
-        if ($request->uuid) {
-            $item['to'] = $this->to;
-            $item['owner'] = new OwnerResource($this->user);
-        }
 
         return $item;
     }

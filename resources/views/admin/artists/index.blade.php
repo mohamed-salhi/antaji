@@ -5,7 +5,13 @@
 @section('styles')
     <style>
         #map {
-            height: 300px;
+            height: 400px;
+            width: 100%;
+        }
+
+        #edit_map {
+            height: 400px;
+            width: 100%;
         }
         body {
             margin-top: 20px;
@@ -94,11 +100,7 @@
             margin-bottom: 1.6rem;
         }
     </style>
-    <style>
-        #map2 {
-            height: 200px;
-        }
-    </style>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
           integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
@@ -168,7 +170,7 @@
                                         <div class="col-3">
                                             <div class="form-group">
                                                 <label for="s_mobile">@lang('mobile')</label>
-                                                <input id="s_mobile" type="text" class="search_input form-control"
+                                                <input id="s_mobile" type="tel" class="search_input form-control"
                                                        placeholder="@lang('mobile')">
                                             </div>
                                         </div>
@@ -282,20 +284,29 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="mobile">@lang('mobile')</label>
-                                    <input type="number" class="form-control" placeholder="@lang('mobile')"
-                                           name="mobile" id="mobile">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
                                     <label for="">@lang('name')</label>
                                     <input type="text" class="form-control" placeholder="@lang('name')"
                                            name="name" id="">
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mobile">@lang('mobile')</label>
+                                    <input type="number" class="form-control" placeholder="@lang('mobile')"
+                                           name="mobile" id="mobile">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="mobile">@lang('intro')</label>
+                                    <input type="number" class="form-control" placeholder="@lang('intro')"
+                                           name="prefix" id="intro">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="row">
@@ -482,11 +493,19 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="mobile">@lang('mobile')</label>
                                     <input type="number" class="form-control" placeholder="@lang('mobile')"
                                            name="mobile" id="edit_mobile">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="mobile">@lang('intro')</label>
+                                    <input type="number" class="form-control" placeholder="@lang('intro')"
+                                           name="prefix" id="edit_prefix">
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
@@ -628,11 +647,10 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-
-
-                        <div id="map2"></div>
-                        <input type="hidden" name="lat" id="edit_lat">
-                        <input type="hidden" name="lng" id="edit_lng">
+                            <div id="edit_map"></div>
+                            <input type="hidden" name="lat" id="edit_lat">
+                            <input type="hidden" name="lng" id="edit_lng">
+                        </div>
 
                         <div class="modal-footer">
                             <button  class="btn btn-primary done">@lang('save')</button>
@@ -640,9 +658,9 @@
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
                         </div>
-                    </div>
+                        </div>
                 </form>
-            </div>
+
         </div>
     </div>
 
@@ -653,36 +671,65 @@
 @endsection
 @section('scripts')
     <script>
-        var map2 = L.map('map2').setView([51.505, -0.09], 13);
+        let map, edit_map;
+        let marker, edit_marker;
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map2);
+        async function initMap() {
+            // The location of Uluru
+            const position = {lat: 24.121894767907012, lng: 46.74972295072583};
+            // Request needed libraries.
+            //@ts-ignore
+            const {Map} = await google.maps.importLibrary("maps");
 
-        var lon;
-        var lat;
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition);
-        } else {
-            x.innerHTML = "Geolocation is not supported by this browser.";
+            // The map, centered at Uluru
+            map = new Map(document.getElementById("map"), {
+                zoom: 4,
+                center: position,
+                mapId: "DEMO_MAP_ID",
+            });
+
+            marker = new google.maps.Marker({
+                map: map,
+                position: position,
+                title: "Center"
+            });
+
+            google.maps.event.addListener(map, 'click', function (e) {
+                let myLatlng = e["latLng"];
+                marker.setPosition(myLatlng);
+                map.setCenter(myLatlng);
+                $('#lat').val(myLatlng.lat)
+                $('#lng').val(myLatlng.lng)
+
+            });
+
+
+            // The map, centered at Uluru
+            edit_map = new Map(document.getElementById("edit_map"), {
+                zoom: 4,
+                center: position,
+                mapId: "DEMO_MAP_ID",
+            });
+
+            edit_marker = new google.maps.Marker({
+                map: edit_map,
+                position: position,
+                title: "Center"
+            });
+
+
+            google.maps.event.addListener(edit_map, 'click', function (e) {
+                let myLatlng = e["latLng"];
+                edit_marker.setPosition(myLatlng);
+                edit_map.setCenter(myLatlng);
+                $('#edit_lat').val(myLatlng.lat)
+                $('#edit_lng').val(myLatlng.lng)
+            });
 
         }
 
-        function showPosition(position) {
-
-            function onMapClick(e) {
-                $('#edit_lat').val(e.latlng.lat)
-                $('#edit_lng').val(e.latlng.lng)
-                console.log(e);
-                var layar = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map2)
-                    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-                    .openPopup();
-
-            }
-
-            map2.on('click', onMapClick);
-        }
     </script>
+
     <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
     <script type="text/javascript">
         $.ajaxSetup({
@@ -696,7 +743,6 @@
             serverSide: true,
             responsive: true,
             searching: false,
-            lengthMenu: [[25, 100, -1], [25, 100, "All"]],
             "oLanguage": {
                 @if (app()->isLocale('ar'))
                 "sEmptyTable": "ليست هناك بيانات متاحة في الجدول",
@@ -728,18 +774,23 @@
                 }
             },
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: [
+            "buttons": [
                 {
-                    extend: 'excel',
+
+                    "extend": 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
-                    exportOptions: {
-                        columns: [1,2,3,5,6,7],
-                        modifier: {
-                            search: 'applied',
-                            order: 'applied'
-                        }
-                    }
-                }
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
             ],
             columns: [
                 {
@@ -815,12 +866,17 @@
                 $('#edit_city').val(button.data('city'));
                 // $('#edit_type').val(button.data('type')).trigger('change');
                 $('#edit_mobile').val(button.data('mobile'));
+                $('#edit_prefix').val(button.data('intro'));
+
                 $('#edit_lat').val(button.data('lat'))
                 $('#edit_email').val(button.data('email'))
                 $('#edit_lng').val(button.data('lng'))
                 $('#edit_name').val(button.data('name'))
                 $('#edit_address').val(button.data('address'))
-                console.log(button.data('video'))
+                console.log('f',button.data('mobile'))
+                $('#edit_address').val(button.data('address'))
+                let latlng = {lat: parseFloat(button.data('lat')), lng: parseFloat(button.data('lng'))};
+                edit_marker.setPosition(latlng);
                 $('#video-1').attr('src', button.data('video'));
                 $('#edit_src_image_personal_photo').attr('src', button.data('personal_photo'));
                 $('#edit_src_image_cover_Photo').attr('src', button.data('cover_user'));
@@ -832,16 +888,10 @@
                     skills = button.data('skills').split(',');
                 }
                 $('#edit_skills').val(skills).trigger('change');
-                L.marker([button.data('lat'), button.data('lng')]).addTo(map2)
-                    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-                    .openPopup();
+
 
             });
-            $(document).on('click', '#addd', function () {
-                // map.eachLayer(function (layer) {
-                //     map.removeLayer(layer);
-                // });
-            });
+
         });
     </script>
     <script>
@@ -880,43 +930,7 @@
         })
     </script>
 
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-            integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-    <script>
-        var map = L.map('map').setView([51.505, -0.09], 13);
-
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        var lon;
-        var lat;
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition);
-        } else {
-            x.innerHTML = "Geolocation is not supported by this browser.";
-
-        }
-
-        //
-        function showPosition(position) {
-
-
-            function onMapClick(e) {
-                $('#lat').val(e.latlng.lat)
-                $('#lng').val(e.latlng.lng)
-                console.log(e.latlng.lng);
-                // map.eachLayer(function (layer) {
-                //     map.removeLayer(layer);
-                // });
-                L.marker([e.latlng.lat, e.latlng.lng]).addTo(map)
-                    .openPopup();
-
-            }
-
-            map.on('click', onMapClick);
-
-
-        }
+    <script async
+            src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&callback=initMap">
     </script>
 @endsection

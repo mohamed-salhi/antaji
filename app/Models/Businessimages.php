@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Businessimages extends Model
@@ -36,7 +37,8 @@ class Businessimages extends Model
         foreach ($this->imageBusiness as $item) {
             $attachments[] = [
                 "uuid" => $item->uuid,
-                'image' => url('/') . self::PATH . $item->filename,
+                'image' =>!is_null(@$item->path) ? asset(Storage::url(@$item->path) ): ''
+
             ];
         }
         return $attachments;

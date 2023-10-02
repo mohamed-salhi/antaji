@@ -23,6 +23,6 @@ class NotificationUser extends Model
         self::creating(function ($item) {
             $item->uuid = Str::uuid();
         });
-}
+    }
 
 }

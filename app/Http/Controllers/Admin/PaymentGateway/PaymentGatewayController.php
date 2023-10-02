@@ -4,14 +4,18 @@ namespace App\Http\Controllers\Admin\PaymentGateway;
 
 
 use App\Http\Controllers\Controller;
+use App\Models\BillService;
 use App\Models\BookingDay;
 use App\Models\Cart;
 use App\Models\FcmToken;
+use App\Models\Notification;
 use App\Models\NotificationUser;
 use App\Models\Order;
+use App\Models\OrderConversation;
 use App\Models\PackageUser;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -25,46 +29,90 @@ class PaymentGatewayController extends Controller
 //        $this->middleware('permission:paymentGateway-list|paymentGateway-edit', ['only' => ['index','activate']]);
 //        $this->middleware('permission:paymentGateway-edit', ['only' => ['activate']]);
 //    }
+    function __construct()
+    {
+        $this->middleware('permission:payment', ['only' => ['index', 'store', 'create', 'destroy', 'edit', 'update']]);
+    }
+
     public function index()
     {
         return view('admin.paymentGateways.index');
     }
 
+    public function update(Request $request)
+    {
+        $method = PaymentGateway::findOrFail($request->uuid);
+
+//        Gate::authorize('place.update');
+        $rules = [];
+        foreach (locales() as $key => $language) {
+            $rules['name_' . $key] = 'required|string|max:255';
+        }
+        $rules['image'] = 'nullable|image';
+        $this->validate($request, $rules);
+        $data = [];
+        foreach (locales() as $key => $language) {
+            $data['name'][$key] = $request->get('name_' . $key);
+        }
+        $method->update($data);
+        if ($request->hasFile('image')) {
+            UploadImage($request->image, "upload/payment/", PaymentGateway::class, $method->id, true, null, Upload::IMAGE);
+        }
+
+        return response()->json([
+            'item_edited'
+        ]);
+
+    }
+
     public function getData(Request $request)
     {
-        $countrys = PaymentGateway::query()->withoutGlobalScope('gateway')->orderByDesc('created_at');
+        $countrys = PaymentGateway::query()->withoutGlobalScope('status')->orderByDesc('created_at');
         return Datatables::of($countrys)
             ->addColumn('action', function ($que) {
                 $data_attr = '';
-                $data_attr .= 'data-uuid="' . $que->uuid . '" ';
+                $data_attr .= 'data-uuid="' . $que->id . '" ';
                 $data_attr .= 'data-image="' . $que->image . '" ';
                 foreach (locales() as $key => $value) {
                     $data_attr .= 'data-name_' . $key . '="' . $que->getTranslation('name', $key) . '" ';
                 }
+
                 $string = '';
+                $string .= '<button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"
+                    data-target="#edit_modal" ' . $data_attr . '>' . __('edit') . '</button>';
                 return $string;
+            })->addColumn('checkbox', function ($que) {
+                return $que->id;
             })->addColumn('status', function ($que) {
                 $currentUrl = url('/');
-                return '<div class="checkbox">
-                <input class="activate-row"  url="' . $currentUrl . "/admin/paymentGateways/activate/" . $que->uuid . '" type="checkbox" id="checkbox' . $que->id . '" ' .
-                    ($que->status ? 'checked' : '')
-                    . '>
-                <label for="checkbox' . $que->uuid . '"><span class="checkbox-icon"></span> </label>
-            </div>';
+                if ($que->status == 1) {
+                    $data = '
+<button type="button"  data-url="' . $currentUrl . "/admin/paymentGateways/updateStatus/0/" . $que->id . '" id="btn_update" class=" btn btn-sm btn-outline-success " data-uuid="' . $que->uuid .
+                        '">' . __('active') . '</button>
+                    ';
+                } else {
+                    $data = '
+<button type="button"  data-url="' . $currentUrl . "/admin/paymentGateways/updateStatus/1/" . $que->id . '" id="btn_update" class=" btn btn-sm btn-outline-danger " data-uuid="' . $que->uuid .
+                        '">' . __('inactive') . '</button>
+                    ';
+                }
+                return $data;
             })
             ->rawColumns(['action', 'status'])->toJson();
     }
 
-    public function activate($uuid)
+    public function UpdateStatus($status, $sup)
     {
+        $uuids = explode(',', $sup);
 
-        $activate = PaymentGateway::withoutGlobalScope('gateway')->findOrFail($uuid);
-        $activate->status = !$activate->status;
-        if (isset($activate) && $activate->save()) {
-            return $this->sendResponse(null, __('item_edited'));
-        } else {
-            return $this->sendResponse('error', null);
-        }
+        PaymentGateway::query()->withoutGlobalScope('status')
+            ->whereIn('id', $uuids)
+            ->update([
+                'status' => $status
+            ]);
+        return response()->json([
+            'item_edited'
+        ]);
     }
 
     public function checkout($uuid)
@@ -77,35 +125,45 @@ class PaymentGatewayController extends Controller
 
     public function pay(Request $request, $uuid)
     {
-        $payment = Payment::query()->where('transaction_id', $request->id)->where('status',Payment::COMPLETE)->exists();
-        if ($payment) {
-            return 'finished';
-
+        $payment = Payment::query()->where('transaction_id', $request->id)->first();
+        if (!$payment) {
+            return redirect()->route('paymentGateways.status', $payment->status);
+        }
+        if ($payment->status != Payment::PENDING) {
+            return redirect()->route('paymentGateways.status', $payment->status);
         }
 
         $resourcePath = $request->resourcePath;
-        $url = "https://eu-test.oppwa.com/$resourcePath";
-        $url .= "?entityId=8a8294174b7ecb28014b9699220015ca";
+        $url = Payment::PAYMENT_BASE_URL . "/$resourcePath";
+        $entityId = Payment::PAYMENT_ENTITY_ID_DEFAULT;
+        if ($payment->payment_method_id == PaymentGateway::MADA) {
+            $entityId = Payment::PAYMENT_ENTITY_ID_MADA;
+        } elseif ($payment->payment_method_id == PaymentGateway::APPLE_PAY) {
+            $entityId = Payment::PAYMENT_ENTITY_ID_APPLE_PAY;
+        }
+        $url .= "?entityId=$entityId";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization:Bearer OGE4Mjk0MTc0YjdlY2IyODAxNGI5Njk5MjIwMDE1Y2N8c3k2S0pzVDg='));
+            'Authorization:Bearer ' . Payment::PAYMENT_TOKEN));
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// this should be set to true in production
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, Payment::PAYMENT_IS_LIVE);// this should be set to true in production
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $responseData = curl_exec($ch);
         if (curl_errno($ch)) {
-            return curl_error($ch);
+            $payment->update([
+                'status' => Payment::UN_COMPLETED
+            ]);
+            curl_close($ch);
+            return redirect()->route('paymentGateways.status', $payment->status);
         }
-        curl_close($ch);
         $responseData = json_decode($responseData, true);
 
         if ($responseData['result']['code'] == '000.100.110') {
-
-            $payment = Payment::query()->where('transaction_id', $request->id)->first();
+//return $payment->status;
             if ($payment->package_uuid) {
-                User::query()->where('uuid',$payment->user_uuid)->update([
+                User::query()->where('uuid', $payment->user_uuid)->update([
                     'package_uuid' => $payment->package_uuid
                 ]);
 //                PackageUser::query()->where('user_uuid',$payment->user_uuid)->update([
@@ -118,7 +176,7 @@ class PaymentGatewayController extends Controller
                 $payment->update([
                     'status' => Payment::COMPLETE
                 ]);
-                return 'Payment Done';
+                return redirect()->route('paymentGateways.status', $payment->status);
             }
 
             $orders = Order::query()
@@ -126,28 +184,8 @@ class PaymentGatewayController extends Controller
                 ->withoutGlobalScope('status')
                 ->get();
             foreach ($orders as $item) {
-//                $ios_tokens = FcmToken::query()
-//                    ->where("user_uuid", $item->content->user->uuid)
-//                    ->where('fcm_device', 'ios')
-//                    ->pluck('fcm_token')->toArray();
-//                $android_tokens = FcmToken::query()
-//                    ->where("user_uuid", $item->content->user->uuid)
-//                    ->where('fcm_device', 'android')
-//                    ->pluck('fcm_token')->toArray();
-//                $msg = [$item->content->name . __('There is a new order')];
-//                NotificationUser::query()->create([
-//                    'receiver_uuid' => $item->content->user_uuid,
-//                    'sender_uuid' => $item->user_uuid,
-//                    'content' => ['en' => $item->content->name . 'There is a new order', 'ar' => $item->content->name . 'هناك طلب جديد'],
-//                    'type' => ('There_is_a_new_order')
-//                ]);
-//                if ($ios_tokens) {
-//                    sendFCM($msg, $ios_tokens, "ios");
-//                }
-//                if ($android_tokens) {
-//                    sendFCM($msg, $android_tokens, "android");
-//                }
-//                notfication($item->content->user_uuid,$item->user_uuidnull,'There_is_a_new_order','There_is_a_new_order',$request);
+                $this->sendNotification($item->uuid, Order::class, $item->user_uuid, $item->content->user_uuid, Notification::NEW_OFFER, User::USER, User::USER);
+
 
 
 
@@ -183,6 +221,20 @@ class PaymentGatewayController extends Controller
                     ]);
             }
             $content_uuid = Order::query()->where('order_number', $payment->order_number)->withoutGlobalScope('status')->pluck('content_uuid');
+            if ($orders[0]->content_type == Order::SERVICE) {
+                $bill = BillService::query()->where('payment_uuid',$payment->uuid)->first();
+                $bill->update([
+                    'status' => BillService::ACCEPT
+                ]);
+            }else{
+                OrderConversation::query()->create([
+                    'customer_uuid' => $item->user_uuid,
+//            'service_uuid' => $service_uuid,
+                    'owner_uuid' => $item->content->user_uuid,
+                    'order_number' => $item->order_number
+                ]);
+            }
+
             Cart::query()
                 ->whereIn('content_uuid', $content_uuid)
                 ->where('user_uuid', $payment->user_uuid)
@@ -190,16 +242,20 @@ class PaymentGatewayController extends Controller
             $payment->update([
                 'status' => Payment::COMPLETE
             ]);
-            return 'Payment Done';
+            return redirect()->route('paymentGateways.status', $payment->status);
 
         } else {
-            $payment = Payment::query()->where('transaction_id', $request->id)->first();
 
             $payment->update([
                 'status' => Payment::FAILED
             ]);
-            return 'Payment false';
-
+            return redirect()->route('paymentGateways.status', $payment->status);
         }
     }
+
+    public function status($status)
+    {
+        return $status;
+    }
+
 }

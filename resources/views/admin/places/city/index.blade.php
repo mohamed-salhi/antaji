@@ -168,7 +168,7 @@
                         @endforeach
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="">@lang('cities')</label>
+                                <label for="">@lang('country')</label>
                                 <select name="country_uuid" id="country_uuid" class="select form-control"
                                         data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">
                                     <option selected disabled>@lang('select') @lang('country')</option>
@@ -223,7 +223,7 @@
                         @endforeach
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="country_uuid">@lang('cities')</label>
+                                <label for="country_uuid">@lang('country')</label>
                                 <select class="form-control" id="edit_country_uuid" name="country_uuid" required>
                                     <option value="">@lang('select') @lang('country')</option>
                                     @foreach ($country as $itemm)
@@ -287,19 +287,23 @@
                 }
             },
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: [
+            "buttons": [
                 {
-                    extend: 'excel',
-                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
-                    exportOptions: {
-                        modifier: {
-                            columns: [1,2,3],
 
-                            search: 'applied',
-                            order: 'applied'
-                        }
-                    }
-                }
+                    "extend": 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
             ],
             columns: [{
                 "render": function (data, type, full, meta) {

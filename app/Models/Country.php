@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
@@ -40,7 +41,7 @@ class Country extends Model
 
     public function getImageAttribute()
     {
-        return url('/') . '/upload/country/' . @$this->imageCountry->filename;
+        return !is_null(@$this->imageCountry->path) ? asset(Storage::url(@$this->imageCountry->path) ): '';
     }
 
     //Boot

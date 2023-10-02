@@ -15,7 +15,7 @@ class Discount extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['name'];
-    protected $appends = ['name_translate','number_uses'];
+    protected $appends = ['name_translate','number_uses','type_text'];
     protected $guarded = [];
 
     const PERCENT = 'percent';
@@ -32,9 +32,9 @@ class Discount extends Model
         return $this->hasMany(DiscountUser::class,'discount_uuid');
     }
     //Attributes
-    public function getDiscountTypeAttribute($value)
+    public function getTypeTextAttribute()
     {
-        return __($value);
+        return __($this->discount_type);
     }
     public function getNumberUsesAttribute()
     {

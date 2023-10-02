@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Validator;
 class PackageController extends Controller
 {
    public function getPackages(){
-      $item= Package::query()->select('uuid','name','details','price')->get();
-       return mainResponse(true, "done", compact('item'), [], 200);
+      $items= Package::query()->select('uuid','name','details','price','type')->get();
+       return mainResponse(true, "done", compact('items'), [], 200);
    }
    public function payment($uuid){
       $package= Package::query()->select('uuid','price','name')->findOrFail($uuid);
@@ -51,61 +51,36 @@ class PackageController extends Controller
 
         $package= Package::query()->findOrFail($request->package_uuid);
 
+        $entityId = Payment::PAYMENT_ENTITY_ID_DEFAULT;
         if ($request->payment_method_id == PaymentGateway::MADA) {
-            $amount = $package->price;
-            $url = "https://eu-test.oppwa.com/v1/checkouts";
-            $data = "entityId=8a8294174b7ecb28014b9699220015ca" .
-                "&amount=$amount" .
-                "&currency=EUR" .
-                "&paymentType=DB";
+            $entityId = Payment::PAYMENT_ENTITY_ID_MADA;
+        } elseif ($request->payment_method_id == PaymentGateway::APPLE_PAY) {
+            $entityId = Payment::PAYMENT_ENTITY_ID_APPLE_PAY;
+        }
+        $amount = intval($package->price);
+        $url = Payment::PAYMENT_BASE_URL . "/v1/checkouts";
+        $data = "entityId=" . $entityId .
+            "&amount=$amount" .
+            "&currency=EUR" .
+            "&paymentType=DB";
 
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization:Bearer OGE4Mjk0MTc0YjdlY2IyODAxNGI5Njk5MjIwMDE1Y2N8c3k2S0pzVDg='));
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// this should be set to true in production
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $responseData = curl_exec($ch);
-            if (curl_errno($ch)) {
-                return curl_error($ch);
-            }
-            curl_close($ch);
-            $data = json_decode($responseData);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization:Bearer ' . Payment::PAYMENT_TOKEN));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, Payment::PAYMENT_IS_LIVE);// this should be set to true in production
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $responseData = curl_exec($ch);
+        if (curl_errno($ch)) {
+            return curl_error($ch);
+        }
+        curl_close($ch);
+        $data = json_decode($responseData);
 //            return $data;
-            $id = $data->id;
+        $id = $data->id;
 
-        }
-        elseif ($request->payment_method_id == PaymentGateway::ABLEPAY) {
-            $amount = $package->price;
-            $url = "https://eu-test.oppwa.com/v1/checkouts";
-            $data = "entityId=8a8294174b7ecb28014b9699220015ca" .
-                "&amount=$amount" .
-                "&currency=EUR" .
-                "&paymentType=DB";
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization:Bearer OGE4Mjk0MTc0YjdlY2IyODAxNGI5Njk5MjIwMDE1Y2N8c3k2S0pzVDg='));
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);// this should be set to true in production
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $responseData = curl_exec($ch);
-            if (curl_errno($ch)) {
-                return curl_error($ch);
-            }
-            curl_close($ch);
-            $data = json_decode($responseData);
-            $id = $data->id;
-
-        }
-        else {
-            return mainResponse(false, "payment_method not found", [], [], 404);
-
-        }
 
         $payment = Payment::query()->updateOrCreate([
             'user_uuid' => $user->uuid,
@@ -119,10 +94,20 @@ class PackageController extends Controller
 
         ]);
 
+
+        $payment_method_id = intval($request->payment_method_id);
         $url = route('paymentGateways.checkout', $payment->uuid);
         $status = 'url';
+        $checkout_id = '';
+        $payment_uuid = $payment->uuid;
+        $payment_is_live = Payment::PAYMENT_IS_LIVE;
+        if ($payment_method_id == PaymentGateway::APPLE_PAY) {
+            $status = 'apple_pay';
+            $url = '';
+            $checkout_id = 'checkout_id_here';
+        }
 
-        return mainResponse(true, 'ok', compact('status', 'url'), []);
+        return mainResponse(true, 'ok', compact('payment_is_live', 'payment_uuid', 'payment_method_id', 'status', 'url', 'checkout_id'), []);
     }
 
 }

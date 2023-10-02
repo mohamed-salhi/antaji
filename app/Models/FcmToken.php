@@ -9,16 +9,22 @@ use Illuminate\Support\Str;
 class FcmToken extends Model
 {
     use HasFactory;
+
     protected $primaryKey = 'uuid';
     public $incrementing = false;
-    protected $guarded=[];
+    protected $guarded = [];
+
     public static function boot()
     {
         parent::boot();
         self::creating(function ($item) {
             $item->uuid = Str::uuid();
         });
+    }
 
 
+    public function getMarketingAttribute($value)
+    {
+        return $value == 1;
     }
 }

@@ -11,6 +11,10 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DeliveryController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:discount', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index()
     {
         return view('admin.discounts.delivery');

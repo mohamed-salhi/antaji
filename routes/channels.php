@@ -19,10 +19,10 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 Broadcast::channel('msg.{id}', function ($user, $id) {
 
-        if($user->uuid==$id||$user->id){
-            return true;
-        }
-
+//        if($user->uuid==$id||$user->id){
+//            return true;
+//        }
+return  false;
 });
 Broadcast::channel('chat.{id}', function ($user, $id) {
 

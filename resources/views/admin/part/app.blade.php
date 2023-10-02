@@ -220,7 +220,7 @@
     style="background-color: #E3071C">
     <div class="navbar-container d-flex content">
         <ul class="nav navbar-nav align-items-center ml-auto">
-            {{--            <x-not></x-not>--}}
+            <x-not />
             <li class="nav-item dropdown dropdown-language">
                 <a class="nav-link dropdown-toggle" id="dropdown-flag" href="javascript:void(0);"
                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -317,7 +317,58 @@
 <script type="text/javascript" src="{{ asset('dashboard/dist/image-uploader_2.min.js') }}"></script>
 
 <script type="text/javascript" src="{{ asset('dashboard/src/image-uploader.js') }}"></script>
+<script>
 
+
+    function newexportaction(e, dt, button, config) {
+        var self = this;
+        var oldStart = dt.settings()[0]._iDisplayStart;
+        dt.one('preXhr', function (e, s, data) {
+            // Just this once, load all data from the server...
+            data.start = 0;
+            data.length = 2147483647;
+            dt.one('preDraw', function (e, settings) {
+                // Call the original action function
+                if (button[0].className.indexOf('buttons-copy') >= 0) {
+                    $.fn.dataTable.ext.buttons.copyHtml5.action.call(self, e, dt, button, config);
+                } else if (button[0].className.indexOf('buttons-excel') >= 0) {
+                    $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                        $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                } else if (button[0].className.indexOf('buttons-csv') >= 0) {
+                    $.fn.dataTable.ext.buttons.csvHtml5.available(dt, config) ?
+                        $.fn.dataTable.ext.buttons.csvHtml5.action.call(self, e, dt, button, config) :
+                        $.fn.dataTable.ext.buttons.csvFlash.action.call(self, e, dt, button, config);
+                } else if (button[0].className.indexOf('buttons-pdf') >= 0) {
+                    $.fn.dataTable.ext.buttons.pdfHtml5.available(dt, config) ?
+                        $.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config) :
+                        $.fn.dataTable.ext.buttons.pdfFlash.action.call(self, e, dt, button, config);
+                } else if (button[0].className.indexOf('buttons-print') >= 0) {
+                    $.fn.dataTable.ext.buttons.print.action(e, dt, button, config);
+                }
+                dt.one('preXhr', function (e, s, data) {
+                    // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                    // Set the property to what it was before exporting.
+                    settings._iDisplayStart = oldStart;
+                    data.start = oldStart;
+                });
+                // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                setTimeout(dt.ajax.reload, 0);
+                // Prevent rendering of the full data to the DOM
+                return false;
+            });
+        });
+        // Requery the server with the new one-time export settings
+        dt.ajax.reload();
+    };
+
+
+
+
+
+
+
+</script>
 <!-- END: Page Vendor JS-->
 
 <!-- BEGIN: Theme JS-->
@@ -334,6 +385,7 @@
 
 <script>
     $(window).on('load', function () {
+        $('.phpdebugbar').remove()
         if (feather) {
             feather.replace({
                 width: 14,
@@ -358,6 +410,9 @@
 
 @yield('scripts')
 <script type="text/javascript">
+
+
+
     function CheckAll(className, elem) {
         var elements = document.getElementsByClassName(className);
         var l = elements.length;
@@ -467,6 +522,8 @@
         var data = new FormData(this);
         let url = $(this).attr('action');
         var method = $(this).attr('method');
+        var form = $(this).find('form');
+        form.find('select').val('').trigger("change")
         $('input').removeClass('is-invalid');
         $('select').removeClass('is-invalid');
         $('.invalid-feedback').text('');
@@ -483,15 +540,21 @@
                 $('.done').html('saving ...').prop('disabled', true);
             },
             success: function (result) {
-                $('.done').html('@lang("save")').prop('disabled', false);
 
-                $('#full-modal-stem').modal('hide');
-                table.draw()
-                $('#add_model_form').trigger("reset");
+                // form[0].reset();
+                // $('#add_model_form').trigger("reset");
 
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
+
+                $('.done').html('@lang("save")').prop('disabled', false);
+
+                $('#full-modal-stem').modal('hide');
+                table.draw()
+
+
+
 
 
                 $('#model-excel').modal('hide');
@@ -658,7 +721,7 @@
                 table.draw()
                 $('#edit_modal').modal('hide');
                 $('.form_edit').trigger("reset");
-                $('.done').html('save').prop('disabled', false);
+                $('.done').html('@lang('save')').prop('disabled', false);
                 toastr.success('@lang('done_successfully')', '', {
                     rtl: isRtl
                 });
@@ -690,6 +753,8 @@
     })
 
     $(document).on('click', '.button_modal', function (event) {
+        document.getElementById("add_model_form").reset();
+
         $('#add_model_form').trigger("reset");
         $('select').removeClass('is-invalid');
         // $('.image-preview').remove();
@@ -698,15 +763,9 @@
     });
     $('#edit_modal').on('hidden.bs.modal', function () {
         $('#form_edit').trigger("reset");
-        $('.data').remove()
+
         $('.edit_images').remove()
-        $('.add_images').append(`<div class="col-12 edit_images">
-                        <div class="input-field">
-                            <label class="active">Photos</label>
-                            <div class="input-images-2" style="padding-top: .5rem;"></div>
-                        </div>
-                        <div class="invalid-feedback"></div>
-                    </div>`)
+
     });
 
 
@@ -812,7 +871,7 @@
     //
     // })
 
-    {{--$(document).ready(function () {--}}
+    $(document).ready(function () {
     {{--    @can('help-list')--}}
 
     {{--    window.Echo.private('NotificationAdmin.help-list')--}}
@@ -900,36 +959,130 @@
     {{--        `)--}}
     {{--        })--}}
     {{--    @endcan--}}
-    {{--    @can('reward-list')--}}
+        @can('product')
 
-    {{--    window.Echo.private('NotificationAdmin.reward-list')--}}
-    {{--        .listen('.NotificationAdmin', (e) => {--}}
-    {{--            console.log(e)--}}
-    {{--            var count=  $('#count_not').text()--}}
-    {{--            console.log(count);--}}
-    {{--            $('#count_not').html(parseInt(count)+1)--}}
-    {{--            var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');--}}
-    {{--            // Show loading animation.--}}
-    {{--            var playPromise = x.play();--}}
 
-    {{--            if (playPromise !== undefined) {--}}
-    {{--                playPromise.then(_ => {--}}
-    {{--                    x.play();--}}
-    {{--                })--}}
-    {{--                    .catch(error => {--}}
-    {{--                    });--}}
+    window.Echo.channel('NotificationAdmin.product')
+        .listen('.NotificationAdmin', (e) => {
+            console.log(e)
+            var count=  $('#count_not').text()
+            console.log(count);
+            $('#count_not').html(parseInt(count)+1)
+            var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');
+            // Show loading animation.
+            var playPromise = x.play();
 
-    {{--            }--}}
-    {{--            $('#not').append(`--}}
-    {{--        <div class="dropdown-divider "></div>--}}
-    {{--        <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">--}}
-    {{--            <i class="fas fa-recycle mr-2"></i> ${e[2]}--}}
-    {{--        <span class="float-right text-muted text-sm">منذ 1 ثانية</span>--}}
-    {{--        </a>--}}
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    x.play();
+                })
+                    .catch(error => {
+                    });
 
-    {{--        `)--}}
-    {{--        })--}}
-    {{--    @endcan--}}
+            }
+            $('#not').append(`
+            <div class="dropdown-divider "></div>
+            <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">
+                <i class="fas fa-recycle mr-2"></i> ${e[2]}
+            <span class="float-right text-muted text-sm">منذ 1 ثانية</span>
+            </a>
+
+            `)
+        })
+        @endcan
+        @can('user')
+
+
+        window.Echo.channel('NotificationAdmin.user')
+            .listen('.NotificationAdmin', (e) => {
+                console.log(e)
+                var count=  $('#count_not').text()
+                console.log(count);
+                $('#count_not').html(parseInt(count)+1)
+                var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');
+                // Show loading animation.
+                var playPromise = x.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        x.play();
+                    })
+                        .catch(error => {
+                        });
+
+                }
+                $('#not').append(`
+            <div class="dropdown-divider "></div>
+            <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">
+                <i class="fas fa-recycle mr-2"></i> ${e[2]}
+            <span class="float-right text-muted text-sm">منذ 1 ثانية</span>
+            </a>
+
+            `)
+            })
+        @endcan
+        @can('artist')
+
+
+        window.Echo.channel('NotificationAdmin.artist')
+            .listen('.NotificationAdmin', (e) => {
+                console.log(e)
+                not()
+
+            })
+        @endcan
+        @can('location')
+
+
+        window.Echo.channel('NotificationAdmin.location')
+            .listen('.NotificationAdmin', (e) => {
+                console.log(e)
+                not()
+
+            })
+        @endcan
+        @can('course')
+
+
+        window.Echo.channel('NotificationAdmin.course')
+            .listen('.NotificationAdmin', (e) => {
+                console.log(e)
+                not()
+
+            })
+        @endcan
+        @can('service')
+
+
+        window.Echo.channel('NotificationAdmin.service')
+            .listen('.NotificationAdmin', (e) => {
+                console.log(e)
+                var count=  $('#count_not').text()
+                console.log(count);
+                $('#count_not').html(parseInt(count)+1)
+                var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');
+                // Show loading animation.
+                var playPromise = x.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        x.play();
+                    })
+                        .catch(error => {
+                        });
+
+                }
+                $('#not').append(`
+            <div class="dropdown-divider "></div>
+            <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">
+                <i class="fas fa-recycle mr-2"></i> ${e[2]}
+            <span class="float-right text-muted text-sm">منذ 1 ثانية</span>
+            </a>
+
+            `)
+
+            })
+        @endcan
     {{--})--}}
     // window.Echo.channel('msg')
     //     .listen('.msg', (e) => {
@@ -958,8 +1111,33 @@
     //                                                             </li>
     //         `)
     //         }
-    //     })
+        })
 
+    function not(){
+        var count=  $('#count_not').text()
+        console.log(count);
+        $('#count_not').html(parseInt(count)+1)
+        var x = new Audio('{{asset('dashboard/not/notification.mp3')}}');
+        // Show loading animation.
+        var playPromise = x.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                x.play();
+            })
+                .catch(error => {
+                });
+
+        }
+        $('#not').append(`
+            <div class="dropdown-divider "></div>
+            <a href="${e[3]}" class="dropdown-item" style="background-color: #1AB7EA">
+                <i class="fas fa-recycle mr-2"></i> ${e[2]}
+            <span class="float-right text-muted text-sm">منذ 1 ثانية</span>
+            </a>
+
+            `)
+    }
 </script>
 
 </body>

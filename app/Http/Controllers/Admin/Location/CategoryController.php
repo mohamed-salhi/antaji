@@ -10,6 +10,10 @@ use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:location', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index(){
         return view('admin.locations.category');
     }

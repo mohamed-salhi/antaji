@@ -17,8 +17,11 @@ class BusinessVideoResource extends JsonResource
         return [
             'image'=>$this->image,
             'title'=>$this->title,
-            'artist_name'=>$this->artist_name,
-            'artist_image'=>$this->artist_image
+            'video'=>$this->video,
+            'artist_uuid'=>@$this->artists->uuid,
+            'artist_name'=>@$this->artist_name,
+            'artist_image'=>@$this->artist_image
+
         ];
     }
 }

@@ -14,18 +14,20 @@ class ConversationsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        if ($this->user_uuid==$this->one){
-            $user='userTow';
-        }else{
-            $user='userOne';
+        if ($this->user_uuid == $this->one) {
+            $user = 'userTow';
+        } else {
+            $user = 'userOne';
         }
         return [
             'conversation_uuid' => $this->uuid,
-            'user_image' => $this->$user->image,
-            'user_name' => $this->$user->name,
-            'last' => $this->last_msg,
-            'count' => $this->count_msg,
-            'created' =>  $this->chat()->latest()->first()->value('created_at')->diffForHumans(),
+
+            'user_uuid' => $this->$user->uuid,
+            'user_image' => @$this->$user->image,
+            'user_name' => @$this->$user->name,
+            'last' => @$this->last_msg,
+            'count' => @$this->count_msg,
+//            'created' =>  $this->chat()->latest()->first()->value('created_at')->diffForHumans(),
 
         ];
     }

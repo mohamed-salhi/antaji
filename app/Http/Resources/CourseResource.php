@@ -21,7 +21,8 @@ class CourseResource extends JsonResource
             'price' => $this->price,
             'currency' => __('sr'),
             'cover' => $this->image,
-            'count' => $this->course_count
+            'count' => $this->course_count,
+            'video' => $this->video,
         ];
     }
 }

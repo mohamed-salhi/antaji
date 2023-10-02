@@ -125,7 +125,7 @@ class SocialController extends Controller
                 $data_attr = '';
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
                 $data_attr .= 'data-link="' . $que->link . '" ';
-                $data_attr .= 'data-image="' . $que->image . '" ';
+                $data_attr .= 'data-image="' . $que->icon . '" ';
                 foreach (locales() as $key => $value) {
                     $data_attr .= 'data-name_' . $key . '="' . $que->getTranslation('name', $key) . '" ';
                 }

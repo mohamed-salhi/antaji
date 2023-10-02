@@ -14,6 +14,7 @@ use App\Http\Resources\CourseMyResource;
 use App\Http\Resources\homePage;
 use App\Http\Resources\LocationResource;
 use App\Http\Resources\MapResource;
+use App\Http\Resources\NotificationResource;
 use App\Http\Resources\ProductHomeResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\profileArtistResource;
@@ -30,7 +31,11 @@ use App\Models\Course;
 use App\Models\DeliveryAddresses;
 use App\Models\Favorite;
 use App\Models\FavoriteUser;
+use App\Models\FcmToken;
 use App\Models\Location;
+use App\Models\Notification;
+use App\Models\NotificationUser;
+use App\Models\Order;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\Search;
@@ -146,26 +151,37 @@ class HomeController extends Controller
     {
         $setting = Page::query()->where('id', $id)->first();
         if ($id == Page::about_application) {
-            $setting->setAttribute('social_medias',Social::query()->select('uuid','link')->get()
-        );
+            $setting->setAttribute('social_medias', Social::query()->select('uuid', 'link')->get()
+            );
         }
         return mainResponse(true, "done", $setting, []);
     }
 
     public function artists(Request $request)
     {
-        $city = $request->city;
-        $orderCreate = ($request->created_at == 'old') ? 'orderByDesc' : 'orderBy';
-        $orderName = ($request->name == 'desc') ? 'orderByDesc' : 'orderBy';
+
+        $city_uuid = $request->city_uuid;
+        $orderCreate = ($request->order_created_at == 'desc') ? 'orderByDesc' : 'orderBy';
+        $orderName = ($request->order_a_z == 'desc') ? 'orderByDesc' : 'orderBy';
         $artists = User::query()->where('type', 'artist');
-        if ($request->has('created_at')) {
+        if ($request->has('order_created_at')) {
             $artists->$orderCreate('created_at');
         }
-        if ($request->has('name')) {
+
+        if ($request->has('filter_most_viewed')) {
+            $artists->orderByDesc('view')->take(10);
+        }
+        if ($request->has('filter_specializations_uuid')) {
+            $artists->whereIn('specialization_uuid',$request->filter_specializations_uuid);
+        }
+        if ($request->has('order_a_z')) {
             $artists->$orderName('name');
         }
-        if ($request->has('city')) {
-            $artists->where('city_uuid', $city);
+        if ($request->has('city_uuid')) {
+            $artists->where('city_uuid', $city_uuid);
+        }
+        if ($request->has('name')) {
+            $artists->where('name', 'like',"%{$request->name}%");
         }
         $artists = $artists->paginate();
         $items = pageResource($artists, artists::class);
@@ -176,6 +192,7 @@ class HomeController extends Controller
 
     public function artist(Request $request, $uuid)
     {
+
         $user = User::query()->findOrFail($uuid);
         if ($user->type == 'artist') {
             $user = new profileArtistResource($user);
@@ -225,11 +242,12 @@ class HomeController extends Controller
         $products->setCollection(collect($items));
         $items = $products;
 
-        return mainResponse(true, "done", $items, [], 200);
+        return mainResponse(true, "done", compact('items'), [], 200);
     }
 
     public function getDetailsProduct($uuid)
     {
+
         $product = Product::query()->findOrFail($uuid);
         return mainResponse(true, "done", new ProductResource($product), [], 200);
 
@@ -269,14 +287,14 @@ class HomeController extends Controller
         $rules = [
             'type' => 'required|in:' . Favorite::USER . ',' . Favorite::ARTIST . ',' . Favorite::LOCATION . ',' . Favorite::PRODUCT,
         ];
-        if ($request->type == Favorite::USER){
-            $rules['uuid']  = ['required' , Rule::exists(User::class, 'uuid')->where('type', User::USER)];
-        } elseif ($request->type == Favorite::ARTIST){
-            $rules['uuid']  = ['required' , Rule::exists(User::class, 'uuid')->where('type', User::ARTIST)];
-        } elseif ($request->type == Favorite::PRODUCT){
-            $rules['uuid']  = ['required' , Rule::exists(Product::class, 'uuid')];
-        }elseif ($request->type == Favorite::LOCATION){
-            $rules['uuid']  = ['required' , Rule::exists(Location::class, 'uuid')];
+        if ($request->type == Favorite::USER) {
+            $rules['uuid'] = ['required', Rule::exists(User::class, 'uuid')->where('type', User::USER)];
+        } elseif ($request->type == Favorite::ARTIST) {
+            $rules['uuid'] = ['required', Rule::exists(User::class, 'uuid')->where('type', User::ARTIST)];
+        } elseif ($request->type == Favorite::PRODUCT) {
+            $rules['uuid'] = ['required', Rule::exists(Product::class, 'uuid')];
+        } elseif ($request->type == Favorite::LOCATION) {
+            $rules['uuid'] = ['required', Rule::exists(Location::class, 'uuid')];
         }
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -310,6 +328,7 @@ class HomeController extends Controller
     {
         $user = Auth::guard('sanctum')->user();
         if ($user) {
+
             if ($request->type == Favorite::PRODUCT) {
                 $items = Product::query()->whereHas('favorite', function ($query) use ($user) {
                     $query->where('user_uuid', $user->uuid);
@@ -352,30 +371,80 @@ class HomeController extends Controller
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
+        $orderCreated = ($request->order_created_at == 'desc') ? 'orderByDesc' : 'orderBy';
 
-        $orderCreate = ($request->created_at == 'old') ? 'orderByDesc' : 'orderBy';
-        $orderName = ($request->name == 'desc') ? 'orderByDesc' : 'orderBy';
-        $orderPrice = ($request->price == 'bottom') ? 'orderByDesc' : 'orderBy';
+        $orderPrice = ($request->order_price == 'desc') ? 'orderByDesc' : 'orderBy';
+        $filter_price_from = $request->filter_price_from ?? null;
+        $filter_price_to = $request->filter_price_to ?? null;
+        $filter_best_seller = $request->filter_best_seller ?? false;
+        $more_buy = false;
+        if ($filter_best_seller) {
+            $more_buy = Order::query()
+                ->selectRaw('COUNT(content_uuid) as number,content_uuid')
+                ->groupBy('content_uuid')
+//              ->where('content_type',Order::LOCATION)
+                ->orderByDesc('number')
+//                ->limit(5)
+                ->pluck('content_uuid');
+        }
         if ($type == 'popular_products_for_sale') {
             $content = Product::query()
-                ->where('type', 'sale');
+                ->where('type', 'sale')
+                ->when($filter_price_to, function ($q) use ($filter_price_to, $filter_price_from) {
+                    $q->whereBetween('price', [$filter_price_from, $filter_price_to]);
+                    $q->orderByDesc('price');
+
+                })->when($more_buy, function ($q) use ($more_buy) {
+                    $q->whereIn('uuid', $more_buy);
+                });
         } elseif ($type == 'newly_listed_for_sale') {
             $startDate = Carbon::now()->subDays(10)->toDateString();
             $content = Product::query()
                 ->where('type', 'sale')
-                ->whereDate('created_at', '>=', $startDate);
+                ->orderByDesc('created_at')
+                ->when($filter_price_to, function ($q) use ($filter_price_to, $filter_price_from) {
+                    $q->whereBetween('price', [$filter_price_from, $filter_price_to]);
+                    $q->orderByDesc('price');
+
+                })->when($more_buy, function ($q) use ($more_buy) {
+                    $q->whereIn('uuid', $more_buy);
+                })
+                ->take(10);
+//                ->whereDate('created_at', '>=', $startDate);
         } elseif ($type == 'newly_listed_for_rent') {
             $startDate = Carbon::now()->subDays(10)->toDateString();
             $content = Product::query()
                 ->where('type', 'rent')
-                ->whereDate('created_at', '>=', $startDate);
+                ->orderByDesc('created_at')
+//                ->whereDate('created_at', '>=', $startDate)
+                ->when($filter_price_to, function ($q) use ($filter_price_to, $filter_price_from) {
+                    $q->whereBetween('price', [$filter_price_from, $filter_price_to]);
+                    $q->orderByDesc('price');
+
+                })->when($more_buy, function ($q) use ($more_buy) {
+                    $q->whereIn('uuid', $more_buy);
+                });;
         } elseif ($type == 'popular_products_for_rent') {
             $content = Product::query()
-                ->where('type', 'rent');
+                ->where('type', 'rent')->when($filter_price_to, function ($q) use ($filter_price_to, $filter_price_from) {
+                    $q->whereBetween('price', [$filter_price_from, $filter_price_to]);
+                    $q->orderByDesc('price');
+
+                })->when($more_buy, function ($q) use ($more_buy) {
+                    $q->whereIn('uuid', $more_buy);
+                });
         } elseif ($type == 'latest_filming_locations') {
             $startDate = Carbon::now()->subDays(10)->toDateString();
             $content = Location::query()
-                ->whereDate('created_at', '>=', $startDate);
+                ->orderByDesc('created_at')
+//                ->whereDate('created_at', '>=', $startDate)
+                ->when($filter_price_to, function ($q) use ($filter_price_to, $filter_price_from) {
+                    $q->whereBetween('price', [$filter_price_from, $filter_price_to]);
+                    $q->orderByDesc('price');
+
+                })->when($more_buy, function ($q) use ($more_buy) {
+                    $q->whereIn('uuid', $more_buy);
+                });
         } elseif ($type == 'the_most_prominent_artists') {
             $artists = User::query()->where('type', 'artist')->paginate();
             $items = $artists->getCollection();
@@ -396,14 +465,14 @@ class HomeController extends Controller
         if ($request->has('search')) {
             $content->where('name', 'like', "%{$request->search}%");
         }
-        if ($request->has('created_at')) {
-            $content->$orderCreate('created_at');
+        if ($request->has('order_created_at')) {
+            $content->$orderCreated('created_at');
         }
-        if ($request->has('name')) {
-            $content->$orderName('name');
-        }
-        if ($request->has('price')) {
+        if ($request->has('order_price')) {
             $content->$orderPrice('price');
+        }
+        if ($request->has('filter_latest_releases')) {
+            $content->orderByDesc('created_at')->take(10);
         }
         $content = $content->paginate();
         $items = pageResource($content, ProductHomeResource::class);
@@ -460,7 +529,9 @@ class HomeController extends Controller
             })
             ->select('products.*', $row)
             ->having("distance", "<", $radius)
-            ->orderBy('distance')->take(10)->get();
+            ->orderBy('distance')
+            ->take(10)
+            ->get();
         $locations = Location::query()
             ->when($search, function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%');
@@ -470,7 +541,11 @@ class HomeController extends Controller
                     $q->where('category_contents_uuid', $category_uuid);
                 });
             })
-            ->select('locations.*', $row)->having("distance", "<", $radius)->orderBy('distance')->take(10)->get();
+            ->select('locations.*', $row)
+            ->having("distance", "<", $radius)
+            ->orderBy('distance')
+            ->take(10)
+            ->get();
 
         $items = new Collection();
         $items = $items->merge(MapResource::collection($products));
@@ -553,11 +628,15 @@ class HomeController extends Controller
 
     public function deleteHistorySearch(Request $request, $uuid = null)
     {
-        $user = Auth::guard('sanctum')->user();
+        $user_uuid = auth('sanctum')->id();
         if ($uuid) {
-            Search::query()->where('fcm_token', $request->fcm_token)->orWhere('user_uuid', $user->uuid)->findOrFail($uuid)->delete();
+            Search::query()->where('fcm_token', $request->fcm_token)->when($user_uuid, function ($q) use ($user_uuid) {
+                $q->orWhere('user_uuid', $user_uuid);
+            })->findOrFail($uuid)->delete();
         } else {
-            Search::query()->where('fcm_token', $request->fcm_token)->orWhere('user_uuid', $user->uuid)->delete();
+            Search::query()->where('fcm_token', $request->fcm_token)->when($user_uuid, function ($q) use ($user_uuid) {
+                $q->orWhere('user_uuid', $user_uuid);
+            })->delete();
         }
         return mainResponse(true, "done", [], [], 200);
     }
@@ -593,7 +672,7 @@ class HomeController extends Controller
         $request->merge([
             'user_uuid' => $user->uuid
         ]);
-        if ($request->has('default')) {
+        if ($request->default) {
             DeliveryAddresses::query()->where('user_uuid', $request->user_uuid)->update([
                 'default' => false
             ]);
@@ -605,7 +684,7 @@ class HomeController extends Controller
     public function getDeliveryAddresses()
     {
         $user = Auth::guard('sanctum')->user();
-        $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->paginate();
+        $delivery_addresses = DeliveryAddresses::query()->where('user_uuid', $user->uuid)->orderByDesc('default')->paginate();
         if ($delivery_addresses) {
             $items = pageResource($delivery_addresses, AddressResource::class);
             return mainResponse(true, "done", compact('items'), [], 200);
@@ -689,6 +768,60 @@ class HomeController extends Controller
             ->makeHidden(['image']);
 
         return mainResponse(true, "done", compact('item', 'countries'), [], 200);
+    }
+
+    public function notifications()
+    {
+        $notifications = Notification::query()->whereHas('receiver', function ($q) {
+            $q->where('receiver_uuid', auth('sanctum')->id());
+        })->orderByDesc('created_at')
+            ->paginate();
+        $items = pageResource($notifications, NotificationResource::class);
+
+        return mainResponse(true, "done", compact('items'), [], 200);
+    }
+
+    public function settings(Request $request)
+    {
+        $rules = [
+            'fcm_token' => 'required|string|max:255',
+            'fcm_device' => 'required|in:android,ios',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+        $request->merge([
+            'user_uuid' => auth('sanctum')->id()
+        ]);
+
+        $fcm = FcmToken::query()
+            ->updateOrCreate($request->only('fcm_token', 'fcm_device', 'user_uuid'));
+
+        $marketing = $fcm->marketing;
+        return mainResponse(true, "done", compact('marketing'), [], 200);
+
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $rules = [
+            'fcm_token' => 'required|string|max:255',
+            'fcm_device' => 'required|in:android,ios',
+            'marketing' => 'required|in:0,1',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
+        }
+        $request->merge([
+            'user_uuid' => auth('sanctum')->id()
+        ]);
+        $fcm = FcmToken::query()
+            ->updateOrCreate($request->only('fcm_token', 'fcm_device', 'user_uuid'), $request->only('marketing'));
+
+        $marketing = $fcm->marketing;
+        return mainResponse(true, "ok", compact('marketing'), [], 200);
     }
 
 

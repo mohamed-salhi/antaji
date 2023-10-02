@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BusinessVideo extends Model
@@ -34,11 +35,12 @@ class BusinessVideo extends Model
     //Attributes
     public function getImageAttribute()
     {
-        return url('/') . self::PATH_IMAGE . @$this->imageBusiness->filename;
+        return !is_null(@$this->imageBusiness->path) ? asset(Storage::url(@$this->imageBusiness->path) ): '';
     }
     public function getVideoAttribute()
     {
-        return url('/') . self::PATH_VIDEO . @$this->videoBusiness->filename;
+        return !is_null(@$this->videoBusiness->path) ? asset(Storage::url(@$this->videoBusiness->path) ): '';
+
     }
     public function getArtistNameAttribute()
     {

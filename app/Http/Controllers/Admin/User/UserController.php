@@ -8,17 +8,30 @@ use App\Models\Country;
 use App\Models\Specialization;
 use App\Models\Upload;
 use App\Models\User;
+use App\Models\ViewNotification;
 use App\Models\ViewNotificationAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:user', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index(Request $request)
     {
+        if ($request->has('uuid')){
+
+            ViewNotification::query()->updateOrCreate([
+                'admin_id'=>Auth::id(),
+                'notification_uuid'=>$request->uuid
+            ]);
+        }
         $countries = Country::query()->select(['name', 'uuid'])->get();
         $specializations = Specialization::query()->select(['name', 'uuid'])->get();
 
@@ -27,8 +40,10 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+//        dd($request);
+
         $rules = [
-            'full_mobile' => 'required|string|digits_between:8,14',
+            'prefix' => 'required|int',
             'mobile' => 'required|unique:users,mobile',
             'name' => 'required',
             'email' => 'required|unique:users,email',
@@ -49,13 +64,14 @@ class UserController extends Controller
             'address' => 'nullable',
 //            'specialization_uuid' => 'required|exists:specializations,uuid',
         ];
-        $request->merge([
-            'full_mobile' => str_replace('-', '', ($request->mobile)),
-        ]);
+//        $request->merge([
+//            'full_mobile' => str_replace('-', '', ($request->mobile)),
+//        ]);
 
         $this->validate($request, $rules);
         $request->merge([
             'type'=> 'user',
+            'mobile'=>$request->prefix.'-'.$request->mobile
         ]);
         $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'brief', 'lat', 'lng', 'address'));
         if ($request->hasFile('personal_photo')) {
@@ -78,8 +94,7 @@ class UserController extends Controller
         $user = User::query()->withoutGlobalScope('user')->findOrFail($request->uuid);
         $rules = [
             'name' => 'required',
-            'full_mobile' => 'required|string|digits_between:8,14',
-
+            'prefix' => 'required|int',
             'mobile' => [
                 'required',
 
@@ -107,11 +122,11 @@ class UserController extends Controller
             'address' => 'nullable',
 //            'specialization_uuid' => 'required|exists:specializations,uuid',
         ];
-        $request->merge([
-            'full_mobile' => str_replace('-', '', ($request->mobile)),
-        ]);
 
         $this->validate($request, $rules);
+        $request->merge([
+            'mobile'=>$request->prefix.'-'.$request->mobile
+        ]);
         $user->update($request->only('name', 'email', 'mobile','country_uuid', 'city_uuid', 'phone' ,'lat', 'lng','address','brief'));
         if ($request->hasFile('cover_Photo')) {
             UploadImage($request->cover_Photo, User::PATH_COVER, User::class, $user->uuid, true, null, Upload::IMAGE, 'cover_photo');
@@ -133,9 +148,10 @@ class UserController extends Controller
         $uuids = explode(',', $uuid);
         $user = User::whereIn('uuid', $uuids)->get();
         foreach ($user as $item) {
-            File::delete(public_path(User::PATH_PERSONAL . @$item->imageUser->filename));
-            File::delete(public_path(User::PATH_VIDEO . @$item->videoImage->filename));
-            File::delete(public_path(User::PATH_COVER . @$item->coverImage->filename));
+            Storage::delete('public/' . @$item->imageUser->path);
+            Storage::delete('public/' . @$item->videoImage->path);
+            Storage::delete('public/' . @$item->coverImage->path);
+
             $item->coverImage()->delete();
             $item->videoImage()->delete();
             $item->imageUser()->delete();
@@ -176,11 +192,15 @@ class UserController extends Controller
                 return $que->uuid;
             })
             ->addColumn('action', function ($que) {
+                $mobile=explode("-", $que->mobile);
+                $into=(count($mobile) == 2)?$mobile[0]:null;
+                $mobile=(count($mobile) == 2)?$mobile[1]:$que->mobile;
                 $data_attr = '';
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
                 $data_attr .= 'data-city_uuid="' . $que->city_uuid . '" ';
                 $data_attr .= 'data-country_uuid="' . $que->country_uuid . '" ';
-                $data_attr .= 'data-mobile="' . $que->mobile . '" ';
+                $data_attr .= 'data-mobile="' .$mobile . '" ';
+                $data_attr .= 'data-intro="' .$into . '" ';
                 $data_attr .= 'data-email="' . $que->email . '" ';
                 $data_attr .= 'data-brief="' . $que->brief . '" ';
                 $data_attr .= 'data-lat="' . $que->lat . '" ';
@@ -204,9 +224,9 @@ class UserController extends Controller
 //                if ($user->can('user-delete')) {
                 $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
                     '">' . __('delete') . '</button>';
+                $string .= ' <a href=" ' . route('conversations.index',$que->uuid) . '" type="button" class="btn btn-sm btn-outline-danger btn_conversation" data-uuid="' . $que->uuid .
+                    '">' . __('Conversations') . '</button>';
 //                }
-                $string .= '<button class="detail_btn btn btn-sm btn-outline-success btn_detail" data-toggle="modal"
-                    data-target="#detail_modal" ' . $data_attr . '>' . __('details') . '</button>';
 
                 return $string;
             })->addColumn('status', function ($que) {

@@ -10,11 +10,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class CourseController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:course', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index()
     {
         $users = User::query()->select('name', 'uuid')->get();
@@ -53,7 +58,7 @@ class CourseController extends Controller
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
-            'image' => 'required|image',
+            'image' => 'nullable|image',
             'user_uuid' => 'required|exists:users,uuid',
         ];
         $this->validate($request, $rules);
@@ -75,8 +80,11 @@ class CourseController extends Controller
         $uuids = explode(',', $uuid);
         $courses = Course::query()->withoutGlobalScope('status')->whereIn('uuid', $uuids)->get();
         foreach ($courses as $item) {
-            File::delete(public_path(Course::PATH_COURSE . $item->imageCourse->filename));
-            File::delete(public_path(Course::PATH_COURSE_VIDEO . $item->videoCourse->filename));
+            Storage::delete('public/' . @$item->imageCourse->path);
+            Storage::delete('public/' . @$item->videoCourse->path);
+
+//            File::delete(public_path(Course::PATH_COURSE . $item->imageCourse->filename));
+//            File::delete(public_path(Course::PATH_COURSE_VIDEO . $item->videoCourse->filename));
             $item->imageCourse()->delete();
             $item->videoCourse()->delete();
             $item->delete();
@@ -158,6 +166,8 @@ class CourseController extends Controller
     public function videoIndex($uuid)
     {
         $uuid_course = $uuid;
+//     return   $images = Upload::query()->where('imageable_id', $uuid)->where('imageable_type', Course::class)->where('type',Upload::VIDEO)->orderByDesc('created_at')->get();
+
         return view('admin.courses.videos', compact('uuid_course'));
     }
 
@@ -181,10 +191,10 @@ class CourseController extends Controller
                     '">' . __('delete') . '  </button>';
 
                 return $string;
-            })->addColumn('video', function ($que) {
-                return url('/') . Course::PATH_COURSE_VIDEO . $que->filename;
+            })->addColumn('video1', function ($que) {
+                return url('/').'/storage/' . $que->path;
             })
-            ->rawColumns(['action'])->toJson();
+            ->rawColumns(['action','video1'])->toJson();
     }
 
     public function videoStore(Request $request)
@@ -192,7 +202,7 @@ class CourseController extends Controller
         foreach ($request->videos as $item) {
             $video = UploadImage($item, Course::PATH_COURSE_VIDEO, Course::class, $request->uuid, false, null, Upload::VIDEO);
             $getID3 = new \getID3;
-            $video_file = $getID3->analyze('upload/course/video/' . $video->filename);
+            $video_file = $getID3->analyze('storage/' . $video->path);
             $duration_string = $video_file['playtime_string'];
             $video->duration = $duration_string;
             $video->save();        }
@@ -201,7 +211,12 @@ class CourseController extends Controller
 
     public function videoUpdate(Request $request)
     {
-        UploadImage($request->video, Course::PATH_COURSE_VIDEO, Course::class, $request->imageable_id, true, $request->uuid, Upload::VIDEO);
+        $video =UploadImage($request->video, Course::PATH_COURSE_VIDEO, Course::class, $request->imageable_id, true, $request->uuid, Upload::VIDEO);
+        $getID3 = new \getID3;
+        $video_file = $getID3->analyze('storage/' . $video->path);
+        $duration_string = $video_file['playtime_string'];
+        $video->duration = $duration_string;
+        $video->save();
         return response()->json([
             'item_deleted'
         ]);

@@ -358,7 +358,8 @@
   "stringone" : "stringone",
   "stringtow" : "stringtow",
   "Sold" : "Sold",
-  "Nat_Sold" : "Not Sold"
+  "Nat_Sold" : "Not Sold",
+  "multi_day_discount_text" : "A __RATE__% discount if booked for more than __DAYS__ days"
 
 
 }

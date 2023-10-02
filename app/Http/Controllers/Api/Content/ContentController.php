@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Content;
 
+use App\Events\NotificationAdminEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoriesLocation;
 use App\Http\Resources\CategoryResource;
@@ -19,6 +20,7 @@ use App\Http\Resources\ServingEditResource;
 use App\Http\Resources\ServingEditResourcesource;
 use App\Http\Resources\ServingOrderResource;
 use App\Http\Resources\ServingResource;
+use App\Models\Admin;
 use App\Models\Category;
 use App\Models\CategoryContent;
 use App\Models\Content;
@@ -27,6 +29,8 @@ use App\Models\Delivery;
 use App\Models\DeliveryAddresses;
 use App\Models\Location;
 use App\Models\MultiDayDiscount;
+use App\Models\News;
+use App\Models\Notification;
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\Serving;
@@ -37,19 +41,20 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class ContentController extends Controller
 {
-    public function create(Request $request){
-       $multi_day_discounts= MultiDayDiscount::query()->where('status',1)->exists();
-       if ($request->product){
-           $delivery=Delivery::query()->where('status',1)->exists();
-           return mainResponse(true, 'done', compact('delivery','multi_day_discounts'), [], 101);
-       }
-        return mainResponse(true, 'done', compact('multi_day_discounts'), [], 101);
-    }
+//    public function create(Request $request){
+//       $multi_day_discounts= MultiDayDiscount::query()->where('status',1)->exists();
+//       if ($request->product){
+//           $delivery=Delivery::query()->where('status',1)->exists();
+//           return mainResponse(true, 'done', compact('delivery','multi_day_discounts'), [], 101);
+//       }
+//        return mainResponse(true, 'done', compact('multi_day_discounts'), [], 101);
+//    }
 
     // START PRODUCTS
     public function productCategories(Request $request)
@@ -115,7 +120,7 @@ class ContentController extends Controller
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
-            'multi_day_discount_uuid' => 'nullable|exists:multi_day_discounts,uuid',
+            'multi_day_discount_uuid' => 'nullable|in:1,0',
             'delivery_uuid' => 'nullable|exists:deliveries,uuid',
 
             'category_uuid' => 'required|exists:categories,uuid',
@@ -138,6 +143,7 @@ class ContentController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules);
+
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
         }
@@ -149,10 +155,12 @@ class ContentController extends Controller
 
             }
         }
+
         $request->merge([
             'user_uuid' => $user->uuid
         ]);
-        $product = Product::query()->create($request->only('address', 'user_uuid', 'name', 'price', 'details', 'sub_category_uuid', 'category_uuid', 'type', 'lng', 'lat','multi_day_discount_uuid','delivery_uuid'));
+        $product = Product::query()->create($request->only('address', 'user_uuid', 'name', 'price', 'details', 'sub_category_uuid', 'category_uuid', 'type', 'lng', 'lat', 'multi_day_discount_uuid', 'delivery_uuid'));
+
         for ($i = 0; $i < count($request->keys); $i++) {
             Specification::query()->create([
                 'key' => $request->keys[$i],
@@ -172,6 +180,20 @@ class ContentController extends Controller
             }
         }
         $uuid = $product->uuid;
+        $admins_uuid = Admin::query()->whereHas('roles.permissions', function ($query) {
+            $query->where('name', 'product');
+        })->pluck('id')->toArray();
+        array_push($admins_uuid, 1);
+
+        if ($request->type == Product::SALE) {
+            $not = $this->sendNotification($product->uuid, Product::class, Auth::id(), $admins_uuid, Notification::ADD_PRODUCT_SALE, 'user', 'admin');
+            event(new NotificationAdminEvent('product', $not->content, $not->title, route('products.sales.index') . "?uuid=" . $not->uuid));
+
+        } else {
+            $not = $this->sendNotification($product->uuid, Product::class, Auth::id(), $admins_uuid, Notification::ADD_PRODUCT_RENT, 'user', 'admin');
+            event(new NotificationAdminEvent('product', $not->content, $not->title, route('products.rent.index') . "?uuid=" . $not->uuid));
+
+        }
         return mainResponse(true, 'done', compact('uuid'), []);
     }
 
@@ -185,6 +207,21 @@ class ContentController extends Controller
             return mainResponse(false, 'not found', [], [], 404);
         }
     }
+
+    public function createProduct()
+    {
+        $discounts = MultiDayDiscount::all();
+        $multi_day_discounts = [];
+        foreach ($discounts as $item) {
+            $str = __('multi_day_discount_text');
+            $str = str_replace('__RATE__', $item->rate, $str);
+            $str = str_replace('__DAYS__', $item->minimal_day, $str);
+            $multi_day_discounts[] = $str;
+        }
+        return mainResponse(true, 'done', compact('multi_day_discounts'), [], 101);
+
+    }
+
 
     public function updateProduct(Request $request, $uuid)
     {
@@ -207,7 +244,7 @@ class ContentController extends Controller
             'lat' => 'required',
             'lng' => 'required',
             'address' => 'required',
-
+            'multi_day_discount_uuid'=>'required|in:1,0',
             'keys' => 'required|array',
             'keys.*' => 'required|string|max:255',
             'values' => 'required|array',
@@ -218,7 +255,7 @@ class ContentController extends Controller
                 $q->where('imageable_id', $product->uuid);
             })],
             'images' => 'nullable|array',
-            'images.*' => 'required|mimes:jpeg,jpg,png|max:2048',
+            'images.*' => 'required|image',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -229,7 +266,7 @@ class ContentController extends Controller
         $request->merge([
             'user_uuid' => $user->uuid
         ]);
-        $product->update($request->only('address', 'name', 'details', 'price', 'user_uuid', 'category_content_uuid', 'lng', 'lat', 'type','multi_day_discount_uuid','delivery_uuid'));
+        $product->update($request->only('address', 'name', 'details', 'price', 'user_uuid', 'sub_category_uuid', 'category_uuid', 'lng', 'lat', 'type', 'multi_day_discount_uuid', 'delivery_uuid'));
         if ($request->hasFile('images')) {
             foreach ($request->images as $item) {
                 UploadImage($item, Product::PATH_PRODUCT, Product::class, $product->uuid, false, null, Upload::IMAGE);
@@ -238,7 +275,9 @@ class ContentController extends Controller
         if ($request->has('delete_images')) {
             foreach ($request->delete_images as $item) {
                 $image = Upload::query()->where('uuid', $item)->first();
-                File::delete(public_path(Product::PATH_PRODUCT . @$image->filename));
+                Storage::delete('public/' . @$image->path);
+
+//                File::delete(public_path(Product::PATH_PRODUCT . @$image->filename));
                 if ($image) {
                     $image->delete();
                 }
@@ -264,7 +303,9 @@ class ContentController extends Controller
         $product = Product::query()->find($uuid);
         if (isset($product)) {
             foreach ($product->imageProduct as $image) {
-                File::delete(public_path(Product::PATH_PRODUCT . $image->filename));
+                Storage::delete('public/' . @$image->path);
+
+//                File::delete(public_path(Product::PATH_PRODUCT . $image->filename));
                 $image->delete();
             }
             $product->specifications()->delete();
@@ -317,15 +358,14 @@ class ContentController extends Controller
             'name' => 'required|string|max:36',
             'price' => 'required|int',
             'details' => 'required',
-            'multi_day_discount_uuid' => 'nullable|exists:multi_day_discounts,uuid',
-
+            'multi_day_discount_uuid' => 'nullable|in:1,0',
             'category_contents_uuid' => 'required',
             'category_contents_uuid.*' => 'required|exists:category_contents,uuid',
             'lat' => 'required',
             'lng' => 'required',
             'address' => 'required',
             'images' => 'required|array',
-            'images.*' => 'required|mimes:jpeg,jpg,png|max:2048',
+            'images.*' => 'required|image',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -349,7 +389,7 @@ class ContentController extends Controller
             'user_uuid' => $user->uuid
         ]);
 
-        $location = Location::query()->create($request->only('address', 'name', 'user_uuid', 'price', 'details', 'lng', 'lat','multi_day_discount_uuid'));
+        $location = Location::query()->create($request->only('address', 'name', 'user_uuid', 'price', 'details', 'lng', 'lat', 'multi_day_discount_uuid'));
         $location->categories()->sync($request->category_contents_uuid);
 
         $content = Content::query()->create([
@@ -362,6 +402,14 @@ class ContentController extends Controller
             }
         }
         $uuid = $location->uuid;
+        $admins_uuid = Admin::query()->whereHas('roles.permissions', function ($query) {
+            $query->where('name', 'location');
+        })->pluck('id')->toArray();
+        array_push($admins_uuid, 1);
+
+        $not = $this->sendNotification($location->uuid, Location::class, Auth::id(), $admins_uuid, Notification::ADD_LOCATION, 'user', 'admin');
+        event(new NotificationAdminEvent('location', $not->content, $not->title, route('locations.index') . "?uuid=" . $not->uuid));
+
         return mainResponse(true, 'done', compact('uuid'), [], 101);
     }
 
@@ -387,6 +435,7 @@ class ContentController extends Controller
             'category_contents_uuid' => 'required|exists:category_contents,uuid',
             'lat' => 'required',
             'lng' => 'required',
+            'multi_day_discount_uuid' => 'nullable|in:1,0',
             'delete_images' => 'nullable|array',
             'delete_images.*' => ['required', Rule::exists(Upload::class, 'uuid')->where(function ($q) use ($location) {
                 $q->where('imageable_type', Location::class);
@@ -403,7 +452,7 @@ class ContentController extends Controller
             'user_uuid' => $user->uuid
         ]);
 
-        $location->update($request->only('name', 'details', 'price', 'user_uuid', 'lng', 'lat'));
+        $location->update($request->only('name', 'details', 'price', 'user_uuid', 'lng', 'lat','multi_day_discount_uuid'));
         $location->categories()->sync($request->category_contents_uuid);
 
         if ($request->hasFile('images')) {
@@ -414,7 +463,9 @@ class ContentController extends Controller
         if ($request->has('delete_images')) {
             foreach ($request->delete_images as $item) {
                 $image = Upload::query()->where('uuid', $item)->first();
-                File::delete(public_path(Location::PATH_LOCATION . $image->filename));
+                Storage::delete('public/' . @$image->path);
+
+//                File::delete(public_path(Location::PATH_LOCATION . $image->filename));
                 $image->delete();
             }
         }
@@ -430,7 +481,9 @@ class ContentController extends Controller
         $location = Location::query()->find($uuid);
         if (isset($location)) {
             foreach ($location->imageLocation as $image) {
-                File::delete(public_path(Location::PATH_LOCATION . $image->filename));
+                Storage::delete('public/' . @$image->path);
+
+//                File::delete(public_path(Location::PATH_LOCATION . $image->filename));
                 $image->delete();
             }
             $location->categories()->detach();
@@ -469,7 +522,7 @@ class ContentController extends Controller
     {
 
         $rules = [
-            'name' => 'required|string|max:36',
+            'name' => 'required|string',
             'price' => 'required|int',
             'details' => 'required',
             'category_contents_uuid' => ['required',
@@ -504,6 +557,12 @@ class ContentController extends Controller
             'user_uuid' => $user->uuid,
         ]);
         $uuid = $serving->uuid;
+        $admins_uuid = Admin::query()->whereHas('roles.permissions', function ($query) {
+            $query->where('name', 'service');
+        })->pluck('id')->toArray();
+        array_push($admins_uuid, 1);
+        $not = $this->sendNotification($serving->uuid, Serving::class, Auth::id(), $admins_uuid, Notification::ADD_SERVING, 'user', 'admin');
+        event(new NotificationAdminEvent('service', $not->content, $not->title, route('servings.index') . "?uuid=" . $not->uuid));
 
         return mainResponse(true, 'done', compact('uuid'), [], 101);
     }
@@ -522,7 +581,7 @@ class ContentController extends Controller
     public function updateServing(Request $request, $uuid)
     {
         $rules = [
-            'name' => 'required|string|max:36',
+            'name' => 'required|string',
             'price' => 'required|int',
             'details' => 'required',
             'category_contents_uuid' => ['required',
@@ -586,7 +645,7 @@ class ContentController extends Controller
     {
 
         $rules = [
-            'name' => 'required|string|max:36',
+            'name' => 'required|string',
             'price' => 'required|int',
             'details' => 'required',
             'demonstration_video' => 'required',
@@ -626,20 +685,27 @@ class ContentController extends Controller
             foreach ($request->videos as $item) {
                 $video = UploadImage($item, Course::PATH_COURSE_VIDEO, Course::class, $course->uuid, false, null, Upload::VIDEO);
                 $getID3 = new \getID3;
-                $video_file = $getID3->analyze('upload/course/video/' . $video->filename);
+                $video_file = $getID3->analyze('storage/' . $video->path);
                 $duration_string = $video_file['playtime_string'];
                 $video->duration = $duration_string;
                 $video->save();
             }
         }
         $uuid = $course->uuid;
+        $admins_uuid = Admin::query()->whereHas('roles.permissions', function ($query) {
+            $query->where('name', 'course');
+        })->pluck('id')->toArray();
+        array_push($admins_uuid, 1);
+        $not = $this->sendNotification($course->uuid, Course::class, Auth::id(), $admins_uuid, Notification::ADD_COURSE, 'user', 'admin');
+        event(new NotificationAdminEvent('course', $not->content, $not->title, route('courses.index') . "?uuid=" . $not->uuid));
+
         return mainResponse(true, 'done', compact('uuid'), []);
     }
 
     public function updateCourse(Request $request, $uuid)
     {
         $rules = [
-            'name' => 'required|string|max:36',
+            'name' => 'required|string',
             'price' => 'required|int',
             'details' => 'required',
             'demonstration_video' => 'nullable|mimes:mp4,mov,ogg,qt',
@@ -675,7 +741,9 @@ class ContentController extends Controller
         if ($request->has('delete_videos')) {
             foreach ($request->delete_videos as $item) {
                 $video = Upload::query()->where('uuid', $item)->first();
-                File::delete(public_path(Course::PATH_COURSE_VIDEO . @$video->filename));
+                Storage::delete('public/' . @$video->path);
+
+//                File::delete(public_path(Course::PATH_COURSE_VIDEO . @$video->filename));
                 if ($video) {
                     $video->delete();
                 }
@@ -702,12 +770,17 @@ class ContentController extends Controller
         {
             $course = Course::query()->find($uuid);
             if (isset($course)) {
+                Storage::delete('public/' . @$course->imageCourse->path);
 
-                File::delete(public_path(Course::PATH_COURSE . @$course->imageCourse->filename));
+//                File::delete(public_path(Course::PATH_COURSE . @$course->imageCourse->filename));
                 foreach ($course->videosCourse as $video) {
-                    File::delete(public_path(Course::PATH_COURSE_VIDEO . @$video->filename));
+                    Storage::delete('public/' . @$video->path);
+
+//                    File::delete(public_path(Course::PATH_COURSE_VIDEO . @$video->filename));
                 }
-                File::delete(public_path(Course::PATH_COURSE_VIDEO . @$course->videoCourse->filename));
+                Storage::delete('public/' . @$course->videoCourse->path);
+
+//                File::delete(public_path(Course::PATH_COURSE_VIDEO . @$course->videoCourse->filename));
                 $course->imageCourse()->delete();
                 $course->videoCourse()->delete();
                 $course->videosCourse()->delete();

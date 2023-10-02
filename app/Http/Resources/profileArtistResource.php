@@ -33,11 +33,12 @@ class profileArtistResource extends JsonResource
             'specialization' => ($this->type == 'artist') ? $this->specialization_name : null,
             'video' => $this->video_user,
             'personal_photo' => $this->image,
-            'cover_Photo' => $this->cover_user,
+            'cover_photo' => $this->cover_user,
             'created_at' => Carbon::parse($this->created_at)->format('F,Y'),
-            'reviews_count' => $this->reviews,
+            'reviews_count' => Reviews::query()->where('reference_uuid', $this->uuid)->count(),
             'response' => $this->response,
-            'reviews' => Reviews::query()->where('reference_uuid', $this->uuid)->take(5)->get()
+            'reviews' => Reviews::query()->where('reference_uuid', $this->uuid)->take(5)->get(),
+            'positive_reviews' => $this->reviews
 
         ];
     }

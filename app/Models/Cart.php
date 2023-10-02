@@ -53,7 +53,7 @@ class Cart extends Model
 //    Attributes
     public function getImageAttribute()
     {
-        return @$this->content->oneImageProduct->filename;
+        return @$this->content->oneImageProduct->path;
     }
 
     public function getContentOwnerNameAttribute()

@@ -315,7 +315,7 @@
                 $.each(fileArray, function (index, fileName) {
                     var object = {
                         id: fileArrayUuids[index],
-                        src: '{{url('/')}}'+'{{$path}}' + fileName
+                        src: '{{ url('/') }}/storage/' + fileName
                     };
                     preloaded.push(object)
                 })

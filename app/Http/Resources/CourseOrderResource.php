@@ -15,11 +15,12 @@ class CourseOrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'uuid'=>$this->uuid,
-            'name'=>$this->course->name,
-            'price'=>$this->course->price,
-            'cover'=>$this->course->image,
-            'status'=>$this->status
+            'uuid' => @$this->uuid,
+            'name' => @$this->course->name,
+            'price' => @$this->course->price,
+            'currency' => __('sr'),
+            'cover' => @$this->course->image,
+            'status_text' => @$this->status_text
         ];
     }
 }

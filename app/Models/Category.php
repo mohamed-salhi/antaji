@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
@@ -49,7 +50,7 @@ class Category extends Model
     }
     public function getImageAttribute()
     {
-        return url('/') .self::PATH_IMAGE . @$this->imageCategory->filename;
+        return !is_null(@$this->imageCategory->path) ? asset(Storage::url(@$this->imageCategory->path) ): '';
     }
     //boot
     public static function boot()

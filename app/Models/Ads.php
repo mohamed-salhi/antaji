@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Ads extends Model
@@ -26,7 +27,7 @@ class Ads extends Model
 //Attributes
     public function getImageAttribute()
     {
-        return url('/') . '/upload/ads/' . @$this->imageAds->filename;
+        return !is_null(@$this->imageAds->path) ? asset(Storage::url(@$this->imageAds->path) ): '';
     }
 
     //Boot

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,7 +15,7 @@ class ProductEditResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $item= [
             'uuid' => $this->uuid,
             'type' => $this->type,
             'name' => $this->name,
@@ -31,5 +32,10 @@ class ProductEditResource extends JsonResource
             'images' => $this->attachments,
             'currency' => __('sr')
         ];
+        if ($this->type==Product::RENT){
+            $item['multi_day_discount']=($this->multi_day_discount_uuid)?true:false;
+
+        }
+        return $item;
     }
 }

@@ -10,15 +10,28 @@ use App\Models\Specification;
 use App\Models\SubCategory;
 use App\Models\Upload;
 use App\Models\User;
+use App\Models\ViewNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class ProductRentController extends Controller
 {
-    public function index(){
+    function __construct()
+    {
+        $this->middleware('permission:admin', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
+    public function index(Request $request){
+        if ($request->has('uuid')){
+
+            ViewNotification::query()->updateOrCreate([
+                'admin_id'=>Auth::id(),
+                'notification_uuid'=>$request->uuid
+            ]);
+        }
         $categories=Category::query()->select('uuid','name')->get();
         $users=User::query()->select('uuid','name')->get();
         return view('admin.products.rent',compact('categories','users'));
@@ -29,11 +42,12 @@ class ProductRentController extends Controller
         $rules = [
             'images' => 'required',
             'images.*' => 'required|mimes:jpeg,jpg,png|max:2048',
-            'name' => 'required|string|max:36',
+            'name' => 'required|string|max:100',
             'price' => 'required|int',
-            'details' => 'required',
-            'address' => 'required',
-
+            'details' => 'required|string',
+            'address' => 'required|string',
+            'lat' => 'required|string',
+            'lng' => 'required|string',
             'fname' => 'required',
             'fname.*' => 'string',
             'fvalue' => 'required',
@@ -47,7 +61,7 @@ class ProductRentController extends Controller
         $request->merge([
            'type'=>'rent'
         ]);
-        $product= Product::query()->create($request->only('sale','user_uuid','name','price','details','sub_category_uuid','category_uuid','type','address'));
+        $product= Product::query()->create($request->only('sale','user_uuid','name','price','details','sub_category_uuid','category_uuid','type','address','lat','lng'));
         for ($i = 0; $i < count($request->fname); $i++) {
             Specification::query()->create([
                 'key' => $request->fname[$i],
@@ -74,9 +88,10 @@ class ProductRentController extends Controller
     {
 
         $rules = [
-            'name' => 'required|string|max:36',
+            'name' => 'required|string|max:100',
             'price' => 'required|int',
-            'details' => 'required',
+            'details' => 'required|string',
+            'address' => 'required|string',
             'fname' => 'required',
             'fname.*' => 'string',
             'fvalue' => 'required',
@@ -84,12 +99,14 @@ class ProductRentController extends Controller
             'category_uuid' => 'required|exists:categories,uuid',
             'sub_category_uuid' => 'required|exists:sub_categories,uuid',
             'user_uuid'=>'required|exists:users,uuid',
+            'lat' => 'required|string',
+            'lng' => 'required|string',
         ];
 
         $this->validate($request, $rules);
         $product = Product::findOrFail($request->uuid);
 
-        $product->update($request->only('name','details','price','user_uuid','category_content_uuid'));
+        $product->update($request->only('name','address','details','price','user_uuid','category_content_uuid','lat','lng'));
         $product->specifications()->delete();
 
         if (isset($request->delete_images)) {
@@ -126,7 +143,9 @@ class ProductRentController extends Controller
 
             foreach ($product as $item){
                 foreach ($item->imageProduct as $image){
-                    File::delete(public_path(Product::PATH_PRODUCT.$image->filename));
+                    Storage::delete('public/' . @$image->path);
+
+//                    File::delete(public_path(Product::PATH_PRODUCT.$image->filename));
                     $image->delete();
                 }
                 $item->cart()->delete();
@@ -177,15 +196,18 @@ class ProductRentController extends Controller
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
                 $data_attr .= 'data-name="' . $que->name . '" ';
                 $data_attr .= 'data-price="' . $que->price . '" ';
+                $data_attr .= 'data-lng="' . $que->lng . '" ';
+                $data_attr .= 'data-lat="' . $que->lat . '" ';
                 $data_attr .= 'data-details="' . $que->details . '" ';
                 $data_attr .= 'data-address="' . $que->address . '" ';
                 $data_attr .= 'data-user_uuid="' . $que->user_uuid . '" ';
                 $data_attr .= 'data-category_uuid="' . $que->category_uuid . '" ';
                 $data_attr .= 'data-sub_category_uuid="' . $que->sub_category_uuid . '" ';
                 $data_attr .= 'data-images_uuid="' . implode(',', $que->imageProduct->pluck('uuid')->toArray()) .'" ';
-                $data_attr .= 'data-images="' . implode(',', $que->imageProduct->pluck('filename')->toArray()) .'" ';
+                $data_attr .= 'data-images="' . implode(',', $que->imageProduct->pluck('path')->toArray()) .'" ';
                 $data_attr .= 'data-key="' . implode(',', $que->specifications->pluck('key')->toArray()) .'" ';
                 $data_attr .= 'data-value="' . implode(',', $que->specifications->pluck('value')->toArray()) .'" ';
+
                 $url = url('/products/rent/images/'.$que->uuid);
 
                 $string = '';

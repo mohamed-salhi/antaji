@@ -59,16 +59,7 @@
                                 {{--                                @can('place-create')--}}
                                 <div class="text-right">
                                     <div class="form-group">
-                                        <button class="btn btn-outline-primary button_modal" type="button"
-                                                data-toggle="modal" id=""
-                                                data-target="#full-modal-stem"><span><i
-                                                    class="fa fa-plus"></i>@lang('add')</span>
-                                        </button>
-                                        <button
 
-                                            class="btn_delete_all btn btn-outline-danger " type="button">
-                                            <span><i aria-hidden="true"></i> @lang('delete')</span>
-                                        </button>
                                         <button
                                             data-status="1" class="btn_status btn btn-outline-success " type="button">
                                             <span><i aria-hidden="true"></i> @lang('activate')</span>
@@ -246,8 +237,8 @@
                         @foreach (locales() as $key => $value)
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label for="details_{{ $key }}">@lang('details') @lang($value)</label>
-                                    <textarea id="edit_details_{{ $key }}" class="myTextarea1"
+                                    <label for="edit_details_{{ $key }}"></label>
+                                    <textarea id="edit_details_{{ $key }}"
                                               name="details_{{ $key }}"
                                               placeholder="@lang('details') @lang($value)"></textarea>
                                     <div class="invalid-feedback"></div>
@@ -255,20 +246,21 @@
                                 </div>
                             </div>
                         @endforeach
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="price">@lang('price') </label>
-                                    <input type="number" class="form-control"
-                                           placeholder="@lang('price')" name="price"
-                                           id="edit_price">
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="price">@lang('price') </label>
+                                <input type="number" class="form-control"
+                                       placeholder="@lang('price')" name="price"
+                                       id="edit_price">
+                                <div class="invalid-feedback"></div>
                             </div>
+                        </div>
                         <div class="col-12">
                             <div class="form-group">
                                 <label for="name">@lang('number of products in each section') </label>
                                 <input type="number" class="form-control"
-                                       placeholder="@lang('number of products in each section')" name="number_of_products_in_each_section"
+                                       placeholder="@lang('number of products in each section')"
+                                       name="number_of_products_in_each_section"
                                        id="edit_number_of_products_in_each_section">
                                 <div class="invalid-feedback"></div>
                             </div>
@@ -298,7 +290,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button  class="btn btn-primary done">@lang('save')</button>
+                        <button class="btn btn-primary done">@lang('save')</button>
 
                         <button type="button" class="btn btn-secondary"
                                 data-dismiss="modal">@lang('close')</button>
@@ -310,21 +302,17 @@
 @endsection
 @section('scripts')
 
-
     <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.2/tinymce.min.js"
             integrity="sha512-MbhLUiUv8Qel+cWFyUG0fMC8/g9r+GULWRZ0axljv3hJhU6/0B3NoL6xvnJPTYZzNqCQU3+TzRVxhkE531CLKg=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
+
+        @foreach(locales() as $key => $value)
         tinymce.init({
-            selector: '.myTextarea1',
-
+            selector: '#edit_details_{{ $key }}',
         });
-        tinymce.init({
-            selector: '.myTextarea3',
-
-        });
-
+        @endforeach
 
     </script>
     <script type="text/javascript">
@@ -363,20 +351,25 @@
                 url: '{{ route('packages.indexTable', app()->getLocale()) }}',
 
             },
-            {{--dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',--}}
-                {{--buttons: [--}}
-                {{--    {--}}
-                {{--        extend: 'excel',--}}
-                {{--        text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',--}}
-                {{--        exportOptions: {--}}
-                {{--            columns: [1, 2, 3, 4, 5, 6, 7, 8],--}}
-                {{--            modifier: {--}}
-                {{--                search: 'applied',--}}
-                {{--                order: 'applied'--}}
-                {{--            }--}}
-                {{--        }--}}
-                {{--    }--}}
-                {{--],--}}
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
+            "buttons": [
+                {
+
+                    "extend": 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
+            ],
             columns: [{
                 "render": function (data, type, full, meta) {
                     return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>
@@ -444,7 +437,7 @@
                 $('#edit_quality').val(button.data('quality')).trigger('change')
                 @foreach (locales() as $key => $value)
                 $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
-                $('#edit_details_{{ $key }}').val(button.data('details_{{ $key }}'))
+                tinymce.get('edit_details_{{ $key }}').setContent($('#data_details_' + uuid + '_{{ $key }}').html());
                 @endforeach
             });
         });

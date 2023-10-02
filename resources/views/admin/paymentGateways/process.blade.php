@@ -281,7 +281,7 @@
                 {
 
                     "extend": 'excel',
-                    // "text": '<button class="btn"><i class="fa fa-file-excel-o" style="color: green;"></i>Export</button>',
+                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
                     "titleAttr": 'Excel',
                     "action": newexportaction,
                     "exportOptions": {
@@ -333,12 +333,12 @@
                 },
                 {
 
-                    data: 'status',
-                    name: 'status',
+                    data: 'status_text',
+                    name: 'status_text',
                     orderable: false,
                     searchable: false,
                     render: function (data, type, full, meta) {
-                        if (data=='{{\App\Models\Payment::COMPLETE}}'||data=='مكتمل'){
+                        if (data=='{{\App\Models\Payment::COMPLETE}}'||data=='نجاح'){
                             return `<h3 class="btn btn-success btn-sm">${data}</h3> `;
                         }else if(data=='Pending'||data=='معلق'){
                             return `<h3 class="btn btn-warning btn-sm">${data}</h3> `;

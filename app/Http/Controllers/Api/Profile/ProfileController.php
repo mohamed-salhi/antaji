@@ -24,6 +24,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use function PHPUnit\Framework\isEmpty;
@@ -72,7 +73,8 @@ class ProfileController extends Controller
         }
 if ($user->documentation!=User::ACCEPT) {
     if ($request->hasFile('id_image')) {
-        File::delete(public_path(User::PATH_ID . @$user->idUserImage->filename));
+        Storage::delete('public/' . @$user->idUserImage->path);
+
         $user->idUserImage()->delete();
 
         $user->update([
@@ -85,7 +87,7 @@ else{
     return mainResponse(false, __('you are already documentation'), [],[], 300);
 }
 
-        $user->update($request->only('name', 'email', /*'mobile', */ 'country_uuid', 'city_uuid'));
+        $user->update($request->only('name', 'email', 'country_uuid', 'city_uuid'));
         if ($user) {
             return mainResponse(true, "done", [], [], 201);
         } else {
@@ -157,7 +159,9 @@ else{
         if ($request->hasFile('video')) {
             $video = UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $busines->uuid, false, null, Upload::VIDEO);
             $getID3 = new \getID3;
-            $video_file = $getID3->analyze('upload/business/video/' . $video->filename);
+            $video_file = $getID3->analyze('storage/' . $video->path);
+
+//            $video_file = $getID3->analyze('upload/business/video/' . $video->filename);
             $duration_string = $video_file['playtime_string'];
             $busines->time = $duration_string;
             $busines->save();
@@ -197,7 +201,9 @@ else{
             if ($request->hasFile('video')) {
                 $video=  UploadImage($request->video, BusinessVideo::PATH_VIDEO, BusinessVideo::class, $business->uuid, true, $business->videoBusiness->uuid, Upload::VIDEO);
                 $getID3 = new \getID3;
-                $video_file = $getID3->analyze('upload/business/video/'.$video);
+                $video_file = $getID3->analyze('storage/' . $video->path);
+
+//                $video_file = $getID3->analyze('upload/business/video/'.$video);
                 $duration_string = $video_file['playtime_string'];
                 $business->time=$duration_string;
                 $business->save();
@@ -258,7 +264,9 @@ else{
     {
         $attachment = Upload::query()->find($image);
         if ($attachment) {
-            File::delete(public_path(Businessimages::PATH . @$attachment->filename));
+            Storage::delete('public/' . @$attachment->path);
+
+//            File::delete(public_path(Businessimages::PATH . @$attachment->filename));
             $attachment->delete();
             return mainResponse(true, 'done', [], [], 101);
 
@@ -271,8 +279,11 @@ else{
     {
         $businessVideo = BusinessVideo::query()->find($Business);
         if ($businessVideo) {
-            File::delete(public_path(BusinessVideo::PATH_IMAGE . @$businessVideo->imageBusiness->filename));
-            File::delete(public_path(BusinessVideo::PATH_VIDEO . @$businessVideo->videoBusiness->filename));
+            Storage::delete('public/' . @$businessVideo->imageBusiness->path);
+            Storage::delete('public/' . @$businessVideo->videoBusiness->path);
+//
+//            File::delete(public_path(BusinessVideo::PATH_IMAGE . @$businessVideo->imageBusiness->filename));
+//            File::delete(public_path(BusinessVideo::PATH_VIDEO . @$businessVideo->videoBusiness->filename));
             $businessVideo->videoBusiness()->delete();
             $businessVideo->imageBusiness()->delete();
             $businessVideo->delete();
@@ -343,7 +354,13 @@ else{
             $items = BusinessVideo::query()->where('user_uuid', $user_uuid)->paginate();
 
         } elseif ($type == "images") {
-            $items = Businessimages::query()->where('user_uuid', $user_uuid)->first()->images;
+
+            $items = Businessimages::query()->where('user_uuid', $user_uuid)->first();
+            if ($items){
+                $items= $items->images;
+            }else{
+                $items=[];
+            }
             $items = paginate($items);
         } else {
             return mainResponse(false, 'type must videos||images', [], ['type must videos||images'], 404);

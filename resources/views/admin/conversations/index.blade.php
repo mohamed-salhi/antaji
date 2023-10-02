@@ -3,603 +3,529 @@
     @lang('Conversations')
 @endsection
 @section('styles')
+
     <style>
-        body {
-            background-color: #f4f7f6;
-            margin-top: 20px;
+
+        .chat-search-box {
+            -webkit-border-radius: 3px 0 0 0;
+            -moz-border-radius: 3px 0 0 0;
+            border-radius: 3px 0 0 0;
+            padding: .75rem 1rem;
+        }
+
+        .chat-search-box .input-group .form-control {
+            -webkit-border-radius: 2px 0 0 2px;
+            -moz-border-radius: 2px 0 0 2px;
+            border-radius: 2px 0 0 2px;
+            border-right: 0;
+        }
+
+        .chat-search-box .input-group .form-control:focus {
+            border-right: 0;
+        }
+
+        .chat-search-box .input-group .input-group-btn .btn {
+            -webkit-border-radius: 0 2px 2px 0;
+            -moz-border-radius: 0 2px 2px 0;
+            border-radius: 0 2px 2px 0;
+            margin: 0;
+        }
+
+        .chat-search-box .input-group .input-group-btn .btn i {
+            font-size: 1.2rem;
+            line-height: 100%;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 767px) {
+            .chat-search-box {
+                display: none;
+            }
+        }
+
+
+        /************************************************
+            ************************************************
+                                            Users Container
+            ************************************************
+        ************************************************/
+
+        .users-container {
+            position: relative;
+            padding: 1rem 0;
+            border-right: 1px solid #e6ecf3;
+            height: 100%;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-direction: column;
+            flex-direction: column;
+        }
+
+
+        /************************************************
+            ************************************************
+                                                    Users
+            ************************************************
+        ************************************************/
+
+        .users {
+            padding: 0;
+        }
+
+        .users .person {
+            position: relative;
+            width: 100%;
+            padding: 10px 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+        .users .person:hover {
+            background-color: #ffffff;
+            /* Fallback Color */
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#e9eff5), to(#ffffff));
+            /* Saf4+, Chrome */
+            background-image: -webkit-linear-gradient(right, #e9eff5, #ffffff);
+            /* Chrome 10+, Saf5.1+, iOS 5+ */
+            background-image: -moz-linear-gradient(right, #e9eff5, #ffffff);
+            /* FF3.6 */
+            background-image: -ms-linear-gradient(right, #e9eff5, #ffffff);
+            /* IE10 */
+            background-image: -o-linear-gradient(right, #e9eff5, #ffffff);
+            /* Opera 11.10+ */
+            background-image: linear-gradient(right, #e9eff5, #ffffff);
+        }
+
+        .users .person.active-user {
+            background-color: #ffffff;
+            /* Fallback Color */
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#f7f9fb), to(#ffffff));
+            /* Saf4+, Chrome */
+            background-image: -webkit-linear-gradient(right, #f7f9fb, #ffffff);
+            /* Chrome 10+, Saf5.1+, iOS 5+ */
+            background-image: -moz-linear-gradient(right, #f7f9fb, #ffffff);
+            /* FF3.6 */
+            background-image: -ms-linear-gradient(right, #f7f9fb, #ffffff);
+            /* IE10 */
+            background-image: -o-linear-gradient(right, #f7f9fb, #ffffff);
+            /* Opera 11.10+ */
+            background-image: linear-gradient(right, #f7f9fb, #ffffff);
+        }
+
+        .users .person:last-child {
+            border-bottom: 0;
+        }
+
+        .users .person .user {
+            display: inline-block;
+            position: relative;
+            margin-right: 10px;
+        }
+
+        .users .person .user img {
+            width: 48px;
+            height: 48px;
+            -webkit-border-radius: 50px;
+            -moz-border-radius: 50px;
+            border-radius: 50px;
+        }
+
+        .users .person .user .status {
+            width: 10px;
+            height: 10px;
+            -webkit-border-radius: 100px;
+            -moz-border-radius: 100px;
+            border-radius: 100px;
+            background: #e6ecf3;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .users .person .user .status.online {
+            background: #9ec94a;
+        }
+
+        .users .person .user .status.offline {
+            background: #c4d2e2;
+        }
+
+        .users .person .user .status.away {
+            background: #f9be52;
+        }
+
+        .users .person .user .status.busy {
+            background: #fd7274;
+        }
+
+        .users .person p.name-time {
+            font-weight: 600;
+            font-size: .85rem;
+            display: inline-block;
+        }
+
+        .users .person p.name-time .time {
+            font-weight: 400;
+            font-size: .7rem;
+            text-align: right;
+            color: #8796af;
+        }
+
+        @media (max-width: 767px) {
+            .users .person .user img {
+                width: 30px;
+                height: 30px;
+            }
+
+            .users .person p.name-time {
+                display: none;
+            }
+
+            .users .person p.name-time .time {
+                display: none;
+            }
+        }
+
+
+        /************************************************
+            ************************************************
+                                            Chat right side
+            ************************************************
+        ************************************************/
+
+        .selected-user {
+            width: 100%;
+            padding: 0 15px;
+            min-height: 64px;
+            line-height: 64px;
+            border-bottom: 1px solid #e6ecf3;
+            -webkit-border-radius: 0 3px 0 0;
+            -moz-border-radius: 0 3px 0 0;
+            border-radius: 0 3px 0 0;
+        }
+
+        .selected-user span {
+            line-height: 100%;
+        }
+
+        .selected-user span.name {
+            font-weight: 700;
+        }
+
+        .chat-container {
+            position: relative;
+            padding: 1rem;
+        }
+
+        .chat-container li.chat-left,
+        .chat-container li.chat-right {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
+            margin-bottom: 40px;
+        }
+
+        .image_main{
+            width: 48px;
+            height: 48px;
+            -webkit-border-radius: 30px;
+            -moz-border-radius: 30px;
+            border-radius: 30px;
+        }
+
+        .chat-container li .chat-avatar {
+            margin-right: 20px;
+        }
+
+        .chat-container li.chat-right {
+            justify-content: flex-end;
+        }
+
+        .chat-container li.chat-right > .chat-avatar {
+            margin-left: 20px;
+            margin-right: 0;
+        }
+
+        .chat-container li .chat-name {
+            font-size: .75rem;
+            color: #999999;
+            text-align: center;
+        }
+
+        .chat-container li .chat-text {
+            padding: .4rem 1rem;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            background: #ffffff;
+            font-weight: 300;
+            line-height: 150%;
+            position: relative;
+        }
+
+        .chat-container li .chat-text:before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            top: 10px;
+            left: -20px;
+            border: 10px solid;
+            border-color: transparent #ffffff transparent transparent;
+        }
+
+        .chat-container li.chat-right > .chat-text {
+            text-align: right;
+        }
+
+        .chat-container li.chat-right > .chat-text:before {
+            right: -20px;
+            border-color: transparent transparent transparent #ffffff;
+            left: inherit;
+        }
+
+        .chat-container li .chat-hour {
+            padding: 0;
+            margin-bottom: 10px;
+            font-size: .75rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0 0 15px;
+        }
+
+        .chat-container li .chat-hour > span {
+            font-size: 16px;
+            color: #9ec94a;
+        }
+
+        .chat-container li.chat-right > .chat-hour {
+            margin: 0 15px 0 0;
+        }
+
+        @media (max-width: 767px) {
+            .chat-container li.chat-left,
+            .chat-container li.chat-right {
+                flex-direction: column;
+                margin-bottom: 30px;
+            }
+
+            .chat-container li img {
+                width: 32px;
+                height: 32px;
+            }
+
+            .chat-container li.chat-left .chat-avatar {
+                margin: 0 0 5px 0;
+                display: flex;
+                align-items: center;
+            }
+
+            .chat-container li.chat-left .chat-hour {
+                justify-content: flex-end;
+            }
+
+            .chat-container li.chat-left .chat-name {
+                margin-left: 5px;
+            }
+
+            .chat-container li.chat-right .chat-avatar {
+                order: -1;
+                margin: 0 0 5px 0;
+                align-items: center;
+                display: flex;
+                justify-content: right;
+                flex-direction: row-reverse;
+            }
+
+            .chat-container li.chat-right .chat-hour {
+                justify-content: flex-start;
+                order: 2;
+            }
+
+            .chat-container li.chat-right .chat-name {
+                margin-right: 5px;
+            }
+
+            .chat-container li .chat-text {
+                font-size: .8rem;
+            }
+        }
+
+        .chat-form {
+            padding: 15px;
+            width: 100%;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ffffff;
+            border-top: 1px solid white;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
         }
 
         .card {
-            background: #fff;
-            transition: .5s;
             border: 0;
-            margin-bottom: 30px;
-            border-radius: .55rem;
-            position: relative;
-            width: 100%;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 10%);
-        }
-
-        .chat-app .people-list {
-            width: 280px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            padding: 20px;
-            z-index: 7
-        }
-
-        .chat-app .chat {
-            margin-left: 280px;
-            border-left: 1px solid #eaeaea
-        }
-
-        .people-list {
-            -moz-transition: .5s;
-            -o-transition: .5s;
-            -webkit-transition: .5s;
-            transition: .5s
-        }
-
-        .people-list .chat-list li {
-            padding: 10px 15px;
-            list-style: none;
-            border-radius: 3px
-        }
-
-        .people-list .chat-list li:hover {
-            background: #efefef;
-            cursor: pointer
-        }
-
-        .people-list .chat-list li.active {
-            background: #efefef
-        }
-
-        .people-list .chat-list li .name {
-            font-size: 15px
-        }
-
-        .people-list .chat-list img {
-            width: 45px;
-            border-radius: 50%
-        }
-
-        .people-list img {
-            float: left;
-            border-radius: 50%
-        }
-
-        .people-list .about {
-            float: left;
-            padding-left: 8px
-        }
-
-        .people-list .status {
-            color: #999;
-            font-size: 13px
-        }
-
-        .chat .chat-header {
-            padding: 15px 20px;
-            border-bottom: 2px solid #f4f7f6
-        }
-
-        .chat .chat-header img {
-            float: left;
-            border-radius: 40px;
-            width: 40px
-        }
-
-        .chat .chat-header .chat-about {
-            float: left;
-            padding-left: 10px
-        }
-
-        .chat .chat-history {
-            padding: 20px;
-            border-bottom: 2px solid #fff
-        }
-
-        .chat .chat-history ul {
-            padding: 0
-        }
-
-        .chat .chat-history ul li {
-            list-style: none;
-            margin-bottom: 30px
-        }
-
-        .chat .chat-history ul li:last-child {
-            margin-bottom: 0px
-        }
-
-        .chat .chat-history .message-data {
-            margin-bottom: 15px
-        }
-
-        .chat .chat-history .message-data img {
-            border-radius: 40px;
-            width: 40px
-        }
-
-        .chat .chat-history .message-data-time {
-            color: #434651;
-            padding-left: 6px
-        }
-
-        .chat .chat-history .message {
-            color: #444;
-            padding: 18px 20px;
-            line-height: 26px;
-            font-size: 16px;
-            border-radius: 7px;
-            display: inline-block;
-            position: relative
-        }
-
-        .chat .chat-history .message:after {
-            bottom: 100%;
-            left: 7%;
-            border: solid transparent;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-            border-bottom-color: #fff;
-            border-width: 10px;
-            margin-left: -10px
-        }
-
-        .chat .chat-history .my-message {
-            background: #efefef
-        }
-
-        .chat .chat-history .my-message:after {
-            bottom: 100%;
-            left: 30px;
-            border: solid transparent;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-            border-bottom-color: #efefef;
-            border-width: 10px;
-            margin-left: -10px
-        }
-
-        .chat .chat-history .other-message {
-            background: #e8f1f3;
-            text-align: right
-        }
-
-        .chat .chat-history .other-message:after {
-            border-bottom-color: #e8f1f3;
-            left: 93%
-        }
-
-        .chat .chat-message {
-            padding: 20px
-        }
-
-        .online,
-        .offline,
-        .me {
-            margin-right: 2px;
-            font-size: 8px;
-            vertical-align: middle
-        }
-
-        .online {
-            color: #86c541
-        }
-
-        .offline {
-            color: #e47297
-        }
-
-        .me {
-            color: #1d8ecd
-        }
-
-        .float-right {
-            float: right
-        }
-
-        .clearfix:after {
-            visibility: hidden;
-            display: block;
-            font-size: 0;
-            content: " ";
-            clear: both;
-            height: 0
-        }
-
-        @media only screen and (max-width: 767px) {
-            .chat-app .people-list {
-                height: 465px;
-                width: 100%;
-                overflow-x: auto;
-                background: #fff;
-                left: -400px;
-                display: none
-            }
-
-            .chat-app .people-list.open {
-                left: 0
-            }
-
-            .chat-app .chat {
-                margin: 0
-            }
-
-            .chat-app .chat .chat-header {
-                border-radius: 0.55rem 0.55rem 0 0
-            }
-
-            .chat-app .chat-history {
-                height: 300px;
-                overflow-x: auto
-            }
-        }
-
-        @media only screen and (min-width: 768px) and (max-width: 992px) {
-            .chat-app .chat-list {
-                height: 650px;
-                overflow-x: auto
-            }
-
-            .chat-app .chat-history {
-                height: 600px;
-                overflow-x: auto
-            }
-        }
-
-        @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
-            .chat-app .chat-list {
-                height: 480px;
-                overflow-x: auto
-            }
-
-            .chat-app .chat-history {
-                height: calc(100vh - 350px);
-                overflow-x: auto
-            }
+            background: #f4f5fb;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            margin-bottom: 2rem;
+            box-shadow: none;
         }
     </style>
+    <script>
+        var user_uuid=''
+    </script>
 @endsection
 @section('content')
-    <div class="content-wrapper">
-        <div class="content-header row">
-            <div class="content-header-left col-md-9 col-12 mb-2">
-                <div class="row breadcrumbs-top">
-                    <div class="col-12">
-                        <h2 class="content-header-title float-left mb-0">@lang('Conversations')</h2>
-                        <div class="breadcrumb-wrapper">
-                            <ol class="breadcrumb">
-                                {{--                                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">@lang('home')</a>--}}
-                                {{--                                </li>--}}
-                                <li class="breadcrumb-item"><a
-                                        href="{{ route('conversations.index') }}">@lang('Conversations')</a>
-                                </li>
-                            </ol>
-                        </div>
-                    </div>
+
+    <div class="container">
+
+        <!-- Page header start -->
+        <div class="page-title">
+            <div class="row gutters">
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12">
+                    <h5 class="title">@lang('Conversations')</h5>
                 </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-12"></div>
             </div>
         </div>
-        <div class="content-body">
+        <!-- Page header end -->
 
-            <section id="">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="head-label">
-                                    <h4 class="card-title">@lang('Conversations')</h4>
-                                </div>
-                                {{--                                @can('place-create')--}}
-                                <div class="text-right">
-                                    <div class="form-group">
-                                        <button class="btn btn-outline-primary button_modal" type="button"
-                                                data-toggle="modal" id=""
-                                                data-target="#full-modal-stem"><span><i
-                                                    class="fa fa-plus"></i>@lang('add')</span>
-                                        </button>
-                                        <button
+        <!-- Content wrapper start -->
+        <div class="content-wrapper">
 
-                                            class="btn_delete_all btn btn-outline-danger " type="button">
-                                            <span><i aria-hidden="true"></i> @lang('delete')</span>
-                                        </button>
-                                        <button
-                                            data-status="1" class="btn_status btn btn-outline-success " type="button">
-                                            <span><i aria-hidden="true"></i> @lang('activate')</span>
-                                        </button>
-                                        <button
-                                            data-status="0" class="btn_status btn btn-outline-warning " type="button">
-                                            <span><i aria-hidden="true"></i> @lang('deactivate')</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                {{--                                @endcan--}}
-                            </div>
-                            <div class="card-body">
-                                <form id="search_form">
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="s_status">@lang('status')</label>
-                                                <select name="s_status" id="s_status" class="search_input form-control">
-                                                    <option selected disabled>@lang('select') @lang('status')</option>
-                                                    <option value="1"> @lang('active') </option>
-                                                    <option value="2"> @lang('inactive') </option>
-                                                </select>
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-3">
-                                            <div class="form-group">
-                                                <label for="s_name">@lang('name')</label>
-                                                <input id="s_name" type="text"
-                                                       class="search_input form-control"
-                                                       placeholder="@lang('name')">
+            <!-- Row start -->
+            <div class="row gutters">
+
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+
+                    <div class="card m-0">
+
+                        <!-- Row start -->
+                        <div class="row no-gutters">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-3 col-3">
+                                <div class="users-container">
+                                    <div class="chat-search-box">
+                                        <div class="input-group">
+                                            <input class="form-control" placeholder="Search">
+                                            <div class="input-group-btn">
+                                                <button type="button" class="btn btn-info">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="col-3" style="margin-top: 20px">
-                                        <button id="search_btn" class="btn btn-outline-info" type="submit">
-                                            <span><i class="fa fa-search"></i> @lang('search')</span>
-                                        </button>
-                                        <button id="clear_btn" class="btn btn-outline-secondary" type="submit">
-                                            <span><i class="fa fa-undo"></i> @lang('reset')</span>
-                                        </button>
+                                    <ul class="users">
 
 
-                                        <div class="col-3" style="margin-top: 20px">
+                                        @foreach($items as $item)
+{{--@dd($item->user_name)--}}
+                                            <li class="person" data-chat="person1">
 
-                                        </div>
-                                    </div>
-                                </form>
+                                                <button class="name" data-uuid="{{$item->user_uuid}}"
+                                                        data-url="{{route('conversations.chat',$item->uuid)}}"
+                                                        id="user-chat">
+
+                                                </button>
+                                                <div class="user">
+{{--                                                    <img src="{{$item->user_image}}" alt="Retail Admin">--}}
+                                                    <span class="status busy"></span>
+                                                </div>
+                                                <p class="name-time">
+                                                    <span class="name">{{($item->user_name_tow==$user_name)?$item->user_name_one:$item->user_name_tow}}</span>
+                                                    <span
+{{--                                                        class="time">{{$item->last_msg}}</span>--}}
+{{--                                                    <span class="view{{$item->user_uuid}}">{{$item->count_msg}}</span>--}}
+                                                </p>
+
+                                            </li>
+                                        @endforeach
+
+
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="table-responsive card-datatable" style="padding: 20px">
-                                <table class="table" id="datatable">
-                                    <thead>
-                                    <tr>
-                                        <th><input name="select_all" id="example-select-all" type="checkbox"
-                                                   onclick="CheckAll('box1', this)"/></th>
-                                        <th>@lang('one name user')</th>
-                                        <th>@lang('tow name user')</th>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-9 col-9 render">
 
-                                        <th style="width: 225px;">@lang('actions')</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-
-                                </table>
+                                @include('admin.conversations.chat',['conversation' => $conversation,'uuid_user'=>$uuid_user])
                             </div>
+
+                            {{--                            <div >--}}
+
+
                         </div>
+                        <!-- Row end -->
                     </div>
-                </div>
-            </section>
-
-        </div>
-    </div>
-
-    <div class="modal fade" id="details_modal" data-backdrop="static" data-keyboard="false" tabindex="-1"
-         aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">@lang('details')</h5>
-                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">x</button>
-                </div>
-                <div class="modal-body">
-                    <div class="chat-history">
-
-                        <ul class="chat-admins">
-
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('close')</button>
 
                 </div>
+
             </div>
-        </div>
-    </div>
+            <!-- Row end -->
 
+        </div>
+        <!-- Content wrapper end -->
+
+    </div>
+@endsection
+@section('js')
 @endsection
 @section('scripts')
+
     <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
-    <script type="text/javascript">
+
+    <script>
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-        //bindTable
-        var table = $('#datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            responsive: true,
-            "bFilter": false,
-            "oLanguage": {
-                @if (app()->isLocale('ar'))
-                "sEmptyTable": "ليست هناك بيانات متاحة في الجدول",
-                "sLoadingRecords": "جارٍ التحميل...",
-                "sProcessing": "جارٍ التحميل...",
-                "sLengthMenu": "أظهر _MENU_ مدخلات",
-                "sZeroRecords": "لم يعثر على أية سجلات",
-                "sInfo": "إظهار _START_ إلى _END_ من أصل _TOTAL_ مدخل",
-                "sInfoEmpty": "يعرض 0 إلى 0 من أصل 0 سجل",
-                "sInfoFiltered": "(منتقاة من مجموع _MAX_ مُدخل)",
-                "sInfoPostFix": "",
-                "sSearch": "ابحث:",
-                "oAria": {
-                    "sSortAscending": ": تفعيل لترتيب العمود تصاعدياً",
-                    "sSortDescending": ": تفعيل لترتيب العمود تنازلياً"
-                },
-                @endif // "oPaginate": {"sPrevious": '<-', "sNext": '->'},
-            },
-            ajax: {
-                url: '{{ route('conversations.indexTable', app()->getLocale()) }}',
-                data: function (d) {
-                    d.name = $('#s_name').val();
-                }
-            },
-            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: [
-                {
-                    extend: 'excel',
-                    text: 'Excel',
-                    exportOptions: {
-                        columns: [1],
-                        modifier: {
-                            page: 'current'
-                        }
+
+        //Edit
+        $(document).ready(function () {
+
+
+
+            $(document).on("click", "#user-chat", function (e) {
+                event.preventDefault();
+                let url = $(this).data('url');
+                user_uuid = $(this).data('uuid');
+                console.log(user_uuid)
+                $.ajax({
+                    type:'get',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    url: url,
+                    beforeSend: function () {
+
+                    },
+                    success: function (result) {
+                        var count=$('.view'+user_uuid).text();
+                        console.log(count);
+                        $('.view'+user_uuid).html(0)
+
+                        $('.render').html(result);
+                    },
+                    error: function (data) {
+                        console.log('err')
                     }
-                }
-            ],
-            columns: [{
-                "render": function (data, type, full, meta) {
-                    return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>
-`;
-                },
-                name: 'checkbox',
-                data: 'checkbox',
-                orderable: false,
-                searchable: false
-            },
-                {
-                    data: 'user_name_one',
-                    name: 'one',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'user_name_tow',
-                    name: 'tow',
-                    orderable: false,
-                    searchable: false
-                },
-
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: true
-                },
-            ]
-
-        });
-        $(document).on('click', '.detail_btn', function (event) {
-            event.preventDefault();
-            var button = $(this)
-            $.ajax({
-                type: 'get',
-                cache: false,
-                contentType: false,
-                processData: false,
-                url: button.data('url'),
-                beforeSend: function () {
-                    console.log('send')
-                },
-                success: function (result) {
-
-                    var one = result[0].user_uuid;
-
-
-                    $.each(result, function (index, fileName) {
-                        console.log(fileName.content)
-                        if (fileName.user_uuid == one) {
-                            if (fileName.type == {{\App\Models\Message::TEXT}}) {
-                                $('.chat-admins').append(`
-                             <div class="messag e-data">
-                                  <span class="message-data-time">${new Date(fileName.created_at)}</span>
-                             </div>
-                               <div class="message my-message">
-                                   ${fileName.msg}
-                               </div>
-                            `)
-                            } else if (fileName.type == {{\App\Models\Message::IMAGE}}) {
-                                $('.chat-admins').append(`
-                                        <img
-                                        src="${fileName.content}"
-                                        height="100" width="200">
-                                 `)
-                            } else if (fileName.type == {{\App\Models\Message::VOICE}}) {
-                                $('.chat-admins').append(`
-                                  <audio controls>
-                                        <source src="${fileName.content}" type="audio/ogg">
-                                        <source src="${fileName.content}" type="audio/mpeg">
-                                        Your browser does not support the audio element.
-                                    </audio>
-                                 `)
-                            }
-
-                        } else {
-                            if (fileName.type == {{\App\Models\Message::TEXT}}) {
-                                $('.chat-admins').append(`
-                                 <li class="clearfix">
-                            <div class="message-data text-right">
-                                <span class="message-data-time">منذ 1 ثانية</span>
-
-                            </div>
-                            <div class="message-data text-right">
-<div class="message other-message float-right">
-${fileName.content}
-                        </div>
-                            </div>
-
-
-`)
-                            } else if (fileName.type == {{\App\Models\Message::IMAGE}}) {
-                                $('.chat-admins').append(`
-                                 <li class="clearfix">
-                            <div class="message-data text-right">
-                                <span class="message-data-time">منذ 1 ثانية</span>
-
-                            <div class="message-data text-right">
-         <img
-                        src="${fileName.content}"
-                                        height="100" width="200">
-
-`)
-                            } else if (fileName.type == {{\App\Models\Message::VOICE}}) {
-                                $('.chat-admins').append(`
-                                 <li class="clearfix">
-                            <div class="message-data text-right">
-                                <span class="message-data-time">منذ 1 ثانية</span>
-
-                            </div>
-                            <div class="message-data text-right">
-            <audio controls>
-                                        <source src="${fileName.content}" type="audio/ogg">
-                                        <source src="${fileName.content}" type="audio/mpeg">
-                                        Your browser does not support the audio element.
-                                    </audio>
-                            </div>
-`)
-                            }
-                        }
-                    })
-
-
-                },
-                error: function (data) {
-
-                    console.log('err')
-
-                }
+                });
             });
 
 
         });
 
+        $(document).ready(function () {
+
+
+        })
     </script>
 @endsection

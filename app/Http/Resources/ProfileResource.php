@@ -20,7 +20,7 @@ class ProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $item= [
+      return  $item= [
             'uuid' => $this->uuid,
             'type' => $this->type,
             'is_verified' => $this->package->type==Package::VIP,
@@ -34,8 +34,8 @@ class ProfileResource extends JsonResource
             'cover_Photo' => $this->cover_user,
 
         ];
-        if ($request->has('artist')){
-
-        }
+//        if ($request->has('artist')){
+//
+//        }
     }
 }

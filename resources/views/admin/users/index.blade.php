@@ -5,8 +5,15 @@
 @section('styles')
     <style>
         #map {
-            height: 300px;
+            height: 400px;
+            width: 100%;
         }
+
+        #edit_map {
+            height: 400px;
+            width: 100%;
+        }
+
         body {
             margin-top: 20px;
         }
@@ -289,20 +296,29 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="mobile">@lang('mobile')</label>
-                                    <input type="text" class="form-control" placeholder="@lang('mobile')"
-                                           name="mobile" id="mobile">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
                                     <label for="">@lang('name')</label>
                                     <input type="text" class="form-control" placeholder="@lang('name')"
                                            name="name" id="">
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mobile">@lang('mobile')</label>
+                                    <input type="number" class="form-control" placeholder="@lang('mobile')"
+                                           name="mobile" id="mobile">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="mobile">@lang('intro')</label>
+                                    <input type="number" class="form-control" placeholder="@lang('intro')"
+                                           name="prefix" id="intro">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="row">
@@ -410,19 +426,19 @@
                             </div>
                         </div>
                         <div class="col-6">
-                                <div class="form-group">
-                                    <br>
-                                    <input type="file" id="file-input" name="video">
-                                    <video id="video-preview" controls></video>
-                                    <div class="invalid-feedback"></div>
-                                </div>
+                            <div class="form-group">
+                                <br>
+                                <input type="file" id="file-input" name="video">
+                                <video id="video-preview" controls></video>
+                                <div class="invalid-feedback"></div>
                             </div>
+                        </div>
 
                         <div id="map"></div>
                         <input type="hidden" name="lat" id="lat">
                         <input type="hidden" name="lng" id="lng">
                         <div class="modal-footer">
-                            <button  class="btn btn-primary done">@lang('save')</button>
+                            <button class="btn btn-primary done">@lang('save')</button>
 
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
@@ -461,14 +477,24 @@
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="mobile">@lang('mobile')</label>
-                                    <input type="text" class="form-control" placeholder="@lang('mobile')"
+                                    <input type="number" class="form-control" placeholder="@lang('mobile')"
                                            name="mobile" id="edit_mobile">
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="mobile">@lang('intro')</label>
+                                    <input type="number" class="form-control" placeholder="@lang('intro')"
+                                           name="prefix" id="edit_prefix">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
+
                         </div>
 
                         <div class="row">
@@ -517,30 +543,30 @@
                                 </div>
                             </div>
                         </div>
-{{--                        <div class="row">--}}
-{{--                            <div class="col-md-6">--}}
-{{--                                <div class="form-group">--}}
-{{--                                    <label for="">@lang('type')</label>--}}
-{{--                                    <select name="type" id="edit_type" class="select form-control"--}}
-{{--                                            data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">--}}
-{{--                                        <option selected disabled>Select @lang('type')</option>--}}
+                        {{--                        <div class="row">--}}
+                        {{--                            <div class="col-md-6">--}}
+                        {{--                                <div class="form-group">--}}
+                        {{--                                    <label for="">@lang('type')</label>--}}
+                        {{--                                    <select name="type" id="edit_type" class="select form-control"--}}
+                        {{--                                            data-select2-id="select2-data-1-bgy2" tabindex="-1" aria-hidden="true">--}}
+                        {{--                                        <option selected disabled>Select @lang('type')</option>--}}
 
-{{--                                        <option value="artist"> @lang('artist') </option>--}}
-{{--                                        <option value="user"> @lang('user') </option>--}}
-{{--                                    </select>--}}
-{{--                                    <div class="invalid-feedback"></div>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                            <div class="col-md-6">--}}
-{{--                                <div class="form-group">--}}
-{{--                                    <label for="about">@lang('address')--}}
-{{--                                    </label>--}}
-{{--                                    <input type="text" class="form-control" placeholder="@lang('address')"--}}
-{{--                                           name="address" id="edit_address">--}}
-{{--                                    <div class="invalid-feedback"></div>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
+                        {{--                                        <option value="artist"> @lang('artist') </option>--}}
+                        {{--                                        <option value="user"> @lang('user') </option>--}}
+                        {{--                                    </select>--}}
+                        {{--                                    <div class="invalid-feedback"></div>--}}
+                        {{--                                </div>--}}
+                        {{--                            </div>--}}
+                        {{--                            <div class="col-md-6">--}}
+                        {{--                                <div class="form-group">--}}
+                        {{--                                    <label for="about">@lang('address')--}}
+                        {{--                                    </label>--}}
+                        {{--                                    <input type="text" class="form-control" placeholder="@lang('address')"--}}
+                        {{--                                           name="address" id="edit_address">--}}
+                        {{--                                    <div class="invalid-feedback"></div>--}}
+                        {{--                                </div>--}}
+                        {{--                            </div>--}}
+                        {{--                        </div>--}}
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="about">@lang('brief')
@@ -573,7 +599,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                          </div>
+                            </div>
                             <div class="col-6">
                                 <label for="icon">@lang('cover image')</label>
                                 <div>
@@ -596,7 +622,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -607,12 +633,11 @@
                             </div>
                         </div>
 
-                        <div id="map2"></div>
+                        <div id="edit_map"></div>
                         <input type="hidden" name="lat" id="edit_lat">
                         <input type="hidden" name="lng" id="edit_lng">
-
                         <div class="modal-footer">
-                            <button  class="btn btn-primary done">@lang('save')</button>
+                            <button class="btn btn-primary done">@lang('save')</button>
 
                             <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">@lang('close')</button>
@@ -630,35 +655,63 @@
 @endsection
 @section('scripts')
     <script>
-        var map2 = L.map('map2').setView([51.505, -0.09], 13);
+        let map, edit_map;
+        let marker, edit_marker;
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map2);
+        async function initMap() {
+            // The location of Uluru
+            const position = {lat: 24.121894767907012, lng: 46.74972295072583};
+            // Request needed libraries.
+            //@ts-ignore
+            const {Map} = await google.maps.importLibrary("maps");
 
-        var lon;
-        var lat;
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition);
-        } else {
-            x.innerHTML = "Geolocation is not supported by this browser.";
+            // The map, centered at Uluru
+            map = new Map(document.getElementById("map"), {
+                zoom: 4,
+                center: position,
+                mapId: "DEMO_MAP_ID",
+            });
+
+            marker = new google.maps.Marker({
+                map: map,
+                position: position,
+                title: "Center"
+            });
+
+            google.maps.event.addListener(map, 'click', function (e) {
+                let myLatlng = e["latLng"];
+                marker.setPosition(myLatlng);
+                map.setCenter(myLatlng);
+                $('#lat').val(myLatlng.lat)
+                $('#lng').val(myLatlng.lng)
+
+            });
+
+
+            // The map, centered at Uluru
+            edit_map = new Map(document.getElementById("edit_map"), {
+                zoom: 4,
+                center: position,
+                mapId: "DEMO_MAP_ID",
+            });
+
+            edit_marker = new google.maps.Marker({
+                map: edit_map,
+                position: position,
+                title: "Center"
+            });
+
+
+            google.maps.event.addListener(edit_map, 'click', function (e) {
+                let myLatlng = e["latLng"];
+                edit_marker.setPosition(myLatlng);
+                edit_map.setCenter(myLatlng);
+                $('#edit_lat').val(myLatlng.lat)
+                $('#edit_lng').val(myLatlng.lng)
+            });
 
         }
 
-        function showPosition(position) {
-
-            function onMapClick(e) {
-                $('#edit_lat').val(e.latlng.lat)
-                $('#edit_lng').val(e.latlng.lng)
-                console.log(e);
-                var layar = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map2)
-                    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-                    .openPopup();
-
-            }
-
-            map2.on('click', onMapClick);
-        }
     </script>
     <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
     <script type="text/javascript">
@@ -704,18 +757,23 @@
                 }
             },
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: [
+            "buttons": [
                 {
-                    extend: 'excel',
+
+                    "extend": 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
-                    exportOptions: {
-                        columns: [1,2,3,5,6,7],
-                        modifier: {
-                            search: 'applied',
-                            order: 'applied'
-                        }
-                    }
-                }
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
             ],
             columns: [
                 {
@@ -789,12 +847,18 @@
                 $('#edit_city').val(button.data('city'));
                 $('#edit_type').val(button.data('type')).trigger('change');
                 $('#edit_mobile').val(button.data('mobile'));
+                $('#edit_prefix').val(button.data('intro'));
+
+                console.log('d',button.data('mobile'),button.data('intro'))
                 $('#edit_lat').val(button.data('lat'))
                 $('#edit_email').val(button.data('email'))
                 $('#edit_lng').val(button.data('lng'))
                 $('#edit_name').val(button.data('name'))
                 console.log(button.data('address'))
                 $('#edit_address').val(button.data('address'))
+                let latlng = {lat: parseFloat(button.data('lat')), lng: parseFloat(button.data('lng'))};
+                edit_marker.setPosition(latlng);
+                edit_map.setCenter(latlng);
                 $('#video-1').attr('src', button.data('video'));
                 $('#edit_src_image_personal_photo').attr('src', button.data('personal_photo'));
                 $('#edit_src_image_cover_Photo').attr('src', button.data('cover_user'));
@@ -807,15 +871,6 @@
                 }
                 $('#edit_category_contents_uuid').val(category_contents_uuids).trigger('change');
 
-                L.marker([button.data('lat'), button.data('lng')]).addTo(map2)
-                    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-                    .openPopup();
-
-            });
-            $(document).on('click', '#addd', function () {
-                // map.eachLayer(function (layer) {
-                //     map.removeLayer(layer);
-                // });
             });
         });
     </script>
@@ -847,50 +902,11 @@
                 console.log('AJAX load did not work');
             }
         });
-        $('#edit_modal').on('hidden.bs.modal', function () {
-            $('select[name="area_uuid"]').empty();
 
-            console.log('ddd');
-        })
     </script>
 
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-            integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-    <script>
-        var map = L.map('map').setView([51.505, -0.09], 13);
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        var lon;
-        var lat;
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition);
-        } else {
-            x.innerHTML = "Geolocation is not supported by this browser.";
-
-        }
-
-        //
-        function showPosition(position) {
-
-
-            function onMapClick(e) {
-                $('#lat').val(e.latlng.lat)
-                $('#lng').val(e.latlng.lng)
-                console.log(e.latlng.lng);
-                // map.eachLayer(function (layer) {
-                //     map.removeLayer(layer);
-                // });
-                L.marker([e.latlng.lat, e.latlng.lng]).addTo(map)
-                    .openPopup();
-
-            }
-
-            map.on('click', onMapClick);
-
-
-        }
+    <script async
+            src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&callback=initMap">
     </script>
 @endsection

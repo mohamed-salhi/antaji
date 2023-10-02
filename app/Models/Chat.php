@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Chat extends Model
@@ -69,13 +70,13 @@ class Chat extends Model
             return $this->msg;
         } elseif (@$this->type == self::IMAGE) {
             if (@$this->images->filename) {
-                return url('/') . self::PATH_IMAGE . @$this->images->filename;
+                return !is_null(@$this->images->path) ? asset(Storage::url(@$this->images->path) ): '';
             } else {
                 return 'nulll';
             }
         } elseif (@$this->type == self::VOICE) {
             if (@$this->voice->filename) {
-                return url('/') . self::PATH_VOICE . @$this->voice->filename;
+                return !is_null(@$this->voice->path) ? asset(Storage::url(@$this->voice->path) ): '';
             } else {
                 return null;
             }
@@ -83,7 +84,7 @@ class Chat extends Model
             return $this->lat_lng;
         } elseif (@$this->type == self::ATTACHMENT) {
             if (@$this->attachment->filename) {
-                return url('/') . self::PATH_ATTACHMENT . @$this->attachment->filename;
+                return !is_null(@$this->attachment->path) ? asset(Storage::url(@$this->attachment->path) ): '';
             } else {
                 return null;
             }

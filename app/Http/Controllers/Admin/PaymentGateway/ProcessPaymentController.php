@@ -5,19 +5,27 @@ namespace App\Http\Controllers\Admin\PaymentGateway;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use App\Models\Upload;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
 class ProcessPaymentController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:payment', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index(){
         $method=PaymentGateway::all();
         return view('admin.paymentGateways.process',compact('method'));
     }
+
+
+
     public function getData(Request $request)
     {
-        $countrys = Payment::query()->orderByDesc('created_at');
-        return Datatables::of($countrys)
+        $methods = Payment::query()->orderByDesc('created_at');
+        return Datatables::of($methods)
             ->filter(function ($query) use ($request) {
                 if ($request->user_name){
                     $query->whereHas('user',function ($query)use ($request){

@@ -15,22 +15,18 @@ class OrderResource extends JsonResource
         $startDate = Carbon::parse(@$this->start);
         $endDate = Carbon::parse(@$this->end);
         $daysDifference = @$endDate->diffInDays(@$startDate);
-        $item= [
-            'uuid'=>$this->uuid,
-            'name'=>@$this->content->name,
-            'price'=>@$this->content->price,
-            'image'=>@$this->content->image,
-
-
+        $item = [
+            'uuid' => @$this->uuid,
+            'name' => @$this->content->name,
+            'image' => @$this->content->image,
+            'price' => @$this->content->price,
+            'currency' => __('sr'),
+            'type_text' => @$this->type ? __('sale') : __('rent') . ' , ' . $daysDifference . ' ' . __('days'),
         ];
-if ($daysDifference){
-    $item['count']= $daysDifference;
-}
-        if ($request->has('owner')){
-            $item['status']=($this->status==Order::PENDING)?__('new'):$this->status;
-        }else{
-            $item['status']=$this->status;
-        }
+
+        $item['status_text'] = @$this->status_text;
+        $item['status_color'] = @$this->status_color;
+        $item['status_bg_color']= @$this->status_bg_color;
 
         return $item;
     }

@@ -9,15 +9,29 @@ use App\Models\Skill;
 use App\Models\Specialization;
 use App\Models\Upload;
 use App\Models\User;
+use App\Models\ViewNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class ArtistController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:artisan', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index(Request $request)
     {
+        if ($request->has('uuid')){
+
+            ViewNotification::query()->updateOrCreate([
+                'admin_id'=>Auth::id(),
+                'notification_uuid'=>$request->uuid
+            ]);
+        }
         $countries = Country::query()->select(['name', 'uuid'])->get();
         $specializations = Specialization::query()->select(['name', 'uuid'])->get();
         $skills = Skill::query()->select(['name', 'uuid'])->get();
@@ -28,7 +42,8 @@ class ArtistController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'mobile' => 'required|unique:users,mobile|max:12',
+            'prefix' => 'required|int',
+            'mobile' => 'required|unique:users,mobile',
             'name' => 'required',
             'email' => 'required|unique:users,email',
             'country_uuid' => 'required|exists:countries,uuid',
@@ -50,7 +65,8 @@ class ArtistController extends Controller
         ];
         $this->validate($request, $rules);
         $request->merge([
-            'type' => 'artist',
+            'type'=> 'artist',
+            'mobile'=>$request->prefix.'-'.$request->mobile
         ]);
         $user = User::query()->create($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'type', 'brief', 'lat', 'lng', 'address', 'specialization_uuid'));
         if ($request->has('personal_photo')) {
@@ -73,6 +89,8 @@ class ArtistController extends Controller
     {
         $user = User::query()->withoutGlobalScope('user')->findOrFail($request->uuid);
         $rules = [
+            'prefix' => 'required|int',
+
             'name' => 'required',
             'mobile' => [
                 'required',
@@ -103,6 +121,9 @@ class ArtistController extends Controller
         ];
 
         $this->validate($request, $rules);
+        $request->merge([
+            'mobile'=>$request->prefix.'-'.$request->mobile
+        ]);
         $user->update($request->only('mobile', 'name', 'email', 'country_uuid', 'city_uuid', 'brief', 'lat', 'lng', 'address', 'specialization_uuid'));
         if ($request->hasFile('cover_Photo')) {
             UploadImage($request->cover_Photo, User::PATH_COVER, User::class, $user->uuid, true, null, Upload::IMAGE, 'cover_photo');
@@ -126,9 +147,23 @@ class ArtistController extends Controller
         $uuids = explode(',', $uuid);
         $user = User::query()->withoutGlobalScope('user')->whereIn('uuid', $uuids)->get();
         foreach ($user as $item) {
-            File::delete(public_path(User::PATH_PERSONAL . @$item->imageUser->filename));
-            File::delete(public_path(User::PATH_VIDEO . @$item->videoImage->filename));
-            File::delete(public_path(User::PATH_COVER . @$item->coverImage->filename));
+            Storage::delete('public/' . @$item->imageUser->path);
+            Storage::delete('public/' . @$item->videoImage->path);
+            Storage::delete('public/' . @$item->coverImage->path);
+            foreach ($item->businessVideo as $video){
+                Storage::delete('public/' . @$video->videoBusiness->path);
+                Storage::delete('public/' . @$video->imageBusiness->path);
+            }
+//            foreach ($item->businessImage->imageBusiness as $image){
+//                Storage::delete('public/' . @$image->path);
+//            }
+
+            $item->businessVideo()->delete();
+            $item->businessImage()->delete();
+
+//            File::delete(public_path(User::PATH_PERSONAL . @$item->imageUser->filename));
+//            File::delete(public_path(User::PATH_VIDEO . @$item->videoImage->filename));
+//            File::delete(public_path(User::PATH_COVER . @$item->coverImage->filename));
             $item->coverImage()->delete();
             $item->videoImage()->delete();
             $item->imageUser()->delete();
@@ -173,11 +208,15 @@ class ArtistController extends Controller
                 return $que->uuid;
             })
             ->addColumn('action', function ($que) {
+                $mobile=explode("-", $que->mobile);
+                $into=(count($mobile) == 2)?$mobile[0]:null;
+                $mobile=(count($mobile) == 2)?$mobile[1]:$que->mobile;
                 $data_attr = '';
                 $data_attr .= 'data-uuid="' . $que->uuid . '" ';
                 $data_attr .= 'data-city_uuid="' . $que->city_uuid . '" ';
                 $data_attr .= 'data-country_uuid="' . $que->country_uuid . '" ';
-                $data_attr .= 'data-mobile="' . $que->mobile . '" ';
+                $data_attr .= 'data-mobile="' .$mobile . '" ';
+                $data_attr .= 'data-intro="' .$into . '" ';
                 $data_attr .= 'data-email="' . $que->email . '" ';
                 $data_attr .= 'data-brief="' . $que->brief . '" ';
                 $data_attr .= 'data-lat="' . $que->lat . '" ';
@@ -207,15 +246,43 @@ class ArtistController extends Controller
 
 
 //                }
-                $string .= '<button class="detail_btn btn btn-sm btn-outline-success btn_detail" data-toggle="modal"
-                    data-target="#detail_modal" ' . $data_attr . '>' . __('details') . '</button>';
+
+//                $string .= '<button  class="btn-outline-danger" href="' . $url_videos . ' " data-uuid="' . $que->uuid .
+//                    '">' . __('Business Gallery Video') . '</button>';
+//                $string .= '<button  class="btn-outline-danger" href="'.$url_images.'
+//                " data-uuid="' . $que->uuid .
+//                    '">'.__('Business photo gallery').'</button>';
 
 
-                $string .= '<a  class="btn-outline-danger" href="' . $url_videos . ' " data-uuid="' . $que->uuid .
-                    '">' . __('Business Gallery Video') . '</button>';
-                $string .= '<a  class="btn-outline-danger" href="'.$url_images.'
+                $string=' <div class="btn-group">
+<button type="button"  class=" btn btn-sm btn-outline-danger ropdown-toggle" data-toggle="dropdown" data-uuid="' . $que->uuid .
+                    '">' . __('Business Gallery') . '</button>
+ <button class="edit_btn btn btn-sm btn-outline-primary btn_edit" data-toggle="modal"
+                    data-target="#edit_modal" ' . $data_attr . '>' . __('edit') . '</button>
+
+
+ <div class="dropdown-menu">
+
+                                                                        <a  class=" dropdown-item" href="' . $url_videos . ' " data-uuid="' . $que->uuid . '">
+                                                                            <i data-feather="edit-2" class="mr-50"></i>
+                                                                            <span>' . __('videos') . '</span>
+                                                                        </a>
+                                                                        <a  class=" dropdown-item" href="'.$url_images.'
                 " data-uuid="' . $que->uuid .
-                    '">'.__('Business photo gallery').'</button>';
+                    '">
+                                                                            <i data-feather="edit-2" class="mr-50"></i>
+                                                                            <span>' . __('images') . '</span>
+                                                                        </a>
+                                                                        </div>
+                                                                </div>
+                                                          </div>';
+
+
+
+
+
+                $string .= ' <a href=" ' . route('conversations.index',$que->uuid) . '" type="button" class="btn btn-sm btn-outline-danger btn_conversation" data-uuid="' . $que->uuid .
+                    '">' . __('Conversations') . '</button>';
                 return $string;
             })
             ->addColumn('status', function ($que) {

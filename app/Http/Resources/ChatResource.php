@@ -16,6 +16,7 @@ class ChatResource extends JsonResource
     {
         return [
             'type_text' => $this->type_text,
+            'is_my' => ($this->user_uuid==auth('sanctum')->id())?true:false,
             'user_uuid' => $this->user_uuid,
             'content' => $this->content,
             'created_at' => $this->created_at->format('h:m A'),

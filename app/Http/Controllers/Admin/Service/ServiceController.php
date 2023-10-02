@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\File;
 use Yajra\DataTables\Facades\DataTables;
 class ServiceController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:admin', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index(){
         return view('admin.services.index');
     }

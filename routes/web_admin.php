@@ -23,6 +23,9 @@ Route::group(
         'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
     ],
     function () {
+        Route::get('admin/login', function () {
+            return view('admin.auth.login');
+        });
 
 
         Route::middleware('auth')->prefix('admin')->group(function () {
@@ -94,6 +97,7 @@ Route::group(
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
 
             });
+
             Route::controller(\App\Http\Controllers\Admin\Specialization\SpecializationController::class)->name('specializations.')->prefix('specializations')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/store', 'store')->name('store');
@@ -103,6 +107,7 @@ Route::group(
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
 
             });
+
             Route::controller(\App\Http\Controllers\Admin\Course\CourseController::class)->name('courses.')->prefix('courses')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/store', 'store')->name('store');
@@ -198,22 +203,39 @@ Route::group(
                 Route::get('/', 'index')->name('index');
 //                Route::post('/store', 'store')->name('store');
                 Route::post('/update', 'update')->name('update');
-//                Route::delete('/{id}', 'destroy')->name('delete');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
             });
             Route::controller(\App\Http\Controllers\Admin\Discount\MultiDayDiscountController::class)->name('multidaydiscount.')->prefix('multidaydiscount')->group(function () {
                 Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::delete('/{id}', 'destroy')->name('delete');
+
                 Route::post('/update', 'update')->name('update');
                 Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
 
             });
-            Route::controller(\App\Http\Controllers\Admin\Conversation\ConversationController::class)->name('conversations.')->prefix('conversations')->group(function () {
+            Route::controller(\App\Http\Controllers\Admin\Order\OrderController::class)->name('orders.')->prefix('orders')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/indexTable', 'indexTable')->name('indexTable');
+
+            });
+            Route::controller(\App\Http\Controllers\Admin\Conversation\ConversationController::class)->name('conversations.')->prefix('conversations')->group(function () {
+                Route::get('/{uuid}', 'index')->name('index');
+                Route::get('/chat/{uuid?}', 'chat')->name('chat');
                 Route::get('/details/{uuid}', 'details')->name('details');
+            });
+
+            Route::controller(\App\Http\Controllers\Admin\Role\RolesController::class)->name('roles.')->prefix('roles')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/store', 'store')->name('store');
+                Route::post('/update', 'update')->name('update');
+                Route::delete('/{uuid}', 'destroy')->name('delete');
+                Route::get('/indexTable', 'indexTable')->name('indexTable');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
+
             });
 
             Route::controller(\App\Http\Controllers\Admin\AdminController::class)->name('managers.')->prefix('managers')->group(function () {
@@ -327,10 +349,11 @@ Route::group(
             Route::controller(\App\Http\Controllers\Admin\PaymentGateway\PaymentGatewayController::class)->prefix('paymentGateways')->name('paymentGateways.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/getData', 'getData')->name('getData');
-
-                Route::put('/activate/{uuid}', 'activate')->name('activate');
+                Route::post('/update', 'update')->name('update');
+                Route::put('/updateStatus/{status}/{uuid}', 'updateStatus')->name('updateStatus');
                 Route::get('content/checkout/{uuid}', 'checkout')->name('checkout')->withoutMiddleware(['auth']);;
                 Route::get('content/pay/{uuid}', 'pay')->name('pay')->withoutMiddleware(['auth']);;
+                Route::get('payment/{status}', 'status')->name('status')->withoutMiddleware(['auth']);;
             });
             Route::controller(ProcessPaymentController::class)->prefix('payments')->name('payments.')->group(function () {
                 Route::get('/', 'index')->name('index');

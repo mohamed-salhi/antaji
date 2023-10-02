@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
@@ -36,8 +37,7 @@ class Service extends Model
 
     public function getIconAttribute()
     {
-        return url('/') . '/upload/service/' . @$this->iconService->filename;
-    }
+        return  !is_null(@$this->iconService->path) ? asset(Storage::url(@$this->iconService->path) ):null;    }
 
     public function getStatusAttribute($value)
     {

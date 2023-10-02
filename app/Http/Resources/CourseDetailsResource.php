@@ -27,10 +27,10 @@ class CourseDetailsResource extends JsonResource
             'videos' => $this->attachments,
         ];
         $item['owner'] = [
-            'uuid' => $this->uuid,
-            'name' => $this->name,
-            'image' => $this->image,
-            'specialization' => $this->specialization_name,
+            'uuid' => $this->user->uuid,
+            'name' => $this->user->name,
+            'image' => $this->user->image,
+            'specialization' => $this->user->specialization_name,
         ];
         return $item;
     }

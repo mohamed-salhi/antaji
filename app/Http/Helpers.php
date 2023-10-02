@@ -12,6 +12,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -23,6 +24,7 @@ function rtl_assets()
     }
     return '';
 }
+const GOOGLE_API_KEY = 'AIzaSyAg92a845K8Zt5EYjBfv7jJqvqnHXkI5z4';
 
 function locale()
 {
@@ -151,14 +153,81 @@ function latLngFormat($value)
     return number_format($value, 6, '.', '');
 }
 
+//function UploadImage($file, $path = null, $model, $imageable_id, $update = false, $id = null, $type, $name = null)
+//{
+//
+//    $imagename = uniqid() . '.' . $file->getClientOriginalExtension();
+//    $file->move(public_path($path), $imagename);
+//    if (!$update) {
+//        return Upload::create([
+//            'filename' => $imagename,
+//            'imageable_id' => $imageable_id,
+//            'imageable_type' => $model,
+//            'type' => $type,
+//            'name' => $name
+//        ]);
+//    } else {
+//        if ($name) {
+//            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('name', $name)->first();
+//            if ($image) {
+//                File::delete(public_path($path . $image->filename));
+//                return $image->update(
+//                    [
+//                        'filename' => $imagename,
+//                        'imageable_id' => $imageable_id,
+//                        'imageable_type' => $model,
+//                        'type' => $type,
+//                        'name' => $name
+//                    ]
+//                );
+//            } else {
+//                return   Upload::create([
+//                    'filename' => $imagename,
+//                    'imageable_id' => $imageable_id,
+//                    'imageable_type' => $model,
+//                    'type' => $type,
+//                    'name' => $name
+//                ]);
+//            }
+//        } else {
+//            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('type',$type)->first();
+//            if ($id) {
+//                $image = Upload::where('uuid', $id)->first();
+//            }
+//            if ($image) {
+//                File::delete(public_path($path . $image->filename));
+//               $image->update(
+//                    [
+//                        'filename' => $imagename,
+//                        'imageable_id' => $imageable_id,
+//                        'imageable_type' => $model,
+//                        'type' => $type,
+//                        'name' => $name
+//                    ]
+//                );
+//                return $imagename;
+//            } else {
+//                return  Upload::create([
+//                    'filename' => $imagename,
+//                    'imageable_id' => $imageable_id,
+//                    'imageable_type' => $model,
+//                    'type' => $type,
+//                    'name' => $name
+//                ]);
+//            }
+//        }
+//    }
+//
+//}
+
+
 function UploadImage($file, $path = null, $model, $imageable_id, $update = false, $id = null, $type, $name = null)
 {
-
-    $imagename = uniqid() . '.' . $file->getClientOriginalExtension();
-    $file->move(public_path($path), $imagename);
+    $path = $file->store($path, 'public');
     if (!$update) {
         return Upload::create([
-            'filename' => $imagename,
+            'filename' => $path,
+            'path' => $path,
             'imageable_id' => $imageable_id,
             'imageable_type' => $model,
             'type' => $type,
@@ -166,12 +235,13 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
         ]);
     } else {
         if ($name) {
-            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('name', $name)->first();
+            $image = Upload::query()->where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('name', $name)->first();
             if ($image) {
-                File::delete(public_path($path . $image->filename));
+                Storage::delete('public/' . @$image->path);
                 return $image->update(
                     [
-                        'filename' => $imagename,
+                        'filename' => $path,
+                        'path' => $path,
                         'imageable_id' => $imageable_id,
                         'imageable_type' => $model,
                         'type' => $type,
@@ -179,34 +249,38 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
                     ]
                 );
             } else {
-                return   Upload::create([
-                    'filename' => $imagename,
+                return Upload::create([
+                    'filename' => $path,
+                    'path' => $path,
                     'imageable_id' => $imageable_id,
                     'imageable_type' => $model,
                     'type' => $type,
                     'name' => $name
                 ]);
             }
-        } else {
-            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('type',$type)->first();
+        }
+        else {
+            $image = Upload::where('imageable_id', $imageable_id)->where('imageable_type', $model)->where('type', $type)->first();
             if ($id) {
                 $image = Upload::where('uuid', $id)->first();
             }
             if ($image) {
-                File::delete(public_path($path . $image->filename));
-               $image->update(
+                Storage::delete('public/' . @$image->path);
+                $image->update(
                     [
-                        'filename' => $imagename,
+                        'filename' => $path,
+                        'path' => $path,
                         'imageable_id' => $imageable_id,
                         'imageable_type' => $model,
                         'type' => $type,
                         'name' => $name
                     ]
                 );
-                return $imagename;
+                return $image;
             } else {
-                return  Upload::create([
-                    'filename' => $imagename,
+                return Upload::create([
+                    'filename' => $path,
+                    'path' => $path,
                     'imageable_id' => $imageable_id,
                     'imageable_type' => $model,
                     'type' => $type,
@@ -218,50 +292,56 @@ function UploadImage($file, $path = null, $model, $imageable_id, $update = false
 
 }
 
-function sendFCM($message, $id, $type)
+function fcmNotification($token, $id, $title, $content, $type, $reference_id, $reference_type,$device, $icon = null)
 {
+//    dump($device, $token);
+    if (count($token) < 1)
+        return null;
+
+    $msg = [
+        'uuid' => $id,
+        'title' => $title,
+        'content' => $content,
+        'body' => $content, //default for ios
+        'type' => $type,
+        'reference_uuid' => $reference_id,
+        'reference_type' => $reference_type,
+
+        'icon' => $icon,
+        'sound' => url('/') . '/sound.mp3',
+    ];
 
 
-    $url = 'https://fcm.googleapis.com/fcm/send';
-
-
-    if ($type == "android") {
-        $fields = array(
-            'registration_ids' => array(
-                $id
-            ),
-            'data' => array(
-                "message" => $message
-            )
-        );
+    if ($device == 'ios') {
+        $fields = [
+            'registration_ids' => $token,
+            'notification' => $msg,
+        ];
     } else {
-        $fields = array(
-            'registration_ids' => array(
-                $id
-            ),
-            'notification' => array(
-                "message" => $message
-            )
-        );
+        $fields = [
+            'registration_ids' => $token,
+            'data' => $msg,
+        ];
     }
-    $fields = json_encode($fields);
 
-    $headers = array(
-        'Authorization: key=' . "AAAAaVSd16w:APA91bF4SEMqymDzlNofEPXGmP9Rn8sQdSWPe1lJhgTdYGurHkCUEtiNfgxE_WQ8JcHednEYpCkCOF1LOASf6PHiFcVyitdLUiSurZHQaB5qP0UR-BfscI_OuKqiLKeA3NRx3g5D93ih",
+    $headers = [
+        'Authorization: key=' . 'AAAAbkDb-nM:APA91bEntAx3iXhy_TZ9vo3BwK4CqRhklKfewTUGxswc4mq7wDDJg-0MMae1PIa5k03uDTcLnxusmc27waIeZKAAwzp2hAfluPILhytkrmE1mArvHYBpnhlzpe6suEAVRJ29COJIHxsN',
         'Content-Type: application/json'
-    );
+    ];
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
     $result = curl_exec($ch);
-//    echo $result;
     curl_close($ch);
+//    dump($result);
+    return $result;
 }
+
 
 function notfication($receiver_uuid,$sender,$type=null,$msg=null,$name=null,$request=null){
    if ($msg){

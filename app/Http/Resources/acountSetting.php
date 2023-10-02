@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,7 +27,7 @@ class acountSetting extends JsonResource
             'country_uuid' => $this->country_uuid,
             'city_name' => $this->city_name,
             'city_uuid' => $this->city_uuid,
-            'is_id_verified' => ($this->documentation)?true:false,
+            'is_id_verified' => ($this->documentation!=User::ACCEPT)?false:true,
         ];
     }
 }

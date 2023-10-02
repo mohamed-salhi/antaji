@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Location extends Model
@@ -18,6 +19,7 @@ class Location extends Model
     protected $guarded = [];
     protected $hidden = ['cart', 'user', 'categories'];
     const PATH_LOCATION = "/upload/location/images/";
+    const TYPE = 'location';
 
     //Relations
     public function imageLocation()
@@ -39,10 +41,10 @@ class Location extends Model
     {
         return $this->belongsTo(User::class, 'user_uuid');
     }
-    public function multiDayDiscount()
-    {
-        return $this->belongsTo(MultiDayDiscount::class, 'multi_day_discount_uuid');
-    }
+//    public function multiDayDiscount()
+//    {
+//        return $this->belongsTo(MultiDayDiscount::class, 'multi_day_discount_uuid');
+//    }
     public function favorite()
     {
         return $this->hasMany(Favorite::class, 'content_uuid');
@@ -67,6 +69,10 @@ class Location extends Model
     {
         return latLngFormat($value);
     }
+    public function getPriceAttribute($value)
+    {
+        return number_format($value, 0, '.', '');
+    }
 
 
     public function getAttachmentsAttribute()
@@ -75,7 +81,7 @@ class Location extends Model
         foreach ($this->imageLocation as $item) {
             $attachments[] = [
                 'uuid' => $item->uuid,
-                'attachment' => url('/') . self::PATH_LOCATION . $item->filename,
+                'attachment' => !is_null(@$item->path) ? asset(Storage::url(@$item->path) ):null,
             ];
         }
         return $attachments;
@@ -87,7 +93,8 @@ class Location extends Model
 //    }
     public function getImageAttribute()
     {
-        return url('/') . self::PATH_LOCATION . @$this->oneImageLocation->filename;
+        return !is_null(@$this->oneImageLocation->path) ? asset(Storage::url(@$this->oneImageLocation->path) ):null;
+
     }
 
     public function getUserNameAttribute()

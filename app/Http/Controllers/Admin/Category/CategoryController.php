@@ -9,10 +9,15 @@ use App\Models\Type;
 use App\Models\Upload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:product', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index()
     {
         $types=Type::all();
@@ -77,7 +82,9 @@ class CategoryController extends Controller
             $Category=  Category::whereIn('uuid', $uuids)->get();
 
             foreach ($Category as $item){
-                File::delete(public_path(Category::PATH_IMAGE.$item->imageCategory->filename));
+                Storage::delete('public/' . @$item->imageCategory->path);
+
+//                File::delete(public_path(Category::PATH_IMAGE.$item->imageCategory->filename));
                 $item->imageCategory()->delete();
                 $item->delete();
             }

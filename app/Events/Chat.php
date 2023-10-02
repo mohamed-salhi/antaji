@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 class Chat implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels ;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
 
     public $msg;
@@ -23,11 +23,11 @@ class Chat implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct($msg,$user_uuid,$conversation_uuid,)
+    public function __construct($msg, $user_uuid, $conversation_uuid,)
     {
-        $this->msg=$msg;
-        $this->user_uuid=$user_uuid;
-        $this->conversation_uuid=$conversation_uuid;
+        $this->msg = $msg;
+        $this->user_uuid = $user_uuid;
+        $this->conversation_uuid = $conversation_uuid;
 
     }
 
@@ -39,14 +39,20 @@ class Chat implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('chat.'.$this->conversation_uuid),
+            new Channel('chat.' . $this->conversation_uuid),
         ];
     }
+
     public function broadcastAs(): string
     {
         return 'chat';
     }
-    public function broadcastWith(): array{
-        return [$this->msg,$this->user_uuid,$this->conversation_uuid];
+
+    public function broadcastWith(): array
+    {
+        return [
+            'content' => $this->msg,
+            'user_uuid' => $this->user_uuid,
+            'conversation_uuid' => $this->conversation_uuid];
     }
 }

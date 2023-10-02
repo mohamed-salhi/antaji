@@ -67,7 +67,7 @@
                                         <button
 
                                             class="btn_delete_all btn btn-outline-danger " type="button">
-                                            <span><i aria-hidden="true"></i> @lang('delete')</span>
+                                            <span><i  aria-hidden="true"></i> @lang('delete')</span>
                                         </button>
                                         <button
                                             data-status="1" class="btn_status btn btn-outline-success " type="button">
@@ -81,109 +81,78 @@
                                 </div>
                                 {{--                                @endcan--}}
                             </div>
-                            {{--                            <div class="card-body">--}}
-                            {{--                                <form id="search_form">--}}
-                            {{--                                    <div class="row">--}}
-                            {{--                                        <div class="col-3">--}}
-                            {{--                                            <div class="form-group">--}}
-                            {{--                                                <label for="s_name">@lang('name')</label>--}}
-                            {{--                                                <input id="s_name" type="text"--}}
-                            {{--                                                       class="search_input form-control"--}}
-                            {{--                                                       placeholder="@lang('name')">--}}
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
-                            {{--                                        <div class="col-3">--}}
-                            {{--                                            <div class="form-group">--}}
-                            {{--                                                <label for="s_price">@lang('price')</label>--}}
-                            {{--                                                <input id="s_price" type="text"--}}
-                            {{--                                                       class="search_input form-control"--}}
-                            {{--                                                       placeholder="@lang('price')">--}}
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
+                                                        <div class="card-body">
+                                                            <form id="search_form">
+                                                                <div class="row">
+                                                                    <div class="col-3">
+                                                                        <div class="form-group">
+                                                                            <label for="s_name">@lang('name')</label>
+                                                                            <input id="s_name" type="text"
+                                                                                   class="search_input form-control"
+                                                                                   placeholder="@lang('name')">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <div class="form-group">
+                                                                            <label for="s_discount">@lang('discount')</label>
+                                                                            <input id="s_discount" type="text"
+                                                                                   class="search_input form-control"
+                                                                                   placeholder="@lang('discount')">
+                                                                        </div>
+                                                                    </div>
 
 
-                            {{--                                        <div class="col-md-3">--}}
-                            {{--                                            <div class="form-group">--}}
-                            {{--                                                <label for="s_status">@lang('status')</label>--}}
-                            {{--                                                <select name="s_status" id="s_status" class="search_input form-control">--}}
-                            {{--                                                    <option selected disabled>@lang('select') @lang('status')</option>--}}
+                                                                    <div class="col-md-3">
+                                                                        <div class="form-group">
+                                                                            <label for="s_status">@lang('status')</label>
+                                                                            <select name="s_status" id="s_status" class="search_input form-control">
+                                                                                <option selected disabled>@lang('select') @lang('status')</option>
 
-                            {{--                                                    <option value="2"> @lang('inactive') </option>--}}
-                            {{--                                                    <option value="1"> @lang('active') </option>--}}
+                                                                                <option value="2"> @lang('inactive') </option>
+                                                                                <option value="1"> @lang('active') </option>
 
-                            {{--                                                </select>--}}
-                            {{--                                                <div class="invalid-feedback"></div>--}}
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
-                            {{--                                        <div class="col-3">--}}
-                            {{--                                            <div class="form-group">--}}
-                            {{--                                                <label for="s_category_contents_uuid">@lang('categories')</label>--}}
-                            {{--                                                <select name="s_category_contents_uuid" id="s_category_contents_uuid"--}}
-                            {{--                                                        class="search_input form-control">--}}
-                            {{--                                                    <option selected--}}
-                            {{--                                                            disabled>@lang('select')  @lang('categories')</option>--}}
-                            {{--                                                    @foreach ($category_contents as $item)--}}
-                            {{--                                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>--}}
-                            {{--                                                    @endforeach--}}
-                            {{--                                                </select>--}}
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
-                            {{--                                        <div class="col-3">--}}
-                            {{--                                            <div class="form-group">--}}
-                            {{--                                                <label for="s_city_uuid">@lang('cities')</label>--}}
-                            {{--                                                <select name="s_city_uuid" id="s_city_uuid"--}}
-                            {{--                                                        class="search_input form-control">--}}
-                            {{--                                                    <option selected--}}
-                            {{--                                                            disabled>@lang('select')  @lang('cities')</option>--}}
-                            {{--                                                    @foreach ($cities as $item)--}}
-                            {{--                                                        <option value="{{ $item->uuid }}"> {{ $item->name }} </option>--}}
-                            {{--                                                    @endforeach--}}
-                            {{--                                                </select>--}}
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
-                            {{--                                        <div class="col-3">--}}
-                            {{--                                            <div class="form-group">--}}
-                            {{--                                                <label for="s_working_condition">@lang('working condition')</label>--}}
-                            {{--                                                <select name="s_working_condition" id="s_working_condition"--}}
-                            {{--                                                        class="search_input form-control">--}}
-                            {{--                                                    <option selected--}}
-                            {{--                                                            disabled>@lang('select')  @lang('working condition')</option>--}}
-                            {{--                                                    <option value="hour"> @lang('hour')</option>--}}
-                            {{--                                                    <option value="contract"> @lang('contract')</option>--}}
-                            {{--                                                    <option value="Fixed_price"> @lang('Fixed price')</option>--}}
-                            {{--                                                </select>--}}
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
-                            {{--                                        <div class="col-3">--}}
-                            {{--                                            <div class="form-group">--}}
-                            {{--                                                <label for="s_from">@lang('from')</label>--}}
-                            {{--                                                <input id="s_from" type="date" class="search_input form-control"--}}
-                            {{--                                                       placeholder="@lang('from')">--}}
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
-                            {{--                                        <div class="col-3">--}}
-                            {{--                                            <div class="form-group">--}}
-                            {{--                                                <label for="s_to">@lang('to')</label>--}}
-                            {{--                                                <input id="s_to" type="date" class="search_input form-control"--}}
-                            {{--                                                       placeholder="@lang('to')">--}}
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
-                            {{--                                        <div class="col-3" style="margin-top: 20px">--}}
-                            {{--                                            <button id="search_btn" class="btn btn-outline-info" type="submit">--}}
-                            {{--                                                <span><i class="fa fa-search"></i> @lang('search')</span>--}}
-                            {{--                                            </button>--}}
-                            {{--                                            <button id="clear_btn" class="btn btn-outline-secondary" type="submit">--}}
-                            {{--                                                <span><i class="fa fa-undo"></i> @lang('reset')</span>--}}
-                            {{--                                            </button>--}}
+                                                                            </select>
+                                                                            <div class="invalid-feedback"></div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-3">
+                                                                        <div class="form-group">
+                                                                            <label for="s_type">@lang('type')</label>
+                                                                            <select name="s_type" id="s_type"
+                                                                                    class="search_input form-control">
+                                                                                <option selected
+                                                                                        disabled>@lang('select')  @lang('type')</option>
+                                                                                <option value="percent"> @lang('Percent') </option>
+                                                                                <option value="fixed_price"> @lang('Fixed price') </option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
 
 
-                            {{--                                            <div class="col-3" style="margin-top: 20px">--}}
+                                                                    <div class="col-3">
+                                                                        <div class="form-group">
+                                                                            <label for="s_code">@lang('code')</label>
+                                                                            <input id="s_code" type="text" class="search_input form-control"
+                                                                                   placeholder="@lang('code')">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-3" style="margin-top: 20px">
+                                                                        <button id="search_btn" class="btn btn-outline-info" type="submit">
+                                                                            <span><i class="fa fa-search"></i> @lang('search')</span>
+                                                                        </button>
+                                                                        <button id="clear_btn" class="btn btn-outline-secondary" type="submit">
+                                                                            <span><i class="fa fa-undo"></i> @lang('reset')</span>
+                                                                        </button>
 
-                            {{--                                            </div>--}}
-                            {{--                                        </div>--}}
-                            {{--                                    </div>--}}
-                            {{--                                </form>--}}
-                            {{--                            </div>--}}
+
+                                                                        <div class="col-3" style="margin-top: 20px">
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
                             <div class="table-responsive card-datatable" style="padding: 20px">
                                 <table class="table" id="datatable">
                                     <thead>
@@ -513,29 +482,33 @@
             },
             ajax: {
                 url: '{{ route('discount.indexTable', app()->getLocale()) }}',
-                // data: function (d) {
-                //     d.status = $('#s_status').val();
-                //     d.city_uuid = $('#s_city_uuid').val();
-                //     d.price = $('#s_price').val();
-                //     d.name = $('#s_name').val();
-                //     d.from = $('#s_from').val();
-                //     d.to = $('#s_to').val();
-                //     d.working_condition = $('#s_working_condition').val();
-                // }
+                data: function (d) {
+                    d.status = $('#s_status').val();
+                    d.code = $('#s_code').val();
+                    d.discount_type = $('#s_type').val();
+                    d.name = $('#s_name').val();
+                    d.discount = $('#s_discount').val();
+
+                }
             },
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: [
+            "buttons": [
                 {
-                    extend: 'excel',
+
+                    "extend": 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
-                    exportOptions: {
-                        columns: [1,2,3,4,5,6,7,8],
-                        modifier: {
-                            search: 'applied',
-                            order: 'applied'
-                        }
-                    }
-                }
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
             ],
             columns: [{
                 "render": function (data, type, full, meta) {
@@ -560,8 +533,8 @@
                     name: 'discount'
                 },
                 {
-                    data: 'discount_type',
-                    name: 'discount_type'
+                    data: 'type_text',
+                    name: 'type_text'
                 },
                 {
                     data: 'number_of_usage',

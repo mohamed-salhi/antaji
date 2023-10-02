@@ -8,6 +8,7 @@ use App\Models\City;
 use App\Models\Content;
 use App\Models\Serving;
 use App\Models\User;
+use App\Models\ViewNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -15,8 +16,19 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ServingController extends Controller
 {
-    public function index()
+    function __construct()
     {
+        $this->middleware('permission:service', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
+    public function index(Request $request)
+    {
+        if ($request->has('uuid')){
+
+            ViewNotification::query()->updateOrCreate([
+                'admin_id'=>Auth::id(),
+                'notification_uuid'=>$request->uuid
+            ]);
+        }
         $cities=City::query()->select('name','uuid')->get();
         $category_contents = CategoryContent::query()->where('type', 'serving')->select('uuid', 'name')->get();
         $users = User::query()->select('name', 'uuid')->get();

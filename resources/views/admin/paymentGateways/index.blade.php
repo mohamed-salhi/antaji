@@ -37,19 +37,37 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="head-label">
-                                    <h4 class="card-title">@lang('paymentGateways')</h4>
                                 </div>
+                                {{--                                @can('place-create')--}}
+                                <div class="text-right">
+                                    <div class="form-group">
+
+                                        <button
+                                            data-status="1" class="btn_status btn btn-outline-success " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('activate')</span>
+                                        </button>
+                                        <button
+                                            data-status="0" class="btn_status btn btn-outline-warning " type="button">
+                                            <span><i aria-hidden="true"></i> @lang('deactivate')</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                {{--                                @endcan--}}
+                            </div>
+
                             </div>
 
                             <div class="table-responsive card-datatable" style="padding: 20px">
                                 <table class="table" id="datatable">
                                     <thead>
                                     <tr>
+                                        <th><input name="select_all" id="example-select-all" type="checkbox"
+                                                   onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('name')</th>
                                         <th>@lang('image')</th>
-                                        @can('paymentGateway-edit')
                                             <th>@lang('status')</th>
-                                        @endcan
+                                        <th>@lang('action')</th>
+
 
                                     </tr>
                                     </thead>
@@ -62,6 +80,67 @@
                 </div>
             </section>
 
+        </div>
+    </div>
+    <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">@lang('edit')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('paymentGateways.update') }}" method="POST" id="form_edit" class=""
+                      enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="uuid" id="uuid" class="form-control"/>
+                    <div class="modal-body">
+                        @foreach (locales() as $key => $value)
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="name_{{ $key }}">@lang('name') @lang($value)</label>
+                                    <input type="text" class="form-control"
+                                           placeholder="@lang('name') @lang($value)"
+                                           name="name_{{ $key }}" id="edit_name_{{ $key }}">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        <div class="col-12">
+                            <label for="icon">@lang('flag')</label>
+                            <div>
+                                <div class="fileinput fileinput-exists"
+                                     data-provides="fileinput">
+                                    <div class="fileinput-preview thumbnail"
+                                         data-trigger="fileinput"
+                                         style="width: 200px; height: 150px;">
+                                        <img id="edit_src_image"
+                                             src="{{asset('dashboard/app-assets/images/logo/placeholder.jpeg')}}"
+                                             alt=""/>
+                                    </div>
+                                    <div class="form-group">
+                                                    <span class="btn btn-secondary btn-file">
+                                                        <span class="fileinput-new"> @lang('select_image')</span>
+                                                        <span class="fileinput-exists"> @lang('select_image')</span>
+                                                        <input class="form-control" type="file" name="image">
+                                                    </span>
+                                        <div class="invalid-feedback" style="display: block;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button  class="btn btn-primary done">@lang('save')</button>
+
+                            <button type="button" class="btn btn-secondary"
+                                    data-dismiss="modal">@lang('close')</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -107,10 +186,39 @@
             ajax: {
                 url: '{{ route('paymentGateways.getData', app()->getLocale()) }}',
             },
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
+            "buttons": [
+                {
+
+                    "extend": 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
+            ],
             columns: [
                 {
+                    "render": function (data, type, full, meta) {
+                        return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>
+`;
+                    },
+                    name: 'checkbox',
+                    data: 'checkbox',
+                    orderable: false,
+                    searchable: false
+                },
+                {
                     data: 'name_translate',
-                    name: 'name'
+                    name: 'name_translate'
                 },
                 {
                     "data": 'image',
@@ -121,18 +229,33 @@
                     orderable: false,
                     searchable: false
                 },
-                    @can('paymentGateway-edit')
 
                 {
                     data: 'status',
                     name: 'status'
                 },
-                @endcan
-
+                {
+                    data: 'action',
+                    name: 'action'
+                },
             ]
 
         });
+        $(document).ready(function () {
+            $(document).on('click', '.edit_btn', function (event) {
+                event.preventDefault();
+                $('input').removeClass('is-invalid');
+                $('.invalid-feedback').text('');
+                var button = $(this)
+                var uuid = button.data('uuid');
+                $('#uuid').val(uuid);
+                @foreach (locales() as $key => $value)
+                $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
+                @endforeach
+                $('#edit_src_image').attr('src', button.data('image'));
 
+            });
+        });
         //Edit
 
     </script>

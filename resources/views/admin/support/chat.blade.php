@@ -1,29 +1,25 @@
-<div class="chat">
-    <div class="auto-load text-center">
-        <svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-             x="0px" y="0px" height="60" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
-                <path fill="#000"
-                      d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50">
-                    <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="1s"
-                                      from="0 50 50" to="360 50 50" repeatCount="indefinite"/>
-                </path>
-            </svg>
-    </div>
-    <div class="chat-history">
+<div class="selected-user">
+    <span>@lang('To'): <span class="name">{{@$chat->name}}</span></span>
+</div>
+<div class="chat-container">
 
-        <ul class="chat-admins{{@$chat->uuid}}">
+    <ul class="chat-admins{{@$chat->uuid}} chat-box chatContainerScroll">
 
-            @if(isset($chat->message[0]))
-                @for($i=count(@$chat->message)-1;$i>=0;$i--)
-                    @if(@$chat->message[$i]->status=="admin")
+        @if(isset($chat->message[0]))
+            @for($i=count(@$chat->message)-1;$i>=0;$i--)
+
+                @if(@$chat->message[$i]->status=="admin")
+                    <li class="chat-left">
+
+                        <div class="chat-hour">{{$chat->message[$i]->created_at->diffForHumans()}} <span class="fa fa-check-circle"></span></div>
+
+                        <br>
                         @if(@$chat->message[$i]->type==\App\Models\Message::TEXT)
-                            <li class="clearfix">
-                                <div class="message-data">
-                                    <span
-                                        class="message-data-time">{{$chat->message[$i]->created_at->diffForHumans()}}</span>
-                                </div>
-                                <div class="message my-message"> {{$chat->message[$i]->content}}</div>
-                            </li>
+
+                            <div class="chat-text">
+                                {{$chat->message[$i]->content}}
+                            </div>
+
                         @elseif($chat->message[$i]->type==\App\Models\Message::IMAGE)
                             <img id="flag"
                                  src="{{$chat->message[$i]->content}}"
@@ -35,63 +31,58 @@
                                 Your browser does not support the audio element.
                             </audio>
                         @endif
-                    @else
+                    </li>
+                @else
 
-                        <li class="clearfix">
-                            <div class="message-data text-right">
-                                <span
-                                    class="message-data-time">{{$chat->message[$i]->created_at->diffForHumans()}}</span>
-                                <img
-                                    src="{{$chat->image}}"
-                                    alt="avatar">
+                    <li class="chat-right">
+                        <div class="chat-hour">{{$chat->message[$i]->created_at->diffForHumans()}} <span class="fa fa-check-circle"></span></div>
+
+
+                    @if($chat->message[$i]->type==\App\Models\Message::TEXT)
+                            <div class="message chat-text">
+                                {{$chat->message[$i]->message}}
                             </div>
-                            <div class="message-data text-right">
+                        @elseif($chat->message[$i]->type==\App\Models\Message::IMAGE)
 
-                                @if($chat->message[$i]->type==\App\Models\Message::TEXT)
-                                    <div class="message other-message float-right">
-                                        {{$chat->message[$i]->message}}
-                                    </div>
-                                @elseif($chat->message[$i]->type==\App\Models\Message::IMAGE)
-                                    <img
-                                        src="{{$chat->message[$i]->content}}"
-                                        height="100" width="200">
-                                @elseif($chat->message[$i]->type==\App\Models\Message::VOICE)
-                                    <audio controls>
-                                        <source src="{{$chat->message[$i]->content}}" type="audio/ogg">
-                                        <source src="{{$chat->message[$i]->content}}" type="audio/mpeg">
-                                        Your browser does not support the audio element.
-                                    </audio>
-                                @endif
-                            </div>
-                        </li>
-                    @endif
+                              <img
+                                  src="{{$chat->message[$i]->content}}"
+                                  height="100" width="200">
 
-                @endfor
+                        @elseif($chat->message[$i]->type==\App\Models\Message::VOICE)
+                            <audio controls>
+                                <source src="{{$chat->message[$i]->content}}" type="audio/ogg">
+                                <source src="{{$chat->message[$i]->content}}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        @endif
+                        <div class="chat-avatar">
+                            <img class="image_main" src="{{$chat->image}}" alt="Retail Admin">
+                            <div class="chat-name">{{$chat->name}}</div>
+                        </div>
+                    </li>
 
-            @endif
-
-             @if($seen)
-                    <p>seen</p>
                 @endif
 
+            @endfor
 
-        </ul>
-    </div>
+        @endif
+    </ul>
+
+
     <form class="chat-admin" method="post" action="{{route('send_msg')}}">
         @csrf
-        <div class="chat-message clearfix">
-            <div class="input-group mb-0">
-                <div class="input-group-prepend">
-                    <button>
-                                                                <span class="input-group-text"><i
-                                                                        class="fa fa-send"></i></span>
-                    </button>
-                </div>
+        <input type="hidden" value="{{@$chat->uuid}}" name="user_uuid">
 
-                <input type="hidden" value="{{@$chat->uuid}}" name="user_uuid">
-                <input name="message" id="chat" required type="text"
-                       class="form-control"
-                       placeholder="Enter text here...">
+        <div class="form-group mt-3 mb-0">
+            <div class="row">
+
+                    <textarea class="form-control col-10" id="chat" rows="1" name="message"
+                              placeholder="@lang('Type your message here...')"></textarea>
+                <button class=" col-1 reply-recording"><i class="fa fa-microphone fa-2x" aria-hidden="true"></i>
+                </button>
+
+                <button class=" col-1 reply-send"><i class="fa fa-send fa-2x" aria-hidden="true"></i></button>
+
             </div>
         </div>
     </form>
@@ -100,12 +91,12 @@
 
 <!-- END: Page Vendor JS-->
 
-<!-- BEGIN: Theme JS-->
+<!-- BEGIN: Theme                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             JS-->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 
 <script>
     page = 2;
-    var user_uuid = "{{@$chat->uuid}}"
+  user_uuid = "{{@$chat->uuid}}"
     window.scrollTo(0, document.body.scrollHeight);
     window.addEventListener('scroll', function () {
         // Check if the scroll position is at the top of the page
@@ -134,7 +125,7 @@
                     console.log(page)
                     $('.auto-load').hide();
 
-                    $(".chat-admins"+user_uuid).prepend(data);
+                    $(".chat-admins" + user_uuid).prepend(data);
 
                 },
                 error: function (jqXHR, ajaxOptions, thrownError) {
@@ -145,90 +136,106 @@
         }
     });
 
-    var user_uuid = "{{@$chat->uuid}}"
+    {{--user_uuid = "{{@$chat->uuid}}"--}}
+    // $('body').on('document')
+    $('body').ready(function () {
+        var i=1
+        window.Echo.channel("msg." + user_uuid)
 
-    $(document).ready(function () {
-        window.Echo.private("msg." + user_uuid)
             .listen('.msg', (e) => {
-                console.log('chat-admins'+e[3])
-                if (e[2] == 'admin') {
-                    if (e[5] == {{\App\Models\Message::TEXT}}) {
-                        $('.chat-admins'+e[3]).append(`
-                             <div class="messag e-data">
-                                  <span class="message-data-time">منذ 1 ثانية</span>
-                             </div>
-                                           <div class="message my-message"> ${e[0]}</div>
+                i++
+
+                console.log(e)
+                console.log('chat-admins' + e['user_uuid'])
+
+                if (!e['is_me']) {
+
+                    --i
+                    if (e['type'] == {{\App\Models\Message::TEXT}}) {
+                        $('.chat-admins' + e['user_uuid']).append(`
+<li class="chat-left">
+<div class="chat-hour">${e['created_at']} <span class="fa fa-check-circle"></span></div>
+<div class="chat-text">
+${e['content']}
+</div>
+</li>
+
+
+
                             `)
-                    } else if (e[5] == {{\App\Models\Message::IMAGE}}) {
-                        $('.chat-admins'+e[3]).append(`
-                                        <img
-                                        src="${e[4]}"
+                        console.log('itsmee')
+                    } else if (e['type'] == {{\App\Models\Message::IMAGE}}) {
+                        $('.chat-admins' + e['user_uuid']).append(`
+
+
+<li class="chat-left">
+<div class="chat-hour">${e['created_at']} <span class="fa fa-check-circle"></span></div>
+<div class="chat-text">
+<img
+                                        src="${e['content']}"
                                         height="100" width="200">
+</div>
+</li>
                                  `)
-                    } else if (e[5] == {{\App\Models\Message::IMAGE}}) {
-                        $('.chat-admins'+e[3]).append(`
-                                  <audio controls>
-                                        <source src="${e[0]}" type="audio/ogg">
-                                        <source src="${e[0]}" type="audio/mpeg">
+                    } else if (e['type'] == {{\App\Models\Message::VOICE}}) {
+                        $('.chat-admins' + e['user_uuid']).append(`
+
+
+
+<li class="chat-left">
+<div class="chat-hour">${e['created_at']} <span class="fa fa-check-circle"></span></div>
+<div class="chat-text">
+    <audio controls>
+                                        <source src="${e['content']}" type="audio/ogg">
+                                        <source src="${e['content']}" type="audio/mpeg">
                                         Your browser does not support the audio element.
                                     </audio>
+
+</div>
+</li>
+
+
                                  `)
                     }
 
-                }
-                else {
-                    if (e[5] == {{\App\Models\Message::TEXT}}) {
-                        $('.chat-admins'+e[3]).append(`
-                                 <li class="clearfix">
-                            <div class="message-data text-right">
-                                <span class="message-data-time">منذ 1 ثانية</span>
-                                <img
-                                    src=" ${e[4]}"
-                                    alt="avatar">
-                            </div>
-                            <div class="message-data text-right">
-<div class="message other-message float-right">
-${e[0]}
-                        </div>
+                } else {
+                    --i
+                    if (e['type'] == {{\App\Models\Message::TEXT}}) {
+                        $('.chat-admins' + e['user_uuid']).append(`
+<li class="chat-right">
+<div class="chat-hour">${e['created_at']}<span class="fa fa-check-circle"></span></div>
+<div class="chat-text">${e['content']}</div><div class="chat-avatar">
+<img class="image_main" src="${e['user_image']}" alt="Retail Admin"><div class="chat-name">${e['user_name']}</div></div></li>
 
 `)
-                    } else if (e[5] == {{\App\Models\Message::IMAGE}}) {
-                        $('.chat-admins'+e[3]).append(`
-                                 <li class="clearfix">
-                            <div class="message-data text-right">
-                                <span class="message-data-time">منذ 1 ثانية</span>
-                                <img
-                                    src=" ${e[4]}"
-                                    alt="avatar">
-                            </div>
-                            <div class="message-data text-right">
-         <img
-                        src="${e[0]}"
-                                        height="100" width="200">
-
+                    } else if (e['type'] == {{\App\Models\Message::IMAGE}}) {
+                        $('.chat-admins' + e['user_uuid']).append(`
+<li class="chat-right">
+<div class="chat-hour">${e['created_at']}<span class="fa fa-check-circle"></span></div>
+<div class="chat-text"><img
+                        src="${e['content']}"
+                                        height="100" width="200"></div>
+<div class="chat-avatar">
+<img class="image_main" src="${e['user_image']}" alt="Retail Admin"><div class="chat-name">${e['user_name']}</div></div></li>
 `)
-                    } else if (e[5] == {{\App\Models\Message::VOICE}}) {
-                        $('.chat-admins'+e[3]).append(`
-                                 <li class="clearfix">
-                            <div class="message-data text-right">
-                                <span class="message-data-time">منذ 1 ثانية</span>
-                                <img
-                                    src=" ${e[4]}"
-                                    alt="avatar">
-                            </div>
-                            <div class="message-data text-right">
-            <audio controls>
-                                        <source src="${e[0]}" type="audio/ogg">
-                                        <source src="${e[0]}" type="audio/mpeg">
+                    } else if (e['type'] == {{\App\Models\Message::VOICE}}) {
+                        $('.chat-admins' + e['user_uuid']).append(`
+
+<li class="chat-right">
+<div class="chat-hour">${e['created_at']}<span class="fa fa-check-circle"></span></div>
+<div class="chat-text">    <audio controls>
+                                        <source src="${e['content']}" type="audio/ogg">
+                                        <source src="${e['content']}" type="audio/mpeg">
                                         Your browser does not support the audio element.
-                                    </audio>
+                                    </audio></div>
+<div class="chat-avatar">
+<img class="image_main" src="${e['user_image']}" alt="Retail Admin"><div class="chat-name">${e['user_name']}</div></div></li>
+
 
 `)
                     }
                 }
             })
-
-
         $('.chat-admin').on('submit', function (event) {
             $('.search_input').val("").trigger("change")
             event.preventDefault();

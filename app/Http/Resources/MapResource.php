@@ -19,6 +19,7 @@ class MapResource extends JsonResource
             'name' => $this->name,
             'image' => $this->image,
             'price' => $this->price,
+            'type' => ($this->content_type=='location')?'location':'product',
             'currency' => __('sr'),
              'lat' => $this->lat,
             'lng' => $this->lng,

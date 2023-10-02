@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\Contact;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MessageResource;
 use App\Models\Contact;
 use App\Models\Message;
 use App\Models\Social;
 use App\Models\Upload;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +17,7 @@ class ContactController extends Controller
 {
     public function contactUs(Request $request)
     {
-        $social_medias=   Social::query()->select('uuid','link')->get();
+        $social_medias = Social::query()->select('uuid', 'link')->get();
 
         return mainResponse(true, 'ok', compact('social_medias'), []);
     }
@@ -60,14 +62,18 @@ class ContactController extends Controller
     public function message(Request $request)
     {
         $rules = [
-            'message' => 'nullable|max:100',
             'type' => 'required|in:1,2,3,4,5',
-            'lat_lng' => 'nullable',
-            'image' => 'nullable|mimes:jpeg,jpg,png|max:2048',
-            'attachment' => 'nullable',
-            'voice' => 'nullable'
-
+            'body' => 'required',
         ];
+
+        if ($request->type == Message::TEXT) {
+            $rules['body'] = 'required|string|max:100';
+        } elseif ($request->type == Message::IMAGE) {
+            $rules['body'] = 'required|image';
+        } elseif ($request->type == Message::LOCATION) {
+            $rules['body'] = 'required|string';
+        }
+
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages(), 101);
@@ -81,57 +87,84 @@ class ContactController extends Controller
         ]);
 
         if ($request->type == Message::TEXT) {
-            if ($request->has('message')) {
-                $msg = Message::create($request->only('message', 'user_uuid', 'status', 'type'));
-            } else {
-                return mainResponse(false, 'message not fount', [], [], 101);
-            }
+            $request->merge([
+                'message' => $request->body,
+            ]);
+
+            $msg = Message::create($request->only('message', 'user_uuid', 'status', 'type'));
         } elseif ($request->type == Message::IMAGE) {
-            if ($request->hasFile('image')) {
+            if ($request->hasFile('body')) {
                 $msg = Message::create($request->only('user_uuid', 'status', 'type'));
-                UploadImage($request->image, Message::PATH_IMAGE, Message::class, $msg->uuid, false, null, Upload::IMAGE);
+                UploadImage($request->body, Message::PATH_IMAGE, Message::class, $msg->uuid, false, null, Upload::IMAGE);
             } else {
-                return mainResponse(false, 'image not fount', [], [], 101);
+                return mainResponse(false, 'Image not fount', [], [], 101);
             }
         } elseif ($request->type == Message::VOICE) {
-            if ($request->hasFile('voice')) {
+            if ($request->hasFile('body')) {
                 $msg = Message::create($request->only('user_uuid', 'status', 'type'));
-                UploadImage($request->voice, Message::PATH_VOICE, Message::class, $msg->uuid, false, null, Upload::VOICE);
-
+                UploadImage($request->body, Message::PATH_VOICE, Message::class, $msg->uuid, false, null, Upload::VOICE);
             } else {
-                return mainResponse(false, 'voice not fount', [], [], 101);
+                return mainResponse(false, 'Voice not fount', [], [], 101);
 
             }
         } elseif ($request->type == Message::LOCATION) {
-            if ($request->has('lat_lng')) {
-                $msg = Message::create($request->only('lat_lng', 'user_uuid', 'status', 'type'));
+            $request->merge([
+                'lat_lng' => $request->body,
+            ]);
+            $latLng = explode(',', $request->body);
+            if (count($latLng) == 2) {
+                if (intval($latLng[0]) && intval($latLng[1])) {
+                    $msg = Message::create($request->only('lat_lng', 'user_uuid', 'status', 'type'));
+                } else {
+                    return mainResponse(false, 'Lat lng is invalid', [], [], 101);
+                }
             } else {
-                return mainResponse(false, 'lat_lng not fount', [], [], 101);
+                return mainResponse(false, 'Lat lng is invalid', [], [], 101);
             }
         } elseif ($request->type == Message::ATTACHMENT) {
-            if ($request->hasFile('attachment')) {
+            if ($request->hasFile('body')) {
                 $msg = Message::create($request->only('user_uuid', 'status', 'type'));
-                UploadImage($request->attachment, Message::PATH_ATTACHMENT, Message::class, $msg->uuid, false, null, Upload::ATTACHMENT);
+                UploadImage($request->body, Message::PATH_ATTACHMENT, Message::class, $msg->uuid, false, null, Upload::ATTACHMENT);
             } else {
-                return mainResponse(false, 'image not fount', [], [], 101);
+                return mainResponse(false, 'Attachment not fount', [], [], 101);
             }
         }
-        event(new \App\Events\Msg($msg->content, $user->name, "user", $user->uuid, $user->image, $request->type, $msg->created_at));
+        event(new \App\Events\Msg($msg->content, $user->name, "user", $user->uuid, $user->image, $request->type, $msg->created_at,$msg->type_text));
         if ($msg) {
             return mainResponse(true, 'ok', [], []);
         }
         return mainResponse(false, 'error', [], []);
-
     }
 
     public function messages()
     {
         $user = Auth::guard('sanctum')->user();
-        $msg = Message::query()->where('user_uuid', $user->uuid)->paginate(5);
+        $messages = Message::query()->where('user_uuid', $user->uuid)->orderByDesc('created_at')->paginate(100);
+        $messages = pageResource($messages, MessageResource::class);
+        $items = [];
+        foreach ($messages as $i => $message) {
+            if ($i == 0) {
+                if (Carbon::parse($message->created_at)->isCurrentDay()) {
+                    $items[] = ['type' => 0, 'time' => 'Today'];
+                } else {
+                    $items[] = ['type' => 0, 'time' => Carbon::parse($message->created_at)->format('Y-m-d')];
+                }
+            } else {
+                if (!Carbon::parse($message->created_at)->isSameDay(Carbon::parse($messages[$i - 1]->created_at))) {
+                    if (Carbon::parse($message->created_at)->isCurrentDay()) {
+                        $items[] = ['type' => 0, 'time' => 'Today'];
+                    } else {
+                        $items[] = ['type' => 0, 'time' => Carbon::parse($message->created_at)->format('Y-m-d')];
+                    }
+                }
+            }
+            $items[] = $message;
+        }
+
         Message::query()->where('user_uuid', $user->uuid)->whereNull('view_user')->where('status', 'admin')->update([
             'view_user' => date('Y-m-d H:i:s')
         ]);
 
-        return mainResponse(true, __('ok'), compact('msg'), []);
+        return mainResponse(true, __('ok'), compact('items'), []);
     }
 }

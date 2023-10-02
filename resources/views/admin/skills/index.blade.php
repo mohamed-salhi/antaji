@@ -252,7 +252,6 @@
             serverSide: true,
             responsive: true,
 
-            lengthMenu: [[25, 100, -1], [25, 100, "All"]],
 
             "bFilter": false,
             "oLanguage": {
@@ -281,18 +280,23 @@
                 }
             },
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            pageLength: 25,
-            buttons: [
+            "buttons": [
                 {
-                    extend: 'excel',
+
+                    "extend": 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
-                    exportOptions: {
-                        modifier: {
-                            search: 'applied',
-                            order: 'applied'
-                        }
-                    }
-                }
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
             ],
             columns: [{
                 "render": function (data, type, full, meta) {

@@ -3,54 +3,75 @@
 namespace App\Http\Controllers\Admin\Conversation;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ConversationsResource;
 use App\Models\Conversation;
+use App\Models\Message;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 class ConversationController extends Controller
 {
-   public function index(){
-       return view('admin.conversations.index');
-   }
-
-
-    public function indexTable(Request $request)
+    public function index($uuid)
     {
-        $conversations = Conversation::query();
-        return Datatables::of($conversations)
-            ->filter(function ($query) use ($request) {
-                if ($request->name){
-                    $query->whereHas('userOne',function ($q)use ($request){
-                        $q->where('name',$request->name);
-                    })->orwhereHas('userTow',function ($q)use ($request){
-                        $q->where('name',$request->name);
-                    });
-                }
+       $user= User::query()->findOrFail($uuid);
+        $items = Conversation::query()
+            ->where('one', $uuid)
+            ->orWhere('tow', $uuid)
+            ->has('chat')
+            ->get();
 
+        $req = new Request();
+        $req->request->add(['user_uuid', $uuid]);
+//      return  $items = ConversationsResource::collection($items2);
+        $conversation = Conversation::query()
+            ->where(function ($q) use ($uuid) {
+                $q->where('one', $uuid);
+            })->orWhere(function ($q) use ($uuid) {
+                $q->where('tow', $uuid);
             })
-            ->addColumn('checkbox',function ($que){
-                return $que->uuid;
-            })
-            ->addColumn('action', function ($que) {
-                $data_attr = '';
-                $data_attr .= 'data-uuid="' . $que->uuid . '" ';
-                $data_attr .= 'data-one="' . $que->one . '" ';
-                $data_attr .= 'data-tow="' . $que->tow . '" ';
+            ->first();
+        $uuid_user = $uuid;
+        $user_name=$user->name;
+        return view('admin.conversations.index', compact('items', 'uuid_user', 'conversation','user_name'));
+    }
 
-                $url=route('conversations.details',$que->uuid);
-                $string = '';
-                $string .= '<button class="detail_btn btn btn-sm btn-outline-primary" data-toggle="modal"
-                    data-target="#details_modal" data-uuid="'.$que->uuid.'" data-url="'.$url.'">' . __('details') . '</button>';
-                $string .= ' <button type="button" class="btn btn-sm btn-outline-danger btn_delete" data-uuid="' . $que->uuid .
-                    '">' . __('delete') . '</button>';
-                return $string;
-            })
-            ->rawColumns(['action'])->toJson();
+
+    public function chat($uuid)
+    {
+//        $users = User::query()->select('uuid','name')->has('message')->with('message')->withCount([
+//            'message'=> function($q){
+//                $q->whereNull('view_admin')->where('status','user');
+//            }
+//
+//        ])->orderByDesc('created_at')->get();
+//            Message::query()->where('user_uuid',$uuid)->whereNull('view_admin')->where('status','user')->update([
+//                'view_admin'=>date('Y-m-d H:i:s')
+//            ]);
+
+
+        $conversation = Conversation::query()->orderByDesc('created_at')->findOrFail($uuid);
+        $uuid_user = $conversation->user->uuid;
+
+//            $chat = User::query()->where('uuid', $uuid)->with([
+//                'message'=> function($q){
+//                    $q->paginate(20);
+//                }
+//            ])->orderBy('created_at')->first();
+//            $seen=false;
+//            $check= Message::query()->where('user_uuid',$uuid)->latest()->first();
+//            if ( $check->view_user){
+//                $seen=true;
+//
+//            }
+        return view('admin.conversations.chat', compact('conversation', 'uuid_user'))->render();
+
+
     }
 
     public function details($uuid)
     {
-        $conversation=Conversation::query()->findOrFail($uuid);
-        return  $chat=$conversation->chat;
+        $conversation = Conversation::query()->findOrFail($uuid);
+        return $chat = $conversation->chat;
     }
 }

@@ -11,6 +11,7 @@ use App\Models\Upload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -24,7 +25,10 @@ class CountryController extends Controller
 //        $this->middleware('permission:place-edit', ['only' => ['update','activate']]);
 //        $this->middleware('permission:place-delete', ['only' => ['destroy']]);
 //    }
-
+    function __construct()
+    {
+        $this->middleware('permission:place', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index(Request $request)
     {
         return view('admin.places.country.index');
@@ -92,7 +96,9 @@ class CountryController extends Controller
             $country=  Country::whereIn('uuid', $uuids)->get();
 
             foreach ($country as $item){
-                File::delete(public_path('/upload/country/'.$item->imageCountry->filename));
+                Storage::delete('public/' . @$item->imageCountry->path);
+
+//                File::delete(public_path('/upload/country/'.$item->imageCountry->filename));
                 $item->imageCountry()->delete();
                 $item->delete();
             }

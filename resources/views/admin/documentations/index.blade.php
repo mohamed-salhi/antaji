@@ -7,6 +7,49 @@
         input[type="checkbox"] {
             transform: scale(1.5);
         }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .image-container {
+            cursor: pointer;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            max-width: 80%;
+        }
+
+        .close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .enlarged-image {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 @endsection
 @section('content')
@@ -106,63 +149,33 @@
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">@lang('edit')</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('ads.update') }}" method="POST" id="form_edit" class=""
-                      enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="uuid" id="uuid" class="form-control"/>
-                    <div class="modal-body">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="phone">@lang('link')</label>
-                                    <input type="text" class="form-control" placeholder="@lang('link')"
-                                           name="link" id="edit_link">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label for="icon">@lang('flag')</label>
-                                <div>
-                                    <div class="fileinput fileinput-exists"
-                                         data-provides="fileinput">
-                                        <div class="fileinput-preview thumbnail"
-                                             data-trigger="fileinput"
-                                             style="width: 200px; height: 150px;">
-                                            <img id="edit_src_image"
-                                                 src="https://demo.opencart.com/image/cache/no_image-100x100.png"
-                                                 alt=""/>
-                                        </div>
-                                        <div class="form-group">
-                                                    <span class="btn btn-secondary btn-file">
-                                                        <span class="fileinput-new"> @lang('select_image')</span>
-                                                        <span class="fileinput-exists"> @lang('select_image')</span>
-                                                        <input class="form-control" type="file" name="image">
-                                                    </span>
-                                            <div class="invalid-feedback" style="display: block;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                           </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary done">@lang('save')</button>
 
-                            <button type="button" class="btn btn-secondary"
-                                    data-dismiss="modal">@lang('close')</button>
-                        </div>
-                    </div>
-                </form>
+
+    <div class="modal fade" id="image_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Modal Header</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <img alt="Image" id="image_doc" class="avatar avatar-sm me-3" style="width:300px;height:300px;" src="">
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+
             </div>
         </div>
     </div>
+
+
     <!-- Modal -->
 @endsection
 @section('js')
@@ -214,18 +227,23 @@
                 }
             },
             dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
-            buttons: [
+            "buttons": [
                 {
-                    extend: 'excel',
+
+                    "extend": 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
-                    exportOptions: {
-                        columns: [1,2],
-                        modifier: {
-                            search: 'applied',
-                            order: 'applied'
-                        }
-                    }
-                }
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
             ],
             columns: [{
                 "render": function (data, type, full, meta) {
@@ -253,7 +271,13 @@
                     data: 'id_image_user',
                     name: 'id_image_user',
                     render: function (data, type, full, meta) {
-                        return `<img src="${data}" style="width:50px;height:50px;" class="avatar avatar-sm me-3">`;
+                        return `
+
+  <div class="image-container">
+    <img src="${data}" alt="Image"  class="enlarge-image avatar avatar-sm me-3" style="width:50px;height:50px;">
+  </div>
+`;
+
                     },
                     orderable: false,
                     searchable: false
@@ -269,6 +293,16 @@
 
         //Edit
         $(document).ready(function () {
+            $('body').on('click', '.enlarge-image',function() {
+                console.log('ddd')
+                var src = $(this).attr("src");
+                $("#image_modal").modal("show");
+                $('#image_doc').attr('src',src)
+            });
+
+
         });
+
+
     </script>
 @endsection

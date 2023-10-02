@@ -3,15 +3,24 @@
 namespace App\Http\Controllers\Admin\Documentation;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Ads;
+use App\Models\Notification;
+use App\Models\Order;
 use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class DocumentationController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:document', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index(Request $request)
     {
 
@@ -66,10 +75,21 @@ class DocumentationController extends Controller
            $user->update([
             'documentation'=>$status
         ]);
-//        if ($status==User::REJECT){
+        if ($status==User::REJECT){
+            Storage::delete('public/' . @$user->idUserImage->path);
+
 //            File::delete(public_path(User::PATH_ID . @$user->idUserImage->filename));
-//            $user->idUserImage()->delete();
-//        }
+            $user->idUserImage()->delete();
+            $this->sendNotification($user->uuid, User::class, null, $user->uuid, Notification::RECEIVE_DOCUMENT, 'admin', User::USER);
+
+
+        }
+        if ($status==User::ACCEPT){
+
+            $this->sendNotification($user->uuid, User::class, null, $user->uuid, Notification::ACCEPT_DOCUMENT, 'admin', User::USER);
+
+
+        }
 
         return response()->json([
             'item_edited'

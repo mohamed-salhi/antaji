@@ -7,10 +7,15 @@ use App\Models\Intro;
 use App\Models\Upload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class IntroController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:intro', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
    public function index(){
        return view('admin.intros.index');
    }
@@ -80,7 +85,9 @@ class IntroController extends Controller
             $uuids=explode(',', $uuid);
             $intro=  Intro::whereIn('uuid', $uuids)->get();
             foreach ($intro as $item){
-                File::delete(public_path('upload/intro/'.$item->imageIntro->filename));
+                Storage::delete('public/' . @$item->imageIntro->path);
+
+//                File::delete(public_path('upload/intro/'.$item->imageIntro->filename));
                 $item->imageIntro()->delete();
                 $item->delete();
             }

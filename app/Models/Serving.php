@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class Serving extends Model
@@ -12,7 +13,7 @@ class Serving extends Model
     use HasFactory;
 
     protected $primaryKey = 'uuid';
-    protected $appends = ['category_name', 'user_name', 'city_name'];
+    protected $appends = ['category_name', 'user_name', 'city_name','daysDifference'];
     protected $hidden = ['category', 'user'];
     public $incrementing = false;
     protected $guarded = [];
@@ -56,10 +57,21 @@ class Serving extends Model
     {
         return latLngFormat($value);
     }
+    public function getPriceAttribute($value)
+    {
+        return number_format($value, 0, '.', '');
+    }
 
     public function getLngAttribute($value)
     {
         return latLngFormat($value);
+    }
+    public function getDaysDifferenceAttribute()
+    {
+        $startDate = Carbon::parse($this->start);
+        $endDate = Carbon::parse($this->end);
+        $daysDifference = $startDate->diffInDays($endDate);
+       return $daysDifference = ($daysDifference != 0) ? $daysDifference : 1;
     }
    //boot
     public static function boot()

@@ -77,7 +77,6 @@
                                         <th><input name="select_all" id="example-select-all" type="checkbox"
                                                    onclick="CheckAll('box1', this)"/></th>
                                         <th>@lang('title')</th>
-                                        <th>@lang('status')</th>
                                         <th style="width: 225px;">@lang('actions')</th>
                                     </tr>
                                     </thead>
@@ -175,7 +174,52 @@
             </div>
         </div>
     </div>
-    @endsection
+
+
+
+    <div class="modal fade" id="btn_details" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">@lang('details')</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    <div class="modal-body">
+                        @foreach (locales() as $key => $value)
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="title_{{ $key }}">@lang('title') @lang($value)</label>
+                                    <input readonly type="text" class="form-control"
+                                           placeholder="@lang('title') @lang($value)" name="title_{{ $key }}"
+                                           id="details_title_{{ $key }}">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                        @foreach (locales() as $key => $value)
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="content_{{ $key }}">@lang('content') @lang($value)</label>
+                                    <textarea readonly rows="4" type="text" class="form-control"
+                                              placeholder="@lang('content') @lang($value)" name="content_{{ $key }}"
+                                              id="details_content_{{ $key }}"></textarea>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                        @endforeach
+
+
+
+                    </div>
+
+            </div>
+        </div>
+    </div>
+
+@endsection
 @section('scripts')
 
 
@@ -216,6 +260,25 @@
                 url: '{{ route('notifications.indexTable', app()->getLocale()) }}',
 
             },
+            dom: '<"row"<"col-md-12"<"row"<"col-md-6"B><"col-md-6"f> > ><"col-md-12"rt> <"col-md-12"<"row"<"col-md-5"i><"col-md-7"p>>> >',
+            "buttons": [
+                {
+
+                    "extend": 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> @lang('Excel Export')',
+                    "titleAttr": 'Excel',
+                    "action": newexportaction,
+                    "exportOptions": {
+                        columns: ':not(:last-child)',
+                    },
+                    "filename": function () {
+                        var d = new Date();
+                        var l = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+                        var n = d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds();
+                        return 'List_' + l + ' ' + n;
+                    },
+                },
+            ],
             columns: [{
                 "render": function (data, type, full, meta) {
                     return `<td><input type="checkbox" onclick="checkClickFunc()" value="${data}" class="box1" ></td>
@@ -242,21 +305,17 @@
 
 
         $(document).ready(function () {
-            $(document).on('click', '.btn_edit', function (event) {
+            $(document).on('click', '.btn_details', function (event) {
                 $('input').removeClass('is-invalid');
                 $('.invalid-feedback').text('');
                 event.preventDefault();
                 var button = $(this)
                 var uuid = button.data('uuid')
                 $('#uuid').val(uuid);
-                $('#edit_price').val(button.data('price'));
-
-                $('#edit_number_of_products_in_each_section').val(button.data('number_of_products_in_each_section'))
-                $('#edit_percentage_of_sale').val(button.data('percentage_of_sale'))
-                $('#edit_quality').val(button.data('quality')).trigger('change')
+                $('#detais_').val(button.data('price'));
                 @foreach (locales() as $key => $value)
-                $('#edit_name_{{ $key }}').val(button.data('name_{{ $key }}'))
-                $('#edit_details_{{ $key }}').val(button.data('details_{{ $key }}'))
+                $('#details_title_{{ $key }}').val(button.data('title_{{ $key }}'))
+                $('#details_content_{{ $key }}').val(button.data('content_{{ $key }}'))
                 @endforeach
             });
         });

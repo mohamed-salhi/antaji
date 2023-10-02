@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class profileEditResource extends JsonResource
 {
@@ -27,7 +28,7 @@ class profileEditResource extends JsonResource
             'lng' => $this->lng,
             'brief' => $this->brief,
             'video' => $this->video_user,
-            'personal_photo' => $this->image,
+            'personal_photo' =>(@$this->imageUser->path)?asset(Storage::url(@$this->imageUser->path)):null ,
             'cover_photo' => $this->cover_user,
         ];
 

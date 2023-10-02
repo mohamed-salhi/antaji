@@ -15,7 +15,7 @@ class Package extends Model
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $translatable = ['name', 'details'];
-    protected $appends = ['name_translate', 'details_translate', 'is_subscriber'];
+    protected $appends = ['name_translate', 'details_translate', 'is_subscriber','bg_color', 'btn_bg_color', 'btn_color', 'currency'];
     protected $hidden = ['details', 'name'];
     protected $guarded = [];
 
@@ -43,12 +43,44 @@ class Package extends Model
     {
         return @$this->details;
     }
-
+    public function getCurrencyAttribute()
+    {
+        return __('sr');
+    }
     public function getIsSubscriberAttribute()
     {
         return User::query()->where('uuid', auth('sanctum')->id())->where('package_uuid', $this->uuid)->exists();
     }
-
+    public function getBtnBgColorAttribute()
+    {
+        if ($this->type == self::VIP) {
+            return '#3A8BC4';
+        } elseif ($this->type == self::PROFESSIONAL) {
+            return '#10A580';
+        } elseif ($this->type == self::BASIC) {
+            return '#E2E6EA';
+        }
+    }
+    public function getBtnColorAttribute()
+    {
+        if ($this->type == self::VIP) {
+            return '#000000';
+        } elseif ($this->type == self::PROFESSIONAL) {
+            return '#FFFFFF';
+        } elseif ($this->type == self::BASIC) {
+            return '#3A8BC4';
+        }
+    }
+    public function getBgColorAttribute()
+    {
+        if ($this->type == self::VIP) {
+            return '#E2E6EA';
+        } elseif ($this->type == self::PROFESSIONAL) {
+            return '#EEF2F6';
+        } elseif ($this->type == self::BASIC) {
+            return '#000000';
+        }
+    }
     //boot
     public static function boot()
     {

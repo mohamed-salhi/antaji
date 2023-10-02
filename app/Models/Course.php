@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Course extends Model
@@ -49,12 +50,14 @@ class Course extends Model
     //Attributes
     public function getImageAttribute()
     {
-        return url('/') . self::PATH_COURSE . @$this->imageCourse->filename;
+        return   !is_null(@$this->imageCourse->path) ? asset(Storage::url(@$this->imageCourse->path) ):null;
+
     }
 
     public function getVideoAttribute()
     {
-        return url('/') . self::PATH_COURSE_VIDEO . @$this->videoCourse->filename;
+        return  !is_null(@$this->videoCourse->path) ? asset(Storage::url($this->videoCourse->path) ):null;
+//        return url('/') . self::PATH_COURSE_VIDEO . @$this->videoCourse->filename;
     }
 
     public function getUserNameAttribute()
@@ -78,8 +81,8 @@ class Course extends Model
         foreach ($this->videosCourse as $item) {
             $attachments[] = [
                 'uuid' => $item->uuid,
-                'attachment' => url('/') . self::PATH_COURSE_VIDEO . $item->filename,
-                'duration' => '6:45',
+                'attachment' =>!is_null(@$item->path) ? asset(Storage::url(@$item->path) ):null,
+                'duration' =>@$item->duration,
             ];
         }
         return $attachments;

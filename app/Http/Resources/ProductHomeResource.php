@@ -14,16 +14,26 @@ class ProductHomeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        if (@$this->categories){
+            $sub = @$this->whenLoaded('categories', function () {
+                return CategoryResource::collection(@$this->categories);
+            });
+        }
+
         $item= [
-            'uuid' => $this->uuid,
-            'name' => $this->name,
-            'image' => $this->image,
-            'price' => $this->price,
+            'uuid' => @$this->uuid,
+            'name' => @$this->name,
+            'type' => @$this->type,
+            'image' => @$this->image,
+            'price' => @$this->price,
             'currency' => __('sr')
         ];
         if ($request->product){
             $item['category_name']=@$this->category_name;
             $item['sub_category_name']=@$this->sub_category_name;
+        }
+        if ($request->location){
+            $item['category_name']=CategoriesLocation::collection(@$this->categories);
         }
         return $item;
     }

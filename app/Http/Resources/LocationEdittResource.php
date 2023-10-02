@@ -23,7 +23,7 @@ class LocationEdittResource extends JsonResource
             'lat' => $this->lat,
             'lng' => $this->lng,
             'address' => $this->address,
-
+            'multi_day_discount'=>($this->multi_day_discount_uuid)?true:false,
             'images'=>$this->attachments,
             'currency' => __('sr')
         ];

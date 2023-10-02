@@ -16,19 +16,19 @@ class ServingOrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         $item = [
-            'uuid' => $this->uuid,
-            'name' => $this->serving->name,
-            'working_condition' => $this->serving->working_condition,
-//            'is_new' => $this->created_at->isBefore(Carbon::now()->subDays()),
-//            'is_special' => (fmod($this->id, 3) == 0),
-            'city_name' => $this->serving->city_name,
-            'category_name'=>$this->serving->category_name,
-            'price' => $this->serving->price,
+            'uuid' => @$this->uuid,
+            'name' => @$this->service->name,
+            'working_condition' => @$this->service->working_condition,
+            'city_name' => @$this->service->city_name,
+            'category_name' => @$this->service->category_name,
+            'price' => @$this->service->price,
             'currency' => __('sr'),
-            'created' => $this->serving->created_at->diffForHumans(),
-            'status' => $this->status,
-        ];
+            'started_at' => Carbon::parse(@$this->start)->format('d/m/Y'),
+            'status_text' => @$this->status_text,
+            'status_color' => @$this->color,
+            'status_bg_color' => @$this->status_bg_color,
 
+        ];
 
 
         return $item;

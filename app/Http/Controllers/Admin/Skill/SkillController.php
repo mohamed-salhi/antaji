@@ -10,6 +10,10 @@ use Yajra\DataTables\Facades\DataTables;
 
 class SkillController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:artisan', ['only' => ['index','store','create','destroy','edit','update']]);
+    }
     public function index()
     {
 
@@ -19,6 +23,8 @@ class SkillController extends Controller
 
     public function store(Request $request)
     {
+
+
         if ($request->hasFile('excel')){
 
             $file = request()->file('excel');
@@ -50,7 +56,6 @@ class SkillController extends Controller
         foreach (locales() as $key => $language) {
             $rules['name_' . $key] = 'required|string|max:255';
         }
-        $rules['country_uuid']='required|exists:countries,uuid';
         $this->validate($request, $rules);
         $data = [];
         foreach (locales() as $key => $language) {
